@@ -1,0 +1,386 @@
+.\" Man page for Yersinia
+.\" =====================
+.\" Authors: Alfredo and David
+.\" 
+.\" $Id: yersinia.8 43 2007-04-27 11:07:17Z slay $
+.\" 
+.\" 
+.TH "YERSINIA" "8" "$Date: 2007/04/28 22:48:40 $" "Yersinia v0.7" ""
+.SH "NAME "
+.B Yersinia
+\- A Framework for layer 2 attacks
+
+.SH "SYNOPSIS "
+\fByersinia\fR 
+[\fB\-hVGIDd\fR] [\fB\-l\fR \fIlogfile\fR] [\fB\-c\fR \fIconffile\fR] \fIprotocol\fR [\-M] [\fIprotocol_options\fR]
+.SH "DESCRIPTION "
+.B yersinia
+is a framework for performing layer 2 attacks. The following protocols have been implemented in Yersinia current version: \fISpanning Tree Protocol (STP)\fR, \fIVLAN Trunking Protocol (VTP)\fR, \fIHot Standby Router Protocol (HSRP)\fR, \fIDynamic Trunking Protocol (DTP)\fR, \fIIEEE 802.1Q\fR, \fIIEEE 802.1X\fR, \fICisco Discovery Protocol (CDP)\fR, \fIDynamic Host Configuration Protocol (DHCP)\fR, \fIInter-Switch Link Protocol (ISL)\fR and \fIMultiProtocol Label Switching (MPLS)\fR. 
+
+Some of the attacks implemented will cause a DoS in a network, other will help to perform any other more advanced attack, or both. In addition, some of them will be first released to the public since there isn't any public implementation. 
+
+Yersinia will definitely help both pen\-testers and network administrators in their daily tasks.
+
+Some of the mentioned attacks are \fBDoS\fP attacks, so \fBTAKE CARE\fP about what you're doing because you can convert your network into an \fBUNSTABLE\fP one.
+
+A lot of examples are given at this page \fBEXAMPLES\fP section, showing a real and useful program execution.
+.SH "OPTIONS "
+.IP "\fB\-h\fP, \fB\-\-help\fP"
+Help screen.
+.IP "\fB\-V\fP, \fB\-\-Version\fP"
+Program version.
+.IP "\fB\-G\fP"
+Start a graphical GTK session.
+.IP "\fB\-I\fP, \fB\-\-interactive\fP"
+Start an interactive ncurses session.
+.IP "\fB\-D\fP, \fB\-\-daemon\fP"
+Start the network listener for remote admin (Cisco CLI emulation).
+.IP "\fB\-d\fP"
+Enable debug messages.
+.IP "\fB\-l\fP \fIlogfile\fP"
+Save the current session to the file \fIlogfile\fP. If \fIlogfile\fP exists, the data will be appended at the end.
+.IP "\fB\-c\fP \fIconffile\fP"
+Read/write configuration variables from/to \fIconffile\fP.
+.IP "\fB\-M\fP"
+Disable MAC spoofing.
+.SH "PROTOCOLS"
+The following protocols are implemented in \fByersinia\fR current version:
+
+.IP "\fISpanning Tree Protocol (STP and RSTP)\fR"
+.IP "\fICisco Discovery Protocol (CDP)\fR"
+.IP "\fIHot Standby Router Protocol (HSRP)\fR"
+.IP "\fIDynamic Host Configuration Protocol (DHCP)\fR"
+.IP "\fIDynamic Trunking Protocol (DTP)\fR"
+.IP "\fIIEEE 802.1Q\fR"
+.IP "\fIVLAN Trunking Protocol (VTP)\fR"
+.IP "\fIInter-Switch Link Protocol (ISL)\fR"
+.IP "\fIIEEE 802.1X\fR"
+.IP "\fIMultiProtocol Label Switching (MPLS)\fR"
+.SH "PROTOCOLS OPTIONS"
+.TP 
+\fBSpanning Tree Protocol (STP):\fR is a link management protocol that provides path redundancy while preventing undesirable loops in the network. The supported options are:
+
+.IP "\fB\-version\fR \fIversion\fR
+BPDU version (0 STP, 2 RSTP, 3 MSTP)
+.IP "\fB\-type\fR \fItype\fR"
+BPDU type (Configuration, TCN)
+.IP "\fB\-flags\fR \fIflags\fR"
+BPDU Flags
+.IP "\fB\-id\fR \fIid\fR" 
+BPDU ID
+.IP "\fB\-cost\fR \fIpathcost\fR"       
+BPDU root path cost 
+.IP "\fB\-rootid\fR \fIid\fR"
+BPDU Root ID
+.IP "\fB\-bridgeid\fR \fIid\fR"
+BPDU Bridge ID
+.IP "\fB\-portid\fR \fIid\fR"
+BPDU Port ID
+.IP "\fB\-message\fR \fIsecs\fR"
+BPDU Message Age
+.IP "\fB\-max-age\fR \fIsecs\fR"
+BPDU Max Age (default is 20)
+.IP "\fB\-hello\fR \fIsecs\fR"
+BPDU Hello Time (default is 2)
+.IP "\fB\-forward\fR \fIsecs\fR"
+BPDU Forward Delay
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+
+.TP 
+\fBCisco Discovery Protocol (CDP):\fR is a Cisco propietary Protocol which main aim is to let Cisco devices to communicate to each other about their device settings and protocol configurations. The supported options are:
+.IP "\fB\-source\fR \fIhw_addr\fR"
+MAC Source Address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+MAC Destination Address
+.IP "\fB\-v\fR \fIversion\fR"
+CDP Version
+.IP "\fB\-ttl\fR \fIttl\fR"
+Time To Live
+.IP "\fB\-devid\fR \fIid\fR"
+Device ID
+.IP "\fB\-address\fR \fIaddress\fR"
+Device Address
+.IP "\fB\-port\fR \fIid\fR"
+Device Port
+.IP "\fB\-capability\fR \fIcap\fR"
+Device Capabilities
+.IP "\fB\-version\fR \fIversion\fR"
+Device IOS Version
+.IP "\fB\-duplex\fR \fI0|1\fR"
+Device Duplex Configuration
+.IP "\fB\-platform\fR \fIplatform\fR"
+Device Platform
+.IP "\fB\-ipprefix\fR \fIip\fR"
+Device IP Prefix
+.IP "\fB\-phello\fR \fIhello\fR"
+Device Protocol Hello
+.IP "\fB\-mtu\fR \fImtu\fR"
+Device MTU
+.IP "\fB\-vtp_mgm_dom\fR \fIdomain\fR"
+Device VTP Management Domain
+.IP "\fB\-native_vlan\fR \fIvlan\fR"
+Device Native VLAN
+.IP "\fB\-voip_vlan_r\fR \fIreq\fR"
+Device VoIP VLAN Reply
+.IP "\fB\-voip_vlan_q\fR \fIquery\fR"
+Device VoIP VLAN Query
+.IP "\fB\-t_bitmap\fR \fIbitmap\fR"
+Device Trust Bitmap
+.IP "\fB\-untrust_cos\fR \fIcos\fR"
+Device Untrusted CoS
+.IP "\fB\-system_name\fR \fIname\fR"
+Device System Name
+.IP "\fB\-system_oid\fR \fIoid\fR"
+Device System ObjectID
+.IP "\fB\-mgm_address\fR \fIaddress\fR"
+Device Management Address
+.IP "\fB\-location\fR \fIlocation\fR"
+Device Location
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBHot Standby Router Protocol (HSRP):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBInter-Switch Link Protocol (ISL):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBVLAN Trunking Protocol (VTP):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBDynamic Host Configuration Protocol (DHCP):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBIEEE 802.1Q:\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBDynamic Trunking Protocol (DTP):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBIEEE 802.1X:\fR
+.IP "\fB\-version\fR \fIarg\fR"  
+Version
+.IP "\fB\-type\fR \fIarg\fR"  
+xxxx
+.IP "\fB\-eapcode\fR \fIarg\fR" 
+xxxx
+.IP "\fB\-eapid\fR \fIarg\fR"  
+xxxx
+.IP "\fB\-eaptype\fR \fIarg\fR"  
+xxxx
+.IP "\fB\-eapinfo\fR \fIarg\fR"  
+xxx
+.IP "\fB\-interface\fR \fIarg\fR" 
+xxxx
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+
+.TP 
+\fBMultiProtocol Label Switching (MPLS):\fR
+.IP "\fB\-source\fR \fIhw_addr\fR" 
+Source MAC address
+.IP "\fB\-dest\fR \fIhw_addr\fR"
+Destination MAC address
+.IP "\fB\-interface\fR \fIiface\fR"
+Set network interface to use
+.IP "\fB\-attack\fR \fIattack\fR"
+Attack to launch
+.IP "\fB\-label1\fR \fIarg\fR"
+Set MPLS Label
+.IP "\fB\-exp1\fR \fIarg\fR" 
+Set MPLS Experimental bits
+.IP "\fB\-bottom1\fR \fIarg\fR"
+Set MPLS Bottom Of Stack flag
+.IP "\fB\-ttl1\fR \fIarg\fR" 
+Set MPLS Time To Live
+.IP "\fB\-label2\fR \fIarg\fR"
+Set MPLS Label (second header)
+.IP "\fB\-exp2\fR \fIarg\fR"
+Set MPLS Experimental bits (second header)
+.IP "\fB\-bottom2\fR \fIarg\fR" 
+Set MPLS Bottom Of Stack flag (second header)
+.IP "\fB\-ttl2\fR \fIarg\fR" 
+Set MPLS Time To Live (second header)
+.IP "\fB\-ipsource\fR \fIipv4\fR" 
+Source IP
+.IP "\fB\-portsource\fR \fIport\fR" 
+Source TCP/UDP port
+.IP "\fB\-ipdest\fR \fIipv4\fR" 
+Destination IP
+.IP "\fB\-portdest\fR \fIport\fR" 
+Destination TCP/UDP port
+.IP "\fB\-payload\fR \fIASCII\fR"
+ASCII IP payload
+
+.SH "ATTACKS"
+.TP 
+\fBAttacks Implemented in STP:\fR
+.IP "    0: NONDOS attack sending conf BPDU"
+.IP "    1: NONDOS attack sending tcn BPDU"
+.IP "    2: DOS attack sending conf BPDUs"
+.IP "    3: DOS attack sending tcn BPDUs"
+.IP "    4: NONDOS attack Claiming Root Role"
+.IP "    5: NONDOS attack Claiming Other Role"
+.IP "    6: DOS attack Claiming Root Role with MiTM"
+
+.TP 
+\fBAttacks Implemented in CDP:\fR
+.IP "    0: NONDOS attack sending CDP packet"
+.IP "    1: DOS attack flooding CDP table"
+.IP "    2: NONDOS attack Setting up a virtual device"
+
+.TP 
+\fBAttacks Implemented in HSRP:\fR
+.IP "    0: NONDOS attack sending raw HSRP packet"
+.IP "    1: NONDOS attack becoming ACTIVE router"
+.IP "    2: NONDOS attack becoming ACTIVE router (MITM)"
+
+.TP 
+\fBAttacks Implemented in DHCP:\fR
+.IP "    0: NONDOS attack sending RAW packet"
+.IP "    1: DOS attack sending DISCOVER packet"
+.IP "    2: NONDOS attack creating DHCP rogue server"
+.IP "    3: DOS attack sending RELEASE packet"
+
+.TP 
+\fBAttacks Implemented in DTP:\fR
+.IP "    0: NONDOS attack sending DTP packet"
+.IP "    1: NONDOS attack enabling trunking"
+
+.TP 
+\fBAttacks Implemented in 802.1Q:\fR
+.IP "    0: NONDOS attack sending 802.1Q packet"
+.IP "    1: NONDOS attack sending 802.1Q double enc. packet"
+.IP "    2: DOS attack sending 802.1Q arp poisoning"
+
+.TP 
+\fBAttacks Implemented in VTP:\fR
+.IP "    0: NONDOS attack sending VTP packet"
+.IP "    1: DOS attack deleting all VTP vlans"
+.IP "    2: DOS attack deleting one vlan"
+.IP "    3: NONDOS attack adding one vlan"
+.IP "    4: DOS attack crashing Catalyst"
+
+.TP 
+\fBAttacks Implemented in 802.1X:\fR
+.IP "    0: NONDOS attack sending 802.1X packet"
+.IP "    1: NONDOS attack Mitm 802.1X with 2 interfaces"
+
+.TP 
+\fBAttacks Implemented in MPLS:\fR
+.IP "    0: NONDOS attack sending TCP MPLS packet"
+.IP "    1: NONDOS attack sending TCP MPLS with double header"
+.IP "    2: NONDOS attack sending UDP MPLS packet"
+.IP "    3: NONDOS attack sending UDP MPLS with double header"
+.IP "    4: NONDOS attack sending ICMP MPLS packet"
+.IP "    5: NONDOS attack sending ICMP MPLS with double header"
+
+.TP 
+\fBAttacks Implemented in ISL:\fR
+.IP "    None at the moment"
+
+ 
+.SH "GTK GUI"
+The \fIGTK GUI\fR (\fB\-G\fR) is a GTK graphical interface with all of the \fByersinia\fR powerful features and a professional 'look and feel'.
+
+.SH "NCURSES GUI"
+The \fIncurses GUI\fR (\fB\-I\fR) is a ncurses (or curses) based console where the user can take advantage of \fByersinia\fR powerful features.
+
+Press \fI'h'\fR to display the Help Screen and enjoy your session :)
+.SH "NETWORK DAEMON"
+The \fINetwork Daemon\fR (\fB\-D\fR) is a telnet based server (ala Cisco mode) that listens by default in port 12000/tcp waiting for incoming telnet connections.
+
+It supports a CLI similar to a Cisco device where the user (once authenticated) can display different settings and can launch attacks without having \fByersinia\fR running in her own machine (specially useful for Windows users). 
+.SH "EXAMPLES"
+\- Send a Rapid Spanning-Tree BPDU with port role designated, port state agreement, learning and port id 0x3000 to eth1:
+
+\fByersinia stp \-attack 0 \-version 2 \-flags 5c \-portid 3000 \-interface eth1\fP
+
+\- Start a Spanning-Tree nonDoS root claiming attack in the first nonloopback interface
+(keep in mind that this kind of attack will use the first BPDU on the
+network interface to fill in the BPDU fields properly):
+
+\fByersinia stp \-attack 4\fP
+
+\- Start a Spanning-Tree DoS attack sending TCN BPDUs in the eth0 interface with MAC address
+66:66:66:66:66:66:
+
+\fByersinia stp \-attack 3 \-source 66:66:66:66:66:66\fP
+
+
+.SH "SEE ALSO "
+The README file contains more in\-depth documentation about the attacks.
+
+.SH "COPYRIGHT "
+Yersinia is Copyright (c) 
+
+.SH "BUGS "
+Lots
+
+.SH "AUTHORS "
+Alfredo Andres Omella <alfredo@yersinia.net>
+.br 
+David Barroso Berrueta <tomac@yersinia.net>

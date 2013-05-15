@@ -1,0 +1,5 @@
+#!/bin/sh
+
+rm -f *~ configure config.cache config.log config.h config.h.in src/config.h src/config.h.in
+rm -f  config.status Makefile.in Makefile src/Makefile src/Makefile.in
+rm -rf autom4te.cache src/*.tar src/*.tar.gz src/*.tar.Z src/*.o src/yersinia src/*~

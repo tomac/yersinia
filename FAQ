@@ -1,0 +1,188 @@
+$Id: FAQ 43 2007-04-27 11:07:17Z slay $
+
+   yersinia FAQ
+
+   INDEX
+
+
+1. General Questions:
+
+   1.1 Where can I get help?
+   1.2 Where did the name come from?
+   1.3 How do you dare to implement a tool for doing nasty things?
+   1.4 Wtf? This crappy software does not run in Windows.
+
+2. Downloading yersinia:
+
+   2.1 Where can I download yersinia?
+
+3. Building yersinia:
+
+   3.1 How can I build yersinia?
+   3.2 How can I compile yersinia on Mac OSX?
+   3.3 When will be the 'put_your_preferred_os_here' supported?
+
+4. Installing yersinia:
+
+   4.1 How can I install yersinia?
+
+5. Using yersinia:
+
+   5.1 I've resized my window and yersinia is displaying crappy data!
+   5.2 There are some fields in the packet that don't display their meaning!
+   5.3 I'm unable to switch between the different protocol windows!!
+   5.4 Why the hell the ncurses interface has a lot more options than the
+       Cisco interface?
+   5.5 Arrgggghhh!!! The proggy crashes 'ad infinitum', is this a f*ck*n'
+       sh*t?
+   5.6 I can't see thouse fancy colours in Yersinia
+
+6. Personal questions:
+
+   6.1 Who are you?
+   6.2 You are so handsome!!! I want to meet you in real life.
+
+
+
+
+1. General Questions
+
+   Q 1.1: Where can I get help?
+
+   A: There is no official support for yersinia, but you can try to 
+      send an e-mail to yersinia _-AT-_ yersinia_-DOT-_ net and wait
+      if something happens. 
+
+
+   Q 1.2: Where did the name come from?
+
+   A: No other bacteria, perhaps organism, had so much of an effect on 
+      human history as Yersinia pestis, the bacteria that causes plague. 
+      Many outbreaks of plague have caused death and population reduction 
+      throughout history. The most famous, however, was the notorious Black 
+      Death of medeival times that killed one third of the population of 
+      14th century Europe. People watched their family and friends die with 
+      sickly buboes (swollen lymph nodes) on their necks and a color near 
+      black all over their bodies, caused by respiratory failure. People who 
+      contracted the disease and were unable to fight it off died within 
+      three to five days.
+
+      (taken from http://members.aol.com/omaryak/plague/)
+
+
+    Q 1.3 How do you dare to implement a tool for doing nasty things?
+
+    A: Hey! take it easy. We are pen-testers, so we need this little proggie
+       for making chaos in our customers networks. Running yersinia to do 
+       "bad things" is not recommended and could cause inestability and 
+       serious troubles to your health.
+
+
+    Q: 1.4 Wtf? This crappy software does not run in Windows.
+
+    A: No, it does certainly not. Perhaps some nice fellow could port 
+       yersinia to Windows and make you happy.
+
+
+2. Downloading yersinia
+
+   Q 2.1: Where can I download yersinia?
+
+   A: Try http://www.yersinia.net, downloads section.
+
+
+
+3. Building yersinia
+
+   Q 3.1: How can I build yersinia?
+
+   A: Do a './configure', and then 'make'
+
+   
+   Q 3.2: How can I compile yersinia on Mac OSX?
+
+   A: Install XCode, Darwin ports, and the following ports:
+      autoconf
+      automake
+      expat
+      gettext
+      glib2-devel
+      libiconv
+      libnet11
+      libpcap
+      pkgconfig @0.21_0 (active)
+
+
+   Q 3.3: When will be the 'put_your_preferred_os_here' supported?
+
+   A: When someone (like you) help us compiling and patching Yersinia
+
+
+
+4. Installing yersinia
+
+   Q 4.1: How can I install yersinia?
+
+   A: Do a 'make install'
+
+
+
+5. Using yersinia
+
+   Q 5.1: I've resized my window and yersinia is displaying crappy data!
+
+   A: Please press Ctrl+L to clear and refresh the screen
+
+
+   Q 5.2: There are some fields in the packet that don't display their meaning!
+
+   A: Please, use the best tool for dissecting packets: ethereal.
+
+
+   Q 5.3: I'm unable to switch between different protocol windows!!
+
+   A: To switch between protocol windows you must use the function keys.
+      Unfortunately the way function keys works is different with different
+      terminal emulations. If you have problems with the function keys
+      enable some other function keys emulation in your client terminal
+      software, e.g.: On PuTTY select Terminal -> Keyboard and mark "The
+      Function Keys and keypad" as "Xterm R6".
+ 
+
+   Q 5.4: Why the hell the ncurses interface has a lot more options than the
+          Cisco interface?
+
+   A: Man... we are developing this proggy out of work time, it's just a
+      matter of time... Anyway you can try to help us... :)
+   
+
+   Q 5.5: Arrgggghhh!!! The proggy crashes 'ad infinitum', is this a f*ck*n'
+          sh*t?
+
+   A: First of all thanks a lot for your invaluable opinion... :-P
+      On the other hand, we are *NOT* professional developers... By the way,
+      have you noticed the proggy version (0.5.x)? :-P
+      Anyway you can send us a patch solving the problem and you will get
+      your 5 minutes of fame... :D
+
+
+    Q 5.6: I can't see thouse fancy colours in Yersinia
+
+    A: Set your $TERM to pcvt25, little prairie dog
+    
+
+
+6. Personal questions:
+
+   Q 6.1: Who are you?
+
+   A: A couple of good friends and coworkers who enjoy a lot to play within
+      the network security field. By the way we like a lot the spanish food.
+      :D.
+
+
+   Q 6.2 You are so handsome!!! I want to meet you in real life.
+
+   A: Girls are welcome. But take into account the following sentence:
+      'If you spend more time sharpening your axe, you'll spend less time 
+      chopping wood'

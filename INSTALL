@@ -1,0 +1,73 @@
+$Id: INSTALL 43 2007-04-27 11:07:17Z slay $
+
+Last release and CVS/SVN repository can be always accessed at
+    
+       http://www.yersinia.net
+
+
+Requirements
+------------
+- Pcap library at least 0.8, you can get it at:
+     http://www.tcpdump.org
+
+- Libnet library at least 1.1.2, you can get it at:
+     http://www.packetfactory.net/libnet
+
+- If you want to compile the GTK2 interface you'll need the GTK libraries.
+
+
+
+Sources from CVS/SVN repository
+-------------------------------
+If the sources have been obtained from the CVS/SVN repository you will need the
+autotools and automake packages. Autoconf must be at least version 2.52 and 
+automake must be at least version 1.6.
+
+To install Yersinia:
+
+./autogen.sh
+./configure
+make
+make install
+
+
+
+Sources from distribution
+-------------------------
+The usual way:
+
+./configure
+make
+make install
+
+
+
+Configure options
+-----------------
+Tha main configure options are the following:
+
+  --disable-admin         Disable the remote admin interface
+  --disable-gtk           Disable the gtk 2.0 interface
+  --with-pcap-includes    Specify the pcap include directory
+  --with-libnet-includes  Specify the libnet include directory
+  
+
+
+Systems supported
+-----------------
+Due to our lack of resources, we've only been able to test Yersinia in a few
+different operating systems; so please, if you have any other system that is
+not included in the list below, send us a mail :)
+
+- OpenBSD 3.4 (note: upgrade your pcap libraries to at least 0.7.2)
+- Linux 2.4.x and 2.6.x
+- Solaris 5.8 64bits SPARC.
+- FreeBSD 5.2.1
+
+Do you wanna port yersinia to other systems? Plz, tell us, but keep in mind 
+that you *SHOULD* have the platform in order to test it 'cause we
+don't have all posible platforms (Ebay rules, but we can't afford it).
+
+Plz, send your comments to:
+
+yersinia@yersinia.net

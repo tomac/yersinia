@@ -1,0 +1,344 @@
+$Id: ChangeLog 46 2007-05-08 09:13:30Z slay $
+
+CHANGES for Yersinia
+====================
+
+2007/05/01
+----------
+- Fixed coredump on ncurses_i_ifaces_screen().
+- Removed 'min' and 'max' members from all the structures.
+
+
+2007/04/27
+----------
+- Added new protocol: MPLS. Rudimentary approach... :)
+
+
+2007/02/08
+----------
+- Version 0.7.1
+- Now it works in MacOSX 10.4 and perhaps in other BSD (BPF support)
+
+
+2007/01/25
+----------
+- Added VTP exploit
+
+
+2006/03/23
+----------
+- Forbidden launching attacks that need parameters from command line interface.
+- Better 802.1X support.
+- Better VTP printable data.
+- Ncurses fixes
+
+
+2006/03/22
+----------
+- We've got a new domain, www.yersinia.net :)
+- Removed get_info protocol function.
+
+
+2006/03/15
+----------
+- Removed update_data from protocols.
+
+
+2006/03/14
+----------
+- Fixed ncurses show_info window if no protocol packets.
+- Added alphabetical order for CLI. Yahooooo!!
+
+
+2006/03/10
+----------
+- Added 802.1X simple MitM attack. :)
+
+
+2006/03/09
+----------
+- Pre-pre-pre-pre-liminary release of 802.1X. :)
+- Fixed 802.1Q problems with ncurses.
+
+
+2006/02/17
+----------
+- Fixed configure bugs and better compilation for --disable-admin option. :)
+- Updated man page (not finished yet).
+- Fixed STP error when using RSTP.
+
+
+2006/02/16
+----------
+- Fixed *big* race condition on Solaris due to the use of nonsafe
+  multithreading calls. Yaaaahooo!!. :)
+
+
+2006/02/09
+----------
+- Now it works again in OpenBSD (don't ignore your parents)
+- Fixed lots of bugs compiling on Solaris platform.
+- Added minimal protocol stats for the CLI.
+
+
+2006/02/05
+----------
+- Fixed race condition on startup of tty and console threads.
+- Fixed bug that leads to coredump when not selecting interface with tty.
+
+
+2006/01/11
+----------
+- Fixed problem in xstp_com_other().
+- Added if protocol.visible in some loops.
+- Removed ARP protocol from yersinia.conf.
+
+
+2005/12/30
+----------
+- Added default values on startup just to avoid sending packets with bad 
+  values like MAC addresses filled with zeroes and so on...
+- Fixed bad display showing the protocol params in the CLI.
+- Initialize just the visible protocols on term_add_node().
+- Fixed bug in ncurses protocol select screen ('g' key).
+- Added all the functions keys to change protocol mode in ncurses interface.
+- Removed nonvisible protocols with the ncurses function keys.
+- Take into account a 0 bytes filename when pressing 'w' in ncurses.
+- Removed the ncurses '!' option (not useful and broke the design).
+
+
+2005/12/25
+----------
+- Added a new function to each protocol: protocol_end(struct term_node *).
+  Called when destroying the node.
+
+
+2005/12/22
+----------
+- Fixed bug in interfaces_get_last.
+- Changed intefaces_add() to interfaces_enable().
+- Changed intefaces_del() to interfaces_disable().
+- Removed global mutex_int and created new mutex field for list_t.
+- Normalized file names.
+ 
+
+2005/12/21
+----------
+- Changed the interfaces list from static to a dynamic one. Now you can have
+  as many interfaces as you wish!
+
+
+2005/12/16
+----------
+- Ncurses split in three different files like GTK
+- New files for dynamic lists implementation
+
+
+2005/11/16
+----------
+- New CLI design!! My friend, we have TAB support...Yahoooo!! :)
+- Fixed 3 annoying bugs on attack_kill_th :)
+
+
+2005/11/08
+----------
+- Removed getopt from distribution (no longer needed).
+
+
+2005/11/04
+----------
+- Added specific filter param for protocol in struct commands_param.
+- Added xstp and cdp specific filter functions for params.
+
+
+2005/11/03
+----------
+- First try for making an 'abstract' command line parser for any protocol.
+
+
+2005/11/02
+----------
+- Moved attack_filter_param to parser_filter_param
+
+
+2005/11/01
+----------
+- Fixed bad length on vtp CLI struct, dtp CLI struct, hsrp CLI struct and
+  xstp CLI struct.
+- Updated the maximum CLI command length from 32 to 48 bytes.
+- Added keeping care of the 'active' protocols on interfaces engine (not
+  really useful at the moment but it must be done soon or later).
+
+
+2005/10/31
+----------
+- Added 'sh protocol params' CLI command.
+
+
+2005/10/30
+----------
+- Added 'visible' field to protocols struct.
+- New dynamic design for some CLI commands (not finished). Now the protocols
+  list in some CLI commands is fetched from the global protocols struct. :)
+- Fixed bug on run attack CLI command.
+
+
+2005/10/27
+----------
+- Added new design for DHCP CLI command 'set' (big change, arghhhh). :)
+- Added new design for STP CLI command 'set' (big change, arghhhh). :)
+
+
+2005/10/26
+----------
+- Fixed FIELD_BYTES on attack_filter_param (oh my god!).
+- Fixed dtp_dom_len not using the real domain len on dtp.c
+- Fixed vtp_dom_len not using the real domain len on vtp.c
+- Added new design for DTP CLI command 'set' (big change, arghhhh). :)
+- Added new design for VTP CLI command 'set' (big change, arghhhh). :)
+- Added new design for 802.1Q CLI command 'set' (big change, arghhhh). :)
+- Added new design for HSRP CLI command 'set' (big change, arghhhh). :)
+- Added new design for CDP CLI command 'set' (big change, arghhhh). :)
+- Fixed data alignment when using FIELD_DEC or FIELD_HEX data type on
+  attack_filter_param.
+
+
+2005/10/20
+----------
+- Fixed src/Makefile.am for compiling. :)
+
+
+2005/10/10
+----------
+- Initial GTK interface
+
+
+2005/09/29
+----------
+- Fixed OpenBSD compile bugs and warnings in ncurses interface
+- Fixed annoying bug on hsrp that can lead to hsrp failures.
+
+
+2005/09/23
+----------
+- Added the daemon port to the configuration file.
+- Minor bugfixes.
+- Solved CDP annoying bug.
+- Solved the infamous interfaces initial bug. Thanks to Andrej Frank for
+  pointing out this (added to the THANKS file).
+- Fixed ncurses warning if terminal is less than 80x25.
+
+
+2005/09/16
+----------
+- Version 0.5.6
+
+
+2005/09/12
+----------
+- Added --with-libnet-includes and --with-pcap-includes to the configure
+  script.
+- Added Darwin OS support in configure script
+
+
+2005/08/24
+----------
+- Fixed a bug when using more than 1 command line argument 
+- Added support for IPv4 filtering for the network daemon in the 
+  configuration file, now we support expressions with '-', '*' and CIDR. :)
+  (See the yersinia.conf file). 
+- Added Enigma Obfuscate to the THANKS file as a patch submitter due to his
+  Mac OSX patch (thanks).
+
+
+2005/08/07
+----------
+- Fixed a bug when recognizing ISL packets
+- Version 0.5.5.1
+
+
+2005/08/02
+----------
+- Version 0.5.5
+
+
+2005/07/28
+----------
+- Fixed gcc 4 warnings
+
+
+2005/06/15
+----------
+- Fixed lots of windows errors when using 80x25 terminals in ncurses mode.
+
+
+2005/06/09
+----------
+- Added the user, password and enable password for the daemon mode in the
+  configuration file.
+
+
+2005/06/06
+----------
+- Solved interfaces thread taking 100% of CPU amount. Thanks to Sergi Alvarez
+  for pointing out this.
+
+
+2005/05/26
+----------
+- Removed F1-F10 option on ncurses help screen.
+
+
+2005/05/24
+----------
+- Released 0.5.4 version.
+
+
+2005/05/24
+----------
+- Added 'g' option (for switching among modes, useful if you run a window
+  manager that manages F1, F2 ... (like ion3!!)
+
+
+2005/05/18
+----------
+- Fixed annoying deadlock with tty terminal and uptime thread.
+
+- Fixed bad man page examples. Thanks to Andrew Vladimirov for pointing
+  out this.
+
+
+2005/04/20
+----------
+- Fixed annoying memory leak due to thread design. Thanks to Alejandro
+  Sanchez for pointing out this.
+
+- Fixed possible bug in term_delete_node
+
+- Fixed htonl/ntohl issues on hsrp_send_raw. Thanks to Daniel Solis for
+  pointing out this.
+
+
+2004/02/06
+----------
+Changed name from STomP to Yersinia.
+Moved attack_* to attack_stp_*.
+
+
+0.3.0  2003/01/15
+-----
+
+Thread support
+
+
+0.2.0
+-----
+
+Two DoS attacks and one non DoS implemented
+Support for multiple interfaces
+
+
+0.1.0
+-----
+
+Initial Release (alphaaaaaaaaaa)

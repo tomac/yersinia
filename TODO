@@ -1,0 +1,46 @@
+$Id: TODO 2 2006-04-03 21:04:25Z tomac $
+
+- Verify that when deleting a node, the field user is decremented if the
+  interface was used by that node.
+
+- VMPS attacks. Hey, we don't have VMPS in any of our little 29xx switches :(
+
+- Take into account the Trailers Ethernet field. 
+
+- Use backspace in ncurses string fields.
+
+- Keep aware of 802.1Q packets with more than 1500 bytes long.
+
+- ISL attacks. Again, we don't have ISL in any of our little 29xx switches :(
+
+- Full ISL support
+
+- Fix a weird bug in CDP mode
+
+- Use TLVs with a linked list. :)
+
+- Normalize *FOR ALL PROTOCOLS* the way IPv4 addresses are stored in the tmp_data structure.
+
+- Move all ARP functions to arp.c
+
+- VRRP support
+
+- Lateral scroll in ncurses when asking for pcap file
+
+- Update show interface information
+
+- Escape when asking for something in ncurses
+
+- Remove global tty_tmp
+
+- PCAP save from multiple interfaces
+
+- A true man page!!!!
+
+
+GUI
+---
+
+- Manage SIGWINCH
+
+- GTK GUI
