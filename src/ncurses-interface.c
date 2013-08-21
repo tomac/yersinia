@@ -690,7 +690,7 @@ ncurses_i_show_info(u_int8_t mode, WINDOW *main_window, u_int8_t pointer, struct
       while ((ptrtlv) && (strlen((char *)ptrtlv) > 0))
       {
          mvwprintw(info_window, k, 2, "%15s", ptrtlv);
-         write_log(0, "msg es %s\n", ptrtlv);
+         //write_log(0, "msg es %s\n", ptrtlv);
          ptrtlv += strlen((char *)ptrtlv) + 1;
 
          if (ptrtlv)

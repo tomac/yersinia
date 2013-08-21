@@ -1067,7 +1067,7 @@ gtk_c_view_popup_menu(GtkWidget *menuitem, gpointer userdata)
     mode = helper->mode;
     row = helper->row;
 
-    write_log(0, "Cargando de mode es %d y row es %d\n", mode, row);
+    //write_log(0, "Cargando de mode es %d y row es %d\n", mode, row);
     if (protocols[mode].load_values)
         (*protocols[mode].load_values)((struct pcap_data *)&protocols[mode].stats[row], node->protocol[mode].tmp_data);
     else {
@@ -1132,7 +1132,7 @@ gtk_c_on_extra_button_clicked(GtkButton *button, gpointer userdata)
 
    helper = (struct gtk_s_helper *)userdata;
 
-   write_log(0, "helper es %d\n", helper->mode);
+   //write_log(0, "helper es %d\n", helper->mode);
    extrawindow = gtk_i_create_extradialog(helper);
    gtk_widget_show(extrawindow);
 }
@@ -1147,7 +1147,7 @@ gtk_c_extra_button_add_clicked(GtkButton *button, gpointer userdata)
 
    helper = (struct gtk_s_helper *)userdata;
 
-   write_log(0, "helper es %X\n", helper);
+   //write_log(0, "helper es %X\n", helper);
    proto = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
    window = gtk_i_create_add_extradialog(helper, proto);
    gtk_widget_show(window);
