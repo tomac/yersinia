@@ -137,8 +137,7 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
       werase(mwindow);
 #endif
       term_console->need_resize--;
-      write_log(0, "Resize mwindow con %d row y %d col y resize es %d\n", row, 
-            col, term_console->need_resize);
+//      write_log(0, "Resize mwindow con %d row y %d col y resize es %d\n", row, col, term_console->need_resize);
    }
 #endif
 
@@ -268,7 +267,7 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
                   ptrtlv = values[tlv];
                   while ((ptrtlv) && (strncmp((char *)ptrtlv, extra_params[j].ldesc, strlen(extra_params[j].ldesc)) != 0))
                   {
-                     write_log(0, "joe ptr es a%sa\n", ptrtlv);
+                     //write_log(0, "joe ptr es a%sa\n", ptrtlv);
                      ptrtlv += strlen((char *)ptrtlv) + 1;
                   }
 
@@ -276,7 +275,7 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
                   {
 
                      ptrtlv += strlen((char *)ptrtlv) + 1;
-                     write_log(0, "ptrtlv values es %s\n", ptrtlv);
+                     //write_log(0, "ptrtlv values es %s\n", ptrtlv);
                      if (extra_params[j].meaning)
                      {
                         //snprintf(meaningbuf, NCURSES_MWINDOW_MAX_FIELD_LENGTH, "%s %s", ptrtlv, parser_get_meaning(ptrtlv, extra_params[j].meaning));
@@ -783,7 +782,7 @@ ncurses_c_refresh_bwindow(u_int8_t mode, WINDOW *bwindow, struct term_node *node
       werase(bwindow); 
 #endif
       term_console->need_resize--;
-      write_log(0, "Resize bwindow con %d row y %d col y resize es %d\n", row, col, term_console->need_resize);
+      //write_log(0, "Resize bwindow con %d row y %d col y resize es %d\n", row, col, term_console->need_resize);
    }
 #endif
 

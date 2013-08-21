@@ -1235,12 +1235,12 @@ dhcp_learn_offer(struct attacks *attacks)
         /* let's go to the options */
         temp = dhcp + 240;
 
-        /* find the magic */
+        /* find the magic 
         if (((*(u_char *) temp) == 0x63) && ((*(u_char *) temp + 1) == 0x82) 
             && ((*(u_char *) temp + 2) == 0x53) && ((*(u_char *) temp + 3) == 0x63))
             printf("Tengo magic\n");
 
-/*        switch (*(dhcp))
+        switch (*(dhcp))
         {
             case LIBNET_DHCP_REPLY:
 

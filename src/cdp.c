@@ -990,7 +990,6 @@ cdp_get_printable_store(struct term_node *node)
     total = 0;
     /* TLV */
     /* Take care: options in the store are stored in network byte order */
-    write_log(0, "Tengo %d elems y es %X\n", dlist_length(cdp->extra), cdp->extra);
     for (p=cdp->extra;p;p=dlist_next(cdp->extra, p))
     {
        item = (struct commands_param_extra_item *) dlist_data(p);
