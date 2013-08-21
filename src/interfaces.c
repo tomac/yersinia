@@ -105,242 +105,261 @@ static const char rcsid[] =
 
 #include "interfaces.h"
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int8_t
+interfaces_init_data_pcap_addr( pcap_if_t *index, struct interface_data *iface_data )
+{
+    pcap_addr_t *pcap_addr;
+
+    pcap_addr = index->addresses;
+
+    while( pcap_addr )
+    {
+        if ( pcap_addr->addr && ( ( pcap_addr->addr->sa_family == AF_INET ) ||
+                                  ( pcap_addr->addr->sa_family == AF_INET6 ) ) )
+        {
+            if ( ! inet_ntop( pcap_addr->addr->sa_family, (void *)&pcap_addr->addr->sa_data[2], 
+                             iface_data->ipaddr, IPADDRSIZ ) ) 
+                thread_error( "inet_ntop error", errno );
+        }  
+        
+        if ( pcap_addr->netmask && ( ( pcap_addr->netmask->sa_family == AF_INET ) ||
+                                     ( pcap_addr->netmask->sa_family == AF_INET6 ) ) )                  
+        {
+            if ( ! inet_ntop( pcap_addr->netmask->sa_family, (void *)&pcap_addr->netmask->sa_data[2],
+                             iface_data->netmask, IPADDRSIZ ) ) 
+                thread_error( "inet_ntop error", errno );
+        }
+        
+        if ( pcap_addr->broadaddr && ( ( pcap_addr->broadaddr->sa_family == AF_INET ) ||
+                                       ( pcap_addr->broadaddr->sa_family == AF_INET6 ) ) )                  
+        {
+            if ( ! inet_ntop( pcap_addr->broadaddr->sa_family, (void *)&pcap_addr->broadaddr->sa_data[2],
+                             iface_data->broadcast, IPADDRSIZ ) ) 
+                thread_error( "inet_ntop error", errno );
+        }              
+        
+        if ( pcap_addr->dstaddr && ( ( pcap_addr->dstaddr->sa_family == AF_INET ) ||
+                                     ( pcap_addr->dstaddr->sa_family == AF_INET6 ) ) )                                    
+        {
+            if ( ! inet_ntop( pcap_addr->dstaddr->sa_family, (void *)&pcap_addr->dstaddr->sa_data[2],
+                             iface_data->ptpaddr, IPADDRSIZ ) ) 
+                thread_error("inet_ntop error",errno);
+        }
+        
+        pcap_addr = pcap_addr->next ;
+
+    }
+
+    return 0 ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int8_t
+interfaces_init_data_pcap( struct interface_data *iface_data, pcap_if_t *index )
+{
+    char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_t *pcap_hnd ;
+    int8_t ret = -1 ;
+    
+    if ( ( pcap_hnd = pcap_open_live( iface_data->ifname, SNAPLEN, 0, 0, errbuf ) ) )
+    {
+        iface_data->iflink = pcap_datalink( pcap_hnd );
+
+        pcap_close( pcap_hnd );
+        
+        if ( iface_data->iflink == DLT_EN10MB )
+        {
+            strncpy( iface_data->iflink_name, pcap_datalink_val_to_name( iface_data->iflink ), PCAP_DESC );
+            strncpy( iface_data->iflink_desc, pcap_datalink_val_to_description( iface_data->iflink ), PCAP_DESC );
+            
+            write_log( 0, "\n %s iflinkname %s\n", iface_data->ifname, iface_data->iflink_name );
+            write_log( 0, " %s iflinkdesc %s\n", iface_data->ifname, iface_data->iflink_desc );
+
+            interfaces_init_data_pcap_addr( index, iface_data ) ;
+
+            if (tty_tmp->debug )
+            {
+                write_log( 0," %s ip is %s\n",iface_data->ifname, iface_data->ipaddr);
+                write_log( 0," %s mask is %s\n", iface_data->ifname, iface_data->netmask);
+                write_log( 0," %s broadcast is %s\n", iface_data->ifname, iface_data->broadcast);
+                write_log( 0," %s P-t-P is %s\n", iface_data->ifname, iface_data->ptpaddr );
+            }
+
+            ret = 0 ;
+        }
+
+    }
+    else
+    {
+        write_log( 0, "pcap_open_live failed: %s\n", errbuf );
+    }
+
+    return ret;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int8_t
+interfaces_init_data_libnet( struct interface_data *interface )
+{
+    char errbuflibnet[LIBNET_ERRBUF_SIZE];
+    struct libnet_ether_addr *etheraddr;
+    libnet_t *libnet_hnd;
+    int8_t ret = -1 ;
+    
+    if ( ( libnet_hnd = libnet_init( LIBNET_LINK, interface->ifname, errbuflibnet ) ) )
+    {
+        etheraddr = libnet_get_hwaddr( libnet_hnd );
+
+        if ( etheraddr && memcmp( (void *)etheraddr, "\x0\x0\x0\x0\x0\x0", 6 ) )
+        {
+            memcpy( (void *)interface->etheraddr, (void *)etheraddr, ETHER_ADDR_LEN );
+        }
+        
+        libnet_destroy( libnet_hnd );
+
+        write_log( 0," %s MAC = %02x%02x.%02x%02x.%02x%02x\n", interface->ifname, 
+                   etheraddr->ether_addr_octet[0], etheraddr->ether_addr_octet[1],
+                   etheraddr->ether_addr_octet[2], etheraddr->ether_addr_octet[3],
+                   etheraddr->ether_addr_octet[4], etheraddr->ether_addr_octet[5]); 
+        
+        ret = 0;
+    }
+    else
+    {
+        write_log( 0, "libnet_init failed on %s -> %s\n", interface->ifname, errbuflibnet );
+    }
+
+    return ret ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /*
  * Initialize global interfaces list (interfaces).
  */
 int8_t 
-interfaces_init(THREAD *pcap_th)
+interfaces_init( THREAD *pcap_th )
 {
     char errbuf[PCAP_ERRBUF_SIZE];
     struct interface_data *iface_data;
     pcap_if_t *alldevs;
-    pcap_addr_t *pcap_addr;
-    pcap_if_t *index = NULL;
+    pcap_if_t *index ;
     u_int16_t i, j;
-
-
+    
     if (pcap_findalldevs(&alldevs, errbuf) == -1) 
     {
         write_log(0,"interfaces_init pcap_findalldevs: %s\n", errbuf);
         return -1;
     }
-
+    
     if (tty_tmp->debug)
         write_log(0,"\n interfaces_init start...\n");
-
+    
     if ((interfaces = (list_t *) calloc(1, sizeof(list_t))) == NULL) {
        write_log(0, "interfaces_init calloc interfaces\n");
        return -1;
     }
-
+    
     if (pthread_mutex_init(&interfaces->mutex, NULL) != 0)
     {
        thread_error("interfaces_init pthread_mutex_init interfaces->mutex", errno);
        return -1;
     }
-
+    
     interfaces->cmp = interfaces_compare;
-
+    
     index = (pcap_if_t *) alldevs;
-
-    while (index)
+    
+    while( index )
     {
-        if ( (strncmp(index->name,"any",strlen(index->name))) && 
-             (index->flags != PCAP_IF_LOOPBACK) )
+        if ( ( strncmp( index->name, "any", strlen( index->name ) ) ) && ( index->flags != PCAP_IF_LOOPBACK ) )
         {
-           if ((iface_data = (struct interface_data *) calloc(1, sizeof(struct interface_data))) == NULL) {
-              write_log(0, "interfaces_init calloc iface_data\n");
-              return -1;
-           }
+            if ( ( iface_data = (struct interface_data *)calloc( 1, sizeof( struct interface_data ) ) ) ) 
+            {
+                strncpy( iface_data->ifname, index->name, IFNAMSIZ );
 
-           /* Interface name */
-           strncpy(iface_data->ifname, index->name, IFNAMSIZ);
-           interfaces_init_data(iface_data);
+                write_log( 0, "Network Interface %s\n", index->name );
 
-           if (tty_tmp->debug)
-               write_log(0, "Interface %s\n", index->name);
-           
-           if (index->addresses)
-           {
-              pcap_addr = index->addresses;
-              while(pcap_addr)
-              {
-                  if (pcap_addr->addr && 
-                       ((pcap_addr->addr->sa_family==AF_INET) ||
-                        (pcap_addr->addr->sa_family==AF_INET6)) )
-                  {
-                     if (inet_ntop(pcap_addr->addr->sa_family,
-                                  (void *)&pcap_addr->addr->sa_data[2],
-                                   iface_data->ipaddr, 
-                                   IPADDRSIZ)) {
-                         if (tty_tmp->debug)
-                            write_log(0," %s ip is %s\n",iface_data->ifname, iface_data->ipaddr);
-                     }
-                     else
-                         thread_error("inet_ntop error",errno);
-                  }  
-
-                  if (pcap_addr->netmask && 
-                     ((pcap_addr->netmask->sa_family==AF_INET) ||
-                        (pcap_addr->netmask->sa_family==AF_INET6)) )                  
-                  {
-                     if (inet_ntop(pcap_addr->netmask->sa_family,
-                                  (void *)&pcap_addr->netmask->sa_data[2],
-                                   iface_data->netmask, 
-                                   IPADDRSIZ)) {
-                         if (tty_tmp->debug)
-                            write_log(0," %s mask is %s\n", iface_data->ifname, iface_data->netmask); 
-                     }
-                     else 
-                         thread_error("inet_ntop error",errno);
-                  }
-
-                  if (pcap_addr->broadaddr &&
-                     ((pcap_addr->broadaddr->sa_family==AF_INET) ||
-                        (pcap_addr->broadaddr->sa_family==AF_INET6)) )                  
-                  {
-                     if(inet_ntop(pcap_addr->broadaddr->sa_family,
-                                  (void *)&pcap_addr->broadaddr->sa_data[2],
-                                   iface_data->broadcast, 
-                                   IPADDRSIZ)) {
-                         if (tty_tmp->debug)
-                            write_log(0," %s broadcast is %s\n", iface_data->ifname, iface_data->broadcast);   
-                     }
-                     else
-                         thread_error("inet_ntop error",errno);
-                  }              
-
-                  if (pcap_addr->dstaddr &&
-                     ((pcap_addr->dstaddr->sa_family==AF_INET) ||
-                        (pcap_addr->dstaddr->sa_family==AF_INET6)) )                                    
-                  {
-                     if (inet_ntop(pcap_addr->dstaddr->sa_family,
-                                  (void *)&pcap_addr->dstaddr->sa_data[2],
-                                   iface_data->ptpaddr, 
-                                   IPADDRSIZ)) {
-                         if (tty_tmp->debug)
-                            write_log(0," %s P-t-P es %s\n", iface_data->ifname, iface_data->ptpaddr); 
-                     }
-                     else
-                         thread_error("inet_ntop error",errno);
-                  }
-                  pcap_addr = pcap_addr->next;
-              }
-           }
-
-           iface_data->up = 0;
-           iface_data->pcap_handler = NULL;
-           iface_data->pcap_file = 0;
-           iface_data->libnet_handler = NULL;
-           iface_data->users = 0;
-           for (j = 0; j < MAX_PROTOCOLS; j++) {
-              iface_data->packets[j] = 0;
-              iface_data->packets_out[j] = 0;
-           }
-
-           interfaces->list = dlist_append(interfaces->list, (void *)iface_data);
+                if ( interfaces_init_data_pcap( iface_data, index ) != -1 )
+                {
+                    if ( interfaces_init_data_libnet( iface_data ) != -1 )
+                    {
+                        iface_data->up             = 0;
+                        iface_data->pcap_handler   = NULL;
+                        iface_data->pcap_file      = 0;
+                        iface_data->libnet_handler = NULL;
+                        iface_data->users          = 0;
+                        
+                        for ( j = 0; j < MAX_PROTOCOLS ; j++ ) 
+                        {
+                            iface_data->packets[j]     = 0 ;
+                            iface_data->packets_out[j] = 0 ;
+                        }
+                        
+                        interfaces->list = dlist_append( interfaces->list, (void *)iface_data );
+                    }
+                }
+            }
+            else
+            {
+                write_log( 0, "interfaces_init calloc iface_data\n" );
+                return -1;
+            }
         }
+
         index = index->next;
-
-
     }
-
-
+    
     /* free alldevs memory */
     pcap_freealldevs(alldevs);
-
-
+    
     packet_stats.global_counter.total_packets = 0;
-
+    
     /* Initialize the packets queues...*/
-    for (i=0; i < MAX_PROTOCOLS; i++)
+    for ( i = 0 ; i < MAX_PROTOCOLS ; i++ )
     {
         queue[i].index = 0;
-        if (pthread_mutex_init(&queue[i].mutex, NULL) != 0)
+        if ( pthread_mutex_init(&queue[i].mutex, NULL) != 0)
         {
            thread_error("pthread_mutex_init",errno);
            return -1;
         }
-        for (j=0; j < MAX_QUEUE; j++)
+
+        for ( j=0 ; j < MAX_QUEUE ; j++ )
         {
-            if ((queue[i].data[j].packet = (u_char *) calloc(1, SNAPLEN)) == NULL)
-               return -1;
-            if ((queue[i].data[j].header = (struct pcap_pkthdr *) calloc(1, sizeof(struct pcap_pkthdr))) == NULL)
-               return -1;
+            if ( ( queue[i].data[j].packet = (u_char *) calloc( 1, SNAPLEN ) ) == NULL )
+                return -1;
+
+            if ( ( queue[i].data[j].header = (struct pcap_pkthdr *) calloc( 1, sizeof( struct pcap_pkthdr ) ) ) == NULL )
+                return -1;
         }
     }
- 
+    
     if (thread_create(&pcap_th->id, &interfaces_th_pcap_listen, (void *)pcap_th) < 0)
         return -1;
-
+    
     if (tty_tmp->debug)
         write_log(0,"\n interfaces_init finish...\n");
-
+    
     dlist_t *p;
+
     for (p=interfaces->list;p; p = dlist_next(interfaces->list, p)) {
        iface_data = (struct interface_data *) dlist_data(p);
     }
-    
-    return 0;
-}
-
-
-/*
- * Dirty trick to get initial network interface data
- * like MAC address, IP address, ...
- */
-int8_t
-interfaces_init_data(struct interface_data *interface)
-{
-    char errbuf[PCAP_ERRBUF_SIZE];
-    char errbuflibnet[LIBNET_ERRBUF_SIZE];
-    struct libnet_ether_addr *etheraddr;
-    libnet_t *libnet_handler;
-    pcap_t *pcap_handler;
-    
-    if ( (pcap_handler = pcap_open_live(interface->ifname,
-                    SNAPLEN, 0, 0, errbuf)) == NULL)
-    {
-        write_log(0, "pcap_open_live failed: %s\n", errbuf);
-        pcap_close(pcap_handler);
-        return -1;
-    }
-
-    interface->iflink = pcap_datalink(pcap_handler);
-    
-    strncpy(interface->iflink_name, pcap_datalink_val_to_name(interface->iflink), PCAP_DESC);
-    strncpy(interface->iflink_desc, pcap_datalink_val_to_description(interface->iflink), PCAP_DESC);
-    
-    pcap_close(pcap_handler);
-
-    write_log(0, "\n %s iflinkname %s\n",interface->ifname,interface->iflink_name);
-    write_log(0, " %s iflinkdesc %s\n",interface->ifname,interface->iflink_desc);
-    
-    if ((libnet_handler = libnet_init(LIBNET_LINK, 
-                     interface->ifname, errbuflibnet)) == NULL)
-    {
-       write_log(0,"libnet_init failed on %s -> %s\n", interface->ifname, errbuflibnet);
-       return -1;
-    }
-
-    
-    etheraddr = libnet_get_hwaddr(libnet_handler);
-
-    if (etheraddr && memcmp((void *)etheraddr,"\x0\x0\x0\x0\x0\x0",6) )
-    {
-        memcpy((void *)interface->etheraddr, (void *)etheraddr, ETHER_ADDR_LEN);
-/*       snprintf(interface->etheraddr, 18, "%02x%02x.%02x%02x.%02x%02x",
-             etheraddr->ether_addr_octet[0], etheraddr->ether_addr_octet[1],
-             etheraddr->ether_addr_octet[2], etheraddr->ether_addr_octet[3],
-             etheraddr->ether_addr_octet[4], etheraddr->ether_addr_octet[5]);       */
-    }
-    
-    libnet_destroy(libnet_handler);
-
-     write_log(0," %s MAC = %02x%02x.%02x%02x.%02x%02x\n", interface->ifname, 
-             etheraddr->ether_addr_octet[0], etheraddr->ether_addr_octet[1],
-             etheraddr->ether_addr_octet[2], etheraddr->ether_addr_octet[3],
-             etheraddr->ether_addr_octet[4], etheraddr->ether_addr_octet[5]); 
     
     return 0;
 }
@@ -636,7 +655,7 @@ interfaces_th_pcap_listen(void *arg)
    struct interface_data *iface_data;
 
    if (tty_tmp->debug)
-      write_log(0,"\n interfaces_th_pcap_listen es %d\n",(int)pthread_self());
+      write_log(0,"\n interfaces_th_pcap_listen thread_id = %d\n",(int)pthread_self());
 
    pcap_th = (THREAD *)arg;
 
