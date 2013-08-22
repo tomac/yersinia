@@ -1,0 +1,325 @@
+/* src/config.h.in.  Generated from configure.in by autoheader.  */
+
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
+/* Darwin System */
+#undef DARWIN
+
+/* always defined to indicate that i18n is enabled */
+#undef ENABLE_NLS
+
+/* FreeBSD System */
+#undef FREEBSD
+
+/* Gettext package. */
+#undef GETTEXT_PACKAGE
+
+/* curses supported */
+#undef HAS_CURSES
+
+/* Define to 1 if you have the `bind_textdomain_codeset' function. */
+#undef HAVE_BIND_TEXTDOMAIN_CODESET
+
+/* Do we have BPF device support? */
+#undef HAVE_BPF
+
+/* Define to 1 if you have the <bstring.h> header file. */
+#undef HAVE_BSTRING_H
+
+/* Define to 1 if you have the `calloc_r' function. */
+#undef HAVE_CALLOC_R
+
+/* Define to 1 if you have the `ctime_r' function. */
+#undef HAVE_CTIME_R
+
+/* Define to 1 if you have the `dcgettext' function. */
+#undef HAVE_DCGETTEXT
+
+/* Define to 1 if you have the `free_r' function. */
+#undef HAVE_FREE_R
+
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#undef HAVE_GETTEXT
+
+/* have glibc strerror_r */
+#undef HAVE_GLIBC_STRERROR_R
+
+/* gtk interface support */
+#undef HAVE_GTK
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define if your <locale.h> file defines LC_MESSAGES. */
+#undef HAVE_LC_MESSAGES
+
+/* Define to 1 if you have the `c_r' library (-lc_r). */
+#undef HAVE_LIBC_R
+
+/* Define to 1 if you have the `nsl' library (-lnsl). */
+#undef HAVE_LIBNSL
+
+/* Define to 1 if you have the `pthread' library (-lpthread). */
+#undef HAVE_LIBPTHREAD
+
+/* Define to 1 if you have the `pthreads' library (-lpthreads). */
+#undef HAVE_LIBPTHREADS
+
+/* Define to 1 if you have the `resolv' library (-lresolv). */
+#undef HAVE_LIBRESOLV
+
+/* Define to 1 if you have the `rt' library (-lrt). */
+#undef HAVE_LIBRT
+
+/* Define to 1 if you have the `socket' library (-lsocket). */
+#undef HAVE_LIBSOCKET
+
+/* Define to 1 if you have the <locale.h> header file. */
+#undef HAVE_LOCALE_H
+
+/* Define to 1 if you have the `malloc_r' function. */
+#undef HAVE_MALLOC_R
+
+/* Define to 1 if you have the `memcpy' function. */
+#undef HAVE_MEMCPY
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `memset' function. */
+#undef HAVE_MEMSET
+
+/* Define to 1 if you have the `nanosleep' function. */
+#undef HAVE_NANOSLEEP
+
+/* Define to 1 if have resizeterm */
+#undef HAVE_NCURSES_RESIZETERM
+
+/* Define to 1 if have use_default_colors */
+#undef HAVE_NCURSES_USE_DEFAULTS_COLORS
+
+/* Define to 1 if have wresize */
+#undef HAVE_NCURSES_WRESIZE
+
+/* Define to 1 if you have the <netinet/in_system.h> header file. */
+#undef HAVE_NETINET_IN_SYSTEM_H
+
+/* Define to 1 if you have the <netinet/in_systm.h> header file. */
+#undef HAVE_NETINET_IN_SYSTM_H
+
+/* Define to 1 if you have the <net/if.h> header file. */
+#undef HAVE_NET_IF_H
+
+/* Define to 1 if you have the <panel.h> header file. */
+#undef HAVE_PANEL_H
+
+/* pcap_dump_flush */
+#undef HAVE_PCAP_DUMP_FLUSH
+
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have the `pthread_setconcurrency' function. */
+#undef HAVE_PTHREAD_SETCONCURRENCY
+
+/* Define to 1 if you have the `rand_r' function. */
+#undef HAVE_RAND_R
+
+/* remote admin support */
+#undef HAVE_REMOTE_ADMIN
+
+/* Define to 1 if you have the <sched.h> header file. */
+#undef HAVE_SCHED_H
+
+/* Define to 1 if you have the <semaphore.h> header file. */
+#undef HAVE_SEMAPHORE_H
+
+/* have sockaddr_sa_len */
+#undef HAVE_SOCKADDR_SA_LEN
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strerror' function. */
+#undef HAVE_STRERROR
+
+/* Define to 1 if you have the `strerror_r' function. */
+#undef HAVE_STRERROR_R
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strtok_r' function. */
+#undef HAVE_STRTOK_R
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/param.h> header file. */
+#undef HAVE_SYS_PARAM_H
+
+/* Define to 1 if you have the <sys/sched.h> header file. */
+#undef HAVE_SYS_SCHED_H
+
+/* Define to 1 if you have the <sys/sockio.h> header file. */
+#undef HAVE_SYS_SOCKIO_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#undef HAVE_SYS_WAIT_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* HP-UX System */
+#undef HPUX
+
+/* "Building date" */
+#undef INFO_DATE
+
+/* "Kernel name" */
+#undef INFO_KERN
+
+/* "Kernel version" */
+#undef INFO_KERN_VER
+
+/* "Platform architecture" */
+#undef INFO_PLATFORM
+
+/* if unaligned access fails */
+#undef LBL_ALIGN
+
+/* Linux System */
+#undef LINUX
+
+/* Linux 2.0 System */
+#undef LINUX_20
+
+/* Linux 2.1 System */
+#undef LINUX_21
+
+/* Linux 2.2 System */
+#undef LINUX_22
+
+/* Linux 2.3 System */
+#undef LINUX_23
+
+/* Linux 2.4 System */
+#undef LINUX_24
+
+/* Linux 2.5 System */
+#undef LINUX_25
+
+/* Linux 2.6 System */
+#undef LINUX_26
+
+/* ncurses version */
+#undef NCURSES_970530
+
+/* System need DoS timeout */
+#undef NEED_USLEEP
+
+/* NetBSD System */
+#undef NETBSD
+
+/* no color supported */
+#undef NO_COLOR_CURSES
+
+/* OpenBSD System */
+#undef OPENBSD
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* pthread need testcancel */
+#undef PTHREAD_NEED_TESTCANCEL
+
+/* SCO code */
+#undef SCO_FLAVOR
+
+/* Solaris System */
+#undef SOLARIS
+
+/* Solaris 2.51 System */
+#undef SOLARIS_251
+
+/* Solaris 2.6 System */
+#undef SOLARIS_26
+
+/* Solaris 2.7 System */
+#undef SOLARIS_27
+
+/* Solaris 2.8 System */
+#undef SOLARIS_28
+
+/* Solaris 2.9 System */
+#undef SOLARIS_29
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* strange bsd byte */
+#undef STRANGE_BSD_BYTE
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
+
+/* BSD curses */
+#undef USE_BSD_CURSES
+
+/* ncurses */
+#undef USE_NCURSES
+
+/* SunOS curses */
+#undef USE_SUNOS_CURSES
+
+/* SysV curses */
+#undef USE_SYSV_CURSES
+
+/* Version number of package */
+#undef VERSION
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
