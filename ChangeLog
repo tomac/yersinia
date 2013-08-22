@@ -3,6 +3,13 @@ $Id: ChangeLog 46 2007-05-08 09:13:30Z slay $
 CHANGES for Yersinia
 ====================
 
+2013/08/21
+----------
+- Fixed our pretty big issue with network interfacces under Linux. :)
+- Fixed pcap_compile error.
+- Refactoring a little bit of interfaces.c
+
+
 2007/05/01
 ----------
 - Fixed coredump on ncurses_i_ifaces_screen().
