@@ -5,6 +5,7 @@ CHANGES for Yersinia
 
 2013/08/21
 ----------
+- Version 0.7.3
 - Fixed our pretty big issue with network interfacces under Linux. :)
 - Fixed pcap_compile error.
 - Refactoring a little bit of interfaces.c
@@ -12,6 +13,7 @@ CHANGES for Yersinia
 
 2007/05/01
 ----------
+- Version 0.7.2
 - Fixed coredump on ncurses_i_ifaces_screen().
 - Removed 'min' and 'max' members from all the structures.
 
