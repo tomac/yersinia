@@ -4515,7 +4515,7 @@ fi
 
 pcap_dir=""
 for dir in $PCAP_DIR ; do
-    if test -d $dir -a -r "$dir/pcap.h" ; then
+    if test -d $dir -a -r "$dir/pcap-bpf.h" ; then
        if test -n "$pcap_dir" -a "$pcap_dir" != "$dir"; then
           echo
           echo; echo more than one set found in:
