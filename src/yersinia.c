@@ -181,8 +181,7 @@ main( int argc, char **argv )
 
    if ( argc == 1 )                                                          
    {
-      printf("GNU %s %s %s\n", PACKAGE, VERSION,
-            "$Date: 2006/03/23 08:40:14 $");
+      printf("GNU %s %s\n", PACKAGE, VERSION);
       printf("Try '%s -h' to display the help.\n",PACKAGE);
       clean_exit();
    }
