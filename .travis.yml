@@ -7,4 +7,4 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libnet-dev libpcap-dev
 
-script: ./autogen.sh; ./configure && make
+script: ./autogen.sh; ./configure --with-pcap-includes=/usr/include/ && make
