@@ -21,6 +21,6 @@ addons:
       name: "tomac/yersinia"
       description: "Build submitted via Travis CI"
     notification_email: tomac@yersinia.net
-    build_command_prepend: "./configure"
+    build_command_prepend: "./configure --with-pcap-includes=/usr/include/"
     build_command:   "make"
     branch_pattern: coverity_scan
