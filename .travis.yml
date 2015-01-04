@@ -8,3 +8,19 @@ before_install:
   - sudo apt-get install -y libnet-dev libpcap-dev
 
 script: ./autogen.sh; ./configure --with-pcap-includes=/usr/include/ && make
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "XKrYVcrfhsl5jNPxkcCSlV7RT5dxXW4kAmhj5CYvubcusOE0crbiVTU6qx8F0qRh1snsmfnZ6WwXOtOkNN5fNCeoOsalOBoRQO+Tz3X9XOoZ76TqFjp2GwwVFzW+6qUKah5G0H2iJJX0ckrFLyUI4BRS8bw3kPN7T3VXzXejl/U="
+
+addons:
+  coverity_scan:
+    project:
+      name: "tomac/yersinia"
+      description: "Build submitted via Travis CI"
+    notification_email: tomac@yersinia.net
+    build_command_prepend: "./configure"
+    build_command:   "make"
+    branch_pattern: coverity_scan
