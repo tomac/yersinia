@@ -1,0 +1,42 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+*.Po
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# autoconf/automake
+configure
+Makefile
+Makefile.in
+autom4te.cache/*
+src/.deps
+compile
+aclocal.m4
+config.*
+depcomp
+install-sh
+missing
+stamp-h1
+
+# yersinia binaries
+yersinia
+src/yersinia.log
