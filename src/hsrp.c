@@ -846,7 +846,7 @@ hsrp_update_field(int8_t state, struct term_node *node, void *value)
 		/* Authdata */
        	case HSRP_AUTHDATA:
        	    len = strlen(value);
-       	    strncpy(hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA : len);
+       	    strncpy(hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA_LENGTH : len);
        	break;
        	/* Virtual IP */
        	case HSRP_VIRTUALIP:

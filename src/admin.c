@@ -177,6 +177,7 @@ write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
       admin_th_listen_exit(NULL,sock);
    }
 
+   memset(&server_address, 0, sizeof(server_address));
    server_address.sin_family      = AF_INET;
    server_address.sin_port        = htons(node->port);
    server_address.sin_addr.s_addr = htonl(INADDR_ANY);

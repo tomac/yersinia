@@ -1028,7 +1028,7 @@ dhcp_learn_mac(struct attacks *attacks, u_int32_t ip_dest, u_int8_t *arp_mac)
 		  rec_packets++;
         thread_usleep(800000);
         if (interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, p_data.header, p_data.packet,
-                               PROTO_ARP, 5) < 0) {
+                               PROTO_ARP, 5) == NULL) {
 			write_log(0, "Timeout waiting for an ARP Reply...\n");
 			break;
     }
