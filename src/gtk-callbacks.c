@@ -234,15 +234,10 @@ void
 gtk_c_on_menu_actions_list_attacks_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
    GtkWidget *window;
-   GtkWidget *notebook;
-   struct gtk_s_helper *helper;
-   u_int8_t mode;
-
-   helper = (struct gtk_s_helper *)user_data;
-   notebook = lookup_widget(GTK_WIDGET(menuitem), "main_vhv2_notebook");
-   mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+   struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data;
 
    window = gtk_i_create_listattacksdialog(helper->node);
+
    gtk_widget_show(window);
 }
 
@@ -304,7 +299,6 @@ gtk_c_capturedialog_save(GtkWidget *button, gpointer userdata)
    GtkWidget *dialog;
    struct gtk_s_helper *helper;
    char *filename;
-   u_int8_t iface;
    pcap_dumper_t *pdumper;
    dlist_t *p;
    struct interface_data *iface_data;
@@ -315,10 +309,8 @@ gtk_c_capturedialog_save(GtkWidget *button, gpointer userdata)
 
    if (helper->extra == PROTO_ALL) {
       pdumper = helper->node->pcap_file.pdumper;
-      iface = interfaces_get_last_int(PROTO_ALL);
    } else {
       pdumper = helper->node->protocol[helper->extra].pcap_file.pdumper;
-      iface = interfaces_get_last_int(helper->extra);
    }
 
    if (pdumper) {
@@ -474,7 +466,7 @@ gtk_c_update_hexview(GtkTreeSelection *selection, gpointer userdata)
    struct gtk_s_helper *helper;
    u_int8_t row, mode, *packet;
    u_int16_t length, oset;
-   int32_t j, line;
+   int32_t j;
    register u_int i;
    register int s1, s2;
    register int nshorts;
@@ -485,7 +477,6 @@ gtk_c_update_hexview(GtkTreeSelection *selection, gpointer userdata)
    gchar *out;
 
    j = 0;
-   line = 0;
    oset = 0;
    length = 0;
    packet = NULL;
@@ -589,17 +580,16 @@ on_menu_actions_clear_activate  (GtkMenuItem     *menuitem,
 
 void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
 {
-   GtkWidget *notebook, *toolbar_edit, *widget, *warning;
+   GtkWidget *notebook, *widget, *warning;
    struct gtk_s_helper *helper;
-   u_int8_t i, j, mode;
+   u_int8_t i, j;
    struct commands_param *param;
    char tmp_name[5], *text;
 
    helper = (struct gtk_s_helper *)userdata;
 
    notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
-   toolbar_edit = lookup_widget(GTK_WIDGET(menu), "toolbar_edit");
-   mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+
    if (helper->edit_mode) {
       for(i = 0; i < MAX_PROTOCOLS; i++) {
          if (protocols[i].visible) {
@@ -645,10 +635,8 @@ void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
 void on_menu_options_macspoofing_toggle (GtkCheckMenuItem *menu, struct term_node *node)
 {
    GtkWidget *notebook, *main_statusbar;
-   u_int8_t mode;
 
    notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
-   mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "main_statusbar");
    if (node->mac_spoofing) {
       node->mac_spoofing = 0;
@@ -746,7 +734,6 @@ gtk_c_refresh_mwindow(gpointer userdata)
    char timebuf[19], meaningbuf[64], **values;
    struct commands_param *params;
    struct commands_param_extra *extra_params;
-   struct tuple_type_desc *func;
    GtkTreeIter iter;
    GtkListStore *tree_model;
    GtkWidget *entry[20];
@@ -759,7 +746,6 @@ gtk_c_refresh_mwindow(gpointer userdata)
    notebook = GTK_NOTEBOOK(helper->notebook);
    tlv = 0;
    values = NULL;
-   func = NULL;
    mode = 0;
 
    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
@@ -909,15 +895,13 @@ gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
    GtkWidget *tree;
    GtkListStore *tree_model;
    u_int8_t row;
-   u_int8_t i, j, line, k, mode;
+   u_int8_t j, k, mode;
    char **values, *ptrtlv;
    struct commands_param *params;
-   struct tuple_type_desc *func;
    struct gtk_s_helper *helper;
 
    helper = (struct gtk_s_helper *) userdata;
    values = NULL;
-   func = NULL;
    row = 0;
 
    if (gtk_tree_selection_get_selected (selection, &model, &iter))
@@ -927,8 +911,6 @@ gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
       row = 0;
    }
 
-   i = 0;
-   line = 0;
    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
    params = (struct commands_param *)protocols[mode].parameters;
 
@@ -1086,7 +1068,6 @@ gtk_c_view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer
     gint *index;
     u_int8_t mode;
 
-
     index = NULL;
     notebook = lookup_widget(GTK_WIDGET(treeview), "main_vhv2_notebook");
     wmain = lookup_widget(GTK_WIDGET(treeview), "Main");
@@ -1097,24 +1078,27 @@ gtk_c_view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer
     if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3)
     {
       selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-
-     if (gtk_tree_selection_count_selected_rows(selection)  <= 1)
-     {
-           /* Get tree path for row that was clicked */
-           if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
-                                             (gint) event->x, 
-                                             (gint) event->y,
-                                             &path, NULL, NULL, NULL))
-           {
-             index = gtk_tree_path_get_indices(path);
-             gtk_tree_selection_unselect_all(selection);
-             gtk_tree_selection_select_path(selection, path);
-             gtk_tree_path_free(path);
-           }
+      
+      if (gtk_tree_selection_count_selected_rows(selection)  <= 1)
+      {
+         /* Get tree path for row that was clicked */
+         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
+                                           (gint) event->x, 
+                                           (gint) event->y,
+                                           &path, NULL, NULL, NULL))
+         {
+           index = gtk_tree_path_get_indices(path);
+           gtk_tree_selection_unselect_all(selection);
+           gtk_tree_selection_select_path(selection, path);
+           gtk_tree_path_free(path);
+         }
       }
 
      helper->mode = mode;
-     helper->row = *index;
+
+     if ( index != NULL )
+         helper->row = *index;
+
      gtk_i_view_menu(treeview, wmain, event, helper);
 
       return TRUE; /* we handled this */
@@ -1157,8 +1141,6 @@ gtk_c_extra_button_add_clicked(GtkButton *button, gpointer userdata)
 void
 gtk_c_add_extra_button_add_ok_clicked(GtkButton *button, gpointer userdata)
 {
-   struct gtk_s_helper *helper;
-
-   helper = (struct gtk_s_helper *)userdata;
+    /* Do nothing */
 }
-/* vim:set tabstop=3:set expandtab:set shiftwidth=3:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */
