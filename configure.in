@@ -15,7 +15,7 @@ AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
 AC_PROG_CC
 if test -n "$GCC"; then
-     CFLAGS="-O3 -Wall -g"
+     CFLAGS="-O3 -Wall -g -D_DEFAULT_SOURCE"
 else
      AC_MSG_WARN(Ouch!! Only gcc is supported...)
      AC_MSG_ERROR(...you're on your own.)
