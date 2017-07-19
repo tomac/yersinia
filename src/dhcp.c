@@ -1465,7 +1465,6 @@ dhcp_get_printable_packet(struct pcap_data *data)
                   case LIBNET_DHCP_ROUTER:
                   case LIBNET_DHCP_DNS:
                   case LIBNET_DHCP_DISCOVERADDR:
-                     write_log(0, "a ver...\n");
                      if (parser_get_formated_inet_address(ntohl(*(u_int32_t *)(ptr+2)), buf_ptr, 16) < 0)
                      {
                         *buf_ptr = '\0';
