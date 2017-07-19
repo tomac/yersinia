@@ -996,44 +996,40 @@ gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
 void
 gtk_c_toggle_interface(GtkWidget *toggle, struct term_node *node)
 {
-   gboolean state;
-   const gchar *label;
-   dlist_t *found;
-   struct interface_data *iface_data, *iface_new;
+    gboolean state;
+    const gchar *label;
+    dlist_t *found;
+    struct interface_data *iface_data, *iface_new;
 
-   label = gtk_button_get_label(GTK_BUTTON(toggle));
+    label = gtk_button_get_label(GTK_BUTTON(toggle));
 
+    state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle));
+    if (!state)
+    {
+        found = dlist_search(node->used_ints->list, node->used_ints->cmp, (void *)label);
+        iface_data = (struct interface_data *) dlist_data(found);
+        interfaces_disable(iface_data->ifname);
+        node->used_ints->list = dlist_remove(node->used_ints->list, (void *)iface_data);
+    }
+    else
+    {
+        /* First we need to get the interface index */
+        found = dlist_search(interfaces->list, interfaces->cmp, (void *)label);
 
-   state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle));
-   if (!state) {
-      found = dlist_search(node->used_ints->list, node->used_ints->cmp, (void *)label);
-      iface_data = (struct interface_data *) dlist_data(found);
-      interfaces_disable(iface_data->ifname);
-      node->used_ints->list = dlist_remove(node->used_ints->list, (void *)iface_data);
-   } else {
-      /* First we need to get the interface index */
-      found = dlist_search(interfaces->list, interfaces->cmp, (void *)label);
+        if ( !found )
+            return;
 
-      if (!found) /* Not found */
-         return;
+        iface_data = (struct interface_data *) dlist_data(found);
 
-      iface_data = (struct interface_data *) dlist_data(found);
-
-      interfaces_enable(iface_data->ifname);
-      iface_new = (struct interface_data *) calloc(1, sizeof(struct interface_data));
-      memcpy((void *)iface_new, (void *)iface_data, sizeof(struct interface_data));
-      node->used_ints->list = dlist_append(node->used_ints->list, (void *)iface_new);
-   }
+        interfaces_enable(iface_data->ifname);
+        iface_new = (struct interface_data *)malloc( sizeof(struct interface_data) );
+        if ( iface_new )
+        {
+            memcpy((void *)iface_new, (void *)iface_data, sizeof(struct interface_data));
+            node->used_ints->list = dlist_append(node->used_ints->list, (void *)iface_new);
+        }
+    }
 }
-
-/*
-gboolean
-gtk_c_view_onPopupMenu(GtkWidget *treeview, gpointer userdata)
-{
-    view_popup_menu(treeview, NULL, userdata);
-
-    return TRUE;
-}*/
 
 
 void

@@ -598,7 +598,6 @@ dtp_get_printable_packet(struct pcap_data *data)
         }
 
         if (!tlv_len) {
-/*            write_log(0, "a ver...%X %X %X %X %X %X %X %X\n", *(ptr), *(ptr+1), *(ptr+2), *(ptr+3),*(ptr+4), *(ptr+5), *(ptr+6), *(ptr+7));*/
            break;
         }
  
