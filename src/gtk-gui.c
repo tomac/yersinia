@@ -102,7 +102,7 @@ gtk_gui (void *args)
       gtk_gui_th_exit(NULL);
    }
 
-   if (term_add_node(&term_node, TERM_CON, (int)NULL, pthread_self()) < 0)
+   if (term_add_node(&term_node, TERM_CON, 0, pthread_self()) < 0)
    {
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("gtk_gui_th pthread_mutex_unlock",errno);

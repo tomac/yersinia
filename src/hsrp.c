@@ -22,11 +22,6 @@
 
 /* HSRP functions - please read RFC 2281 before complaining!!! */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: hsrp.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -643,8 +638,8 @@ hsrp_get_printable_packet(struct pcap_data *data)
     char **field_values;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_HSRP].nparams, protocols[PROTO_HSRP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     ether = (struct libnet_ethernet_hdr *) data->packet;
@@ -654,12 +649,12 @@ hsrp_get_printable_packet(struct pcap_data *data)
 
     /* Source MAC */
     snprintf(field_values[HSRP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2],
-	    ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
+        ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2],
+        ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
     /* Destination MAC */
     snprintf(field_values[HSRP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    ether->ether_dhost[0], ether->ether_dhost[1], ether->ether_dhost[2],
-	    ether->ether_dhost[3], ether->ether_dhost[4], ether->ether_dhost[5]);
+        ether->ether_dhost[0], ether->ether_dhost[1], ether->ether_dhost[2],
+        ether->ether_dhost[3], ether->ether_dhost[4], ether->ether_dhost[5]);
 
     /* Source IP */
 #ifdef LBL_ALIGN
@@ -736,25 +731,25 @@ hsrp_get_printable_store(struct term_node *node)
      */
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_HSRP].nparams, protocols[PROTO_HSRP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
-	if (node == NULL)
-		hsrp = protocols[PROTO_HSRP].default_values;
-	else
+    if (node == NULL)
+        hsrp = protocols[PROTO_HSRP].default_values;
+    else
         hsrp = (struct hsrp_data *) node->protocol[PROTO_HSRP].tmp_data;
 
     /* Source MAC */
     snprintf(field_values[HSRP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    hsrp->mac_source[0], hsrp->mac_source[1],
-	    hsrp->mac_source[2], hsrp->mac_source[3],
-	    hsrp->mac_source[4], hsrp->mac_source[5]);
+        hsrp->mac_source[0], hsrp->mac_source[1],
+        hsrp->mac_source[2], hsrp->mac_source[3],
+        hsrp->mac_source[4], hsrp->mac_source[5]);
     /* Destination MAC */
     snprintf(field_values[HSRP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    hsrp->mac_dest[0], hsrp->mac_dest[1],
-	    hsrp->mac_dest[2], hsrp->mac_dest[3],
-	    hsrp->mac_dest[4], hsrp->mac_dest[5]);
+        hsrp->mac_dest[0], hsrp->mac_dest[1],
+        hsrp->mac_dest[2], hsrp->mac_dest[3],
+        hsrp->mac_dest[4], hsrp->mac_dest[5]);
 
     /* Source IP */
     parser_get_formated_inet_address(hsrp->sip , field_values[HSRP_SIP], 16);
@@ -796,11 +791,11 @@ int8_t
 hsrp_update_field(int8_t state, struct term_node *node, void *value)
 {
     struct hsrp_data *hsrp_data;
-	u_int8_t len;
+    u_int8_t len;
     
-	if (node == NULL)
-		hsrp_data = protocols[PROTO_HSRP].default_values;
-	else
+    if (node == NULL)
+        hsrp_data = protocols[PROTO_HSRP].default_values;
+    else
         hsrp_data = node->protocol[PROTO_HSRP].tmp_data;
 
     switch(state)
@@ -826,53 +821,53 @@ hsrp_update_field(int8_t state, struct term_node *node, void *value)
             hsrp_data->state = *(u_int8_t *)value;
         break;
         /* Hello time */
-  	    case HSRP_HELLO_TIME:
-	        hsrp_data->hello_time = *(u_int8_t *)value;
+          case HSRP_HELLO_TIME:
+            hsrp_data->hello_time = *(u_int8_t *)value;
         break;
         /* Hold time */
-  	    case HSRP_HOLD_TIME:
-	        hsrp_data->hold_time = *(u_int8_t *)value;
+          case HSRP_HOLD_TIME:
+            hsrp_data->hold_time = *(u_int8_t *)value;
         break;
         /* Priority */
-  	    case HSRP_PRIORITY:
-	        hsrp_data->priority = *(u_int8_t *)value;
+          case HSRP_PRIORITY:
+            hsrp_data->priority = *(u_int8_t *)value;
         break;
         /* Group */
-  	    case HSRP_GROUP:
-	        hsrp_data->group = *(u_int8_t *)value;
+          case HSRP_GROUP:
+            hsrp_data->group = *(u_int8_t *)value;
         break;
         /* Reserved */
-  	    case HSRP_RESERVED:
-	        hsrp_data->reserved = *(u_int8_t *)value;
+          case HSRP_RESERVED:
+            hsrp_data->reserved = *(u_int8_t *)value;
         break;
-		/* Authdata */
-       	case HSRP_AUTHDATA:
-       	    len = strlen(value);
-       	    strncpy(hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA : len);
-       	break;
-       	/* Virtual IP */
-       	case HSRP_VIRTUALIP:
-       	    hsrp_data->virtual_ip = *(u_int32_t *)value;
-       	break;
+        /* Authdata */
+           case HSRP_AUTHDATA:
+               len = strlen(value);
+               strncpy(hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA : len);
+           break;
+           /* Virtual IP */
+           case HSRP_VIRTUALIP:
+               hsrp_data->virtual_ip = *(u_int32_t *)value;
+           break;
         /* SPort */
-       	case HSRP_SPORT:
+           case HSRP_SPORT:
             hsrp_data->sport = *(u_int16_t *)value;
         break;
         /* DPort */
         case HSRP_DPORT:
             hsrp_data->dport = *(u_int16_t *)value;
         break;
-      	/* Source IP */
-      	case HSRP_SIP:
-      	    hsrp_data->sip = *(u_int32_t *)value;
-       	break;
-		/* Destination IP */
-       	case HSRP_DIP:
-       	    hsrp_data->dip = *(u_int32_t *)value;
-       	break;
+          /* Source IP */
+          case HSRP_SIP:
+              hsrp_data->sip = *(u_int32_t *)value;
+           break;
+        /* Destination IP */
+           case HSRP_DIP:
+               hsrp_data->dip = *(u_int32_t *)value;
+           break;
        
-       	default:
-       	break;
+           default:
+           break;
     }
 
     return 0;

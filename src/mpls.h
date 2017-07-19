@@ -46,7 +46,7 @@ struct mpls_header {
 #define MPLS_GET_EXP(x)    ( ( ( ( (struct mpls_header *)(x))->byte2 ) >> 0x01 ) & 0x07 )
 #define MPLS_GET_BOTTOM(x) ( ( ( ( (struct mpls_header *)(x))->byte2 ) &  0x01 ) )
 #define MPLS_GET_TTL(x)    ( ( ( ( (struct mpls_header *)(x))->byte3 ) ) )
-                                                                        
+
 
 #define MAX_IP_PAYLOAD 16
  
@@ -102,7 +102,7 @@ struct commands_param mpls_comm_params[] = {
                                         " H:H:H:H:H:H    48 bit mac address", 17, 1, 0, NULL, NULL },
     { MPLS_DMAC, "dest",    "Destination MAC", 6, FIELD_MAC, "Set destination MAC address", 
                                         " H:H:H:H:H:H    48 bit mac address", 17, 1, 0, NULL, NULL },
-                                        
+
     { MPLS_LABEL1, "label1","Label1", 4, FIELD_DEC, "Set MPLS label", 
                                         " <0-65535>    Label", 8, 2, 1, NULL, NULL },
     { MPLS_EXP1,   "exp1","Exp1", 1,  FIELD_DEC, "Set MPLS Experimental bits", 
@@ -120,13 +120,13 @@ struct commands_param mpls_comm_params[] = {
                                         " <0-1>        Bottom stack flag", 1, 3, 0, NULL, NULL },
     { MPLS_TTL2, "ttl2","TTL2", 1, FIELD_DEC, "Set MPLS Time To Live (second)", 
                                         " <0-255>      Time To Live units", 3, 3, 0, NULL, NULL },
-                                        
+
     { MPLS_SRC_IP, "ipsource",    "SrcIP", 4, FIELD_IP, "Set MPLS IP source data address", 
                                         " A.A.A.A    IPv4 address", 15, 4, 1, NULL, NULL },
     { MPLS_SRC_PORT, "portsource","SrcPort", 2, FIELD_DEC, "Set TCP/UDP source port", 
                                         " <0-65535>    TCP/UDP source port", 5, 4, 0, NULL, NULL },
     { MPLS_DST_IP,  "ipdest",     "DstIP", 4, FIELD_IP, "Set MPLS IP destination data address", 
-                                        " A.A.A.A    IPv4 address", 15, 4, 1, NULL, NULL },                
+                                        " A.A.A.A    IPv4 address", 15, 4, 1, NULL, NULL },
     { MPLS_DST_PORT, "portdest",  "DstPort", 2, FIELD_DEC, "Set TCP/UDP destination port", 
                                         " <0-65535>    TCP/UDP destination port", 5, 4, 0, NULL, NULL },
     { MPLS_PAYLOAD, "payload",   "Payload", MAX_IP_PAYLOAD, FIELD_STR, "Set MPLS IP payload", 

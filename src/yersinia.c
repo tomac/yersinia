@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-"$Id: yersinia.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -330,7 +325,7 @@ write_log(0, "\n th_tty_peer thread = %d...\n",(int)pthread_self());
       th_tty_peer_exit(NULL);
    }
    
-   fail = term_add_node(&term_node, TERM_TTY, (int)NULL, pthread_self());
+   fail = term_add_node(&term_node, TERM_TTY, 0, pthread_self());
 
    if (fail == -1)
    {
@@ -667,7 +662,7 @@ write_log( u_int16_t mode, char *msg, ... )
     va_end(ap);
 
 #ifdef HAVE_GTK
-	/* Send yersinia log to the main_log gtk widget */
+    /* Send yersinia log to the main_log gtk widget */
     if ((!mode || (mode == 1)) && ((tty_tmp->gtk) && (tty_tmp->buffer_log))) 
     {
         GtkTextIter iter2;
@@ -685,7 +680,7 @@ write_log( u_int16_t mode, char *msg, ... )
 
             free( buffer );
         }
-	}
+    }
 #endif
 
 }
@@ -873,7 +868,7 @@ init_attribs(struct term_node *node)
         if (!protocols[i].visible)
            continue;
         if (protocols[i].init_attribs)
-	   result = result | (*protocols[i].init_attribs)(node);
+       result = result | (*protocols[i].init_attribs)(node);
         else
            write_log(0, "Warning: protocol %d has no init_attribs function!!\n", i);
     }

@@ -15,11 +15,6 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: md5.c 2 2006-04-03 21:04:25Z tomac $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -32,7 +27,7 @@ static const char rcsid[] =
 #include <inttypes.h>
 #endif
 
-#include <string.h>		/* for memcpy() */
+#include <string.h>        /* for memcpy() */
 
 #include "md5.h"
 
@@ -43,10 +38,10 @@ void byteReverse(unsigned char *buf, unsigned longs)
 {
     u_int32_t t;
     do {
-	t = (u_int32_t) ((unsigned) buf[3] << 8 | buf[2]) << 16 |
-	    ((unsigned) buf[1] << 8 | buf[0]);
-	*(u_int32_t *) buf = t;
-	buf += 4;
+    t = (u_int32_t) ((unsigned) buf[3] << 8 | buf[2]) << 16 |
+        ((unsigned) buf[1] << 8 | buf[0]);
+    *(u_int32_t *) buf = t;
+    buf += 4;
     } while (--longs);
 }
 #endif
@@ -82,35 +77,35 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 
     t = ctx->bits[0];
     if ((ctx->bits[0] = t + ((u_int32_t) len << 3)) < t)
-	ctx->bits[1]++;		/* Carry from low to high */
+    ctx->bits[1]++;        /* Carry from low to high */
     ctx->bits[1] += len >> 29;
 
-    t = (t >> 3) & 0x3f;	/* Bytes already in shsInfo->data */
+    t = (t >> 3) & 0x3f;    /* Bytes already in shsInfo->data */
 
     /* Handle any leading odd-sized chunks */
 
     if (t) {
-	unsigned char *p = (unsigned char *) ctx->in + t;
+    unsigned char *p = (unsigned char *) ctx->in + t;
 
-	t = 64 - t;
-	if (len < t) {
-	    memcpy(p, buf, len);
-	    return;
-	}
-	memcpy(p, buf, t);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
-	buf += t;
-	len -= t;
+    t = 64 - t;
+    if (len < t) {
+        memcpy(p, buf, len);
+        return;
+    }
+    memcpy(p, buf, t);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
+    buf += t;
+    len -= t;
     }
     /* Process data in 64-byte chunks */
 
     while (len >= 64) {
-	memcpy(ctx->in, buf, 64);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
-	buf += 64;
-	len -= 64;
+    memcpy(ctx->in, buf, 64);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
+    buf += 64;
+    len -= 64;
     }
 
     /* Handle any remaining bytes of data. */
@@ -140,16 +135,16 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 
     /* Pad out to 56 mod 64 */
     if (count < 8) {
-	/* Two lots of padding:  Pad the first block to 64 bytes */
-	memset(p, 0, count);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
+    /* Two lots of padding:  Pad the first block to 64 bytes */
+    memset(p, 0, count);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
 
-	/* Now fill the next block with 56 bytes */
-	memset(ctx->in, 0, 56);
+    /* Now fill the next block with 56 bytes */
+    memset(ctx->in, 0, 56);
     } else {
-	/* Pad block to 56 bytes */
-	memset(p, 0, count - 8);
+    /* Pad block to 56 bytes */
+    memset(p, 0, count - 8);
     }
     byteReverse(ctx->in, 14);
 
@@ -160,7 +155,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
     MD5Transform(ctx->buf, (u_int32_t *) ctx->in);
     byteReverse((unsigned char *) ctx->buf, 4);
     memcpy(digest, ctx->buf, 16);
-    memset(ctx, 0, sizeof(ctx));	/* In case it's sensitive */
+    memset(ctx, 0, sizeof(struct MD5Context));    /* In case it's sensitive */
 }
 
 #ifndef ASM_MD5
@@ -176,10 +171,10 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 /* This is the central step in the MD5 algorithm. */
 #ifdef __PUREC__
 #define MD5STEP(f, w, x, y, z, data, s) \
-	( w += f /*(x, y, z)*/ + data,  w = w<<s | w>>(32-s),  w += x )
+    ( w += f /*(x, y, z)*/ + data,  w = w<<s | w>>(32-s),  w += x )
 #else
 #define MD5STEP(f, w, x, y, z, data, s) \
-	( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
+    ( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
 #endif
 
 /*
@@ -196,7 +191,7 @@ void MD5Transform(u_int32_t buf[4], u_int32_t const in[16])
     c = buf[2];
     d = buf[3];
 
-#ifdef __PUREC__	/* PureC Weirdness... (GG) */
+#ifdef __PUREC__    /* PureC Weirdness... (GG) */
     MD5STEP(F1(b,c,d), a, b, c, d, in[0] + 0xd76aa478L, 7);
     MD5STEP(F1(a,b,c), d, a, b, c, in[1] + 0xe8c7b756L, 12);
     MD5STEP(F1(d,a,b), c, d, a, b, in[2] + 0x242070dbL, 17);

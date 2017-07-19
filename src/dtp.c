@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: dtp.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -339,15 +334,12 @@ dtp_send_negotiate(void *arg)
     u_int16_t secs;
     struct timeval hello;
     struct attacks *attacks;
-    struct dtp_data *dtp_data;
 
     attacks = arg;
 
     pthread_mutex_lock(&attacks->helper_th.finished);
     
     pthread_detach(pthread_self());
-
-    dtp_data = attacks->data;
 
     hello.tv_sec  = 0;
     hello.tv_usec = 0;
@@ -393,7 +385,7 @@ dtp_th_nondos_do_trunk(void *arg)
     struct pcap_data pcap_aux;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
-    u_int8_t *packet=NULL, *cursor;
+    u_int8_t *packet=NULL;
     sigset_t mask;
     
     attacks = arg;
@@ -447,8 +439,6 @@ dtp_th_nondos_do_trunk(void *arg)
         if (attacks->attack_th.stop)
            break;   
            
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
-
         ether = (struct libnet_802_3_hdr *) packet;
         
         if (!memcmp(dtp_data->mac_source,ether->_802_3_shost,6) )
@@ -494,7 +484,7 @@ dtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *dat
 {
     struct dtp_data *dtp_data;
     struct pcap_data pcap_aux;
-    u_int8_t *packet, *cursor, got_dtp_packet = 0;
+    u_int8_t *packet, got_dtp_packet = 0;
     dlist_t *p;
     struct interface_data *iface_data;
     
@@ -522,8 +512,6 @@ dtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *dat
             free(packet);
             return -1;
         }
-
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
 
         pcap_aux.header = header;
         pcap_aux.packet = packet;
@@ -555,8 +543,8 @@ dtp_get_printable_packet(struct pcap_data *data)
     char **field_values;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DTP].nparams, protocols[PROTO_DTP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     ether = (struct libnet_802_3_hdr *) data->packet;
@@ -667,8 +655,8 @@ dtp_get_printable_store(struct term_node *node)
     
     /* smac + dmac + version + domain + status + type + neighbor + null = 8 */
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DTP].nparams, protocols[PROTO_DTP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     if (node == NULL)

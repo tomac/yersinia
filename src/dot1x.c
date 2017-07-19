@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id :$";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -328,7 +323,6 @@ dot1x_th_mitm(void *arg)
     struct attacks *attacks=NULL;
     struct attack_param *param;
     sigset_t mask;
-    struct dot1x_data *dot1x_data;
     struct pcap_pkthdr header;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
@@ -350,8 +344,6 @@ dot1x_th_mitm(void *arg)
        thread_error("dot1x_th_mitm pthread_sigmask()",errno);
        dot1x_th_mitm_exit(attacks);
     }
-
-    dot1x_data = attacks->data;
 
     param = attacks->params;
 
@@ -551,7 +543,6 @@ dot1x_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *d
     struct dot1x_data *dot1x_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_802_1x_pkt = 0;
-    u_int16_t *cursor;
     dlist_t *p;
     struct interface_data *iface_data;
     
@@ -578,8 +569,6 @@ dot1x_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *d
             free(packet);
             return -1;
         }
-
-        cursor = (u_int16_t *)(packet + 12);
 
         pcap_aux.header = header;
         pcap_aux.packet = packet;
@@ -682,8 +671,8 @@ dot1x_get_printable_packet(struct pcap_data *data)
        return NULL;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DOT1X].nparams, protocols[PROTO_DOT1X].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     ether = (struct libnet_802_3_hdr *) data->packet;
@@ -761,9 +750,9 @@ dot1x_get_printable_store(struct term_node *node)
 
     /* Source MAC */
     snprintf(field_values[DOT1X_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    dot1x_tmp->mac_source[0], dot1x_tmp->mac_source[1],
-	    dot1x_tmp->mac_source[2], dot1x_tmp->mac_source[3],
-	    dot1x_tmp->mac_source[4], dot1x_tmp->mac_source[5]);
+        dot1x_tmp->mac_source[0], dot1x_tmp->mac_source[1],
+        dot1x_tmp->mac_source[2], dot1x_tmp->mac_source[3],
+        dot1x_tmp->mac_source[4], dot1x_tmp->mac_source[5]);
 
     /* Destination MAC */
     snprintf(field_values[DOT1X_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",

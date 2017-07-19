@@ -21,15 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-"$Id: gtk-interface.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
-
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -135,7 +129,6 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    GtkWidget *main_log;
    GtkTooltips *tooltips;
    GtkAccelGroup *accel_group;
-   GdkColor color;
    PangoFontDescription *font_desc;
 
    accel_group = gtk_accel_group_new ();
@@ -528,9 +521,9 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
 
    main_vhvv_eventbox = gtk_event_box_new();
    gtk_widget_set_size_request (main_vhvv_eventbox, 20, 20);
-   color.red = 0;
-   color.green = 0;
-   color.blue = 0;
+   //color.red = 0;
+   //color.green = 0;
+   //color.blue = 0;
    //gtk_widget_modify_bg (GTK_WIDGET(main_vhvv_eventbox), GTK_STATE_NORMAL, &color);
    gtk_container_set_border_width(GTK_CONTAINER(main_vhvv_eventbox), 1);
    gtk_widget_show(main_vhvv_eventbox);
@@ -1144,7 +1137,6 @@ gtk_i_create_listattacksdialog (struct term_node *node)
    GtkWidget *listattacks_vbox;
    GtkWidget *listattacks_v_hbox;
    GtkWidget *listattacks_vh_label;
-   GtkWidget *listattacks_vh_labeln;
    GtkWidget *listattacks_vh_labeld;
    GtkWidget *listattacks_vh_button;
    GtkWidget *listattacks_v_cancel_button;
@@ -1521,7 +1513,6 @@ create_protocol_mwindow(GtkWidget *Main, struct gtk_s_helper *helper, u_int8_t p
    GtkCellRenderer *cell;
    GtkTreeViewColumn *column;
    GType *types;
-   GtkTreeIter iter;
    PangoFontDescription *font_desc;
    char tmp_name[5], msg[1024];
 
@@ -1600,7 +1591,7 @@ create_protocol_mwindow(GtkWidget *Main, struct gtk_s_helper *helper, u_int8_t p
 
    /* Setup the click handler */
    g_signal_connect(protocols_tree[proto], "button-press-event", (GCallback) gtk_c_view_onButtonPressed, helper);
-   //	g_signal_connect(protocols_tree[proto], "popup-menu", (GCallback) gtk_c_view_onPopupMenu, NULL);
+   //    g_signal_connect(protocols_tree[proto], "popup-menu", (GCallback) gtk_c_view_onPopupMenu, NULL);
 
    /* Setup the selection handler */
 

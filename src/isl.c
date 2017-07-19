@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: isl.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -158,8 +153,8 @@ isl_get_printable_packet(struct pcap_data *data)
        return NULL;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_ISL].nparams, protocols[PROTO_ISL].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     /* Source MAC */
@@ -208,20 +203,20 @@ isl_get_printable_store(struct term_node *node)
 #endif
     
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_ISL].nparams, protocols[PROTO_ISL].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
-	if (node == NULL)
-		isl_tmp = protocols[PROTO_ISL].default_values;
-	else
+    if (node == NULL)
+        isl_tmp = protocols[PROTO_ISL].default_values;
+    else
         isl_tmp = (struct isl_data *) node->protocol[PROTO_ISL].tmp_data;
 
     /* Source MAC */
     snprintf(field_values[ISL_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    isl_tmp->mac_source[0], isl_tmp->mac_source[1],
-	    isl_tmp->mac_source[2], isl_tmp->mac_source[3],
-	    isl_tmp->mac_source[4], isl_tmp->mac_source[5]);
+        isl_tmp->mac_source[0], isl_tmp->mac_source[1],
+        isl_tmp->mac_source[2], isl_tmp->mac_source[3],
+        isl_tmp->mac_source[4], isl_tmp->mac_source[5]);
 
     /* Destination MAC */
     snprintf(field_values[ISL_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",

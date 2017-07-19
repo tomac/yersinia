@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: dot1q.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -373,7 +368,6 @@ dot1q_th_poison(void *arg)
     struct attacks *attacks=NULL;
     struct dot1q_data *dot1q_data;
     struct pcap_pkthdr header;
-    struct pcap_data pcap_aux;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
     u_int8_t *packet=NULL, out=0, arp_mac[ETHER_ADDR_LEN];
@@ -427,9 +421,6 @@ dot1q_th_poison(void *arg)
         if ( memcmp((attacks->mac_spoofing)?dot1q_data->mac_source:iface_data->etheraddr,
                      ether->_802_3_dhost,6))
            continue; /* Not for the poisoned MAC... */
- 
-        pcap_aux.header = &header;
-        pcap_aux.packet = packet;
  
         cursor = (u_int16_t *) (packet + LIBNET_802_3_H);
 
@@ -857,7 +848,6 @@ dot1q_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *d
     struct dot1q_data *dot1q_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_802_1q_pkt = 0;
-    u_int16_t *cursor;
     dlist_t *p;
     struct interface_data *iface_data;
     
@@ -884,8 +874,6 @@ dot1q_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *d
             free(packet);
             return -1;
         }
-
-        cursor = (u_int16_t *)(packet + 12);
 
         pcap_aux.header = header;
         pcap_aux.packet = packet;
@@ -999,8 +987,8 @@ dot1q_get_printable_packet(struct pcap_data *data)
        return NULL;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DOT1Q].nparams, protocols[PROTO_DOT1Q].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     ether = (struct libnet_802_3_hdr *) data->packet;
@@ -1277,20 +1265,20 @@ dot1q_get_printable_store(struct term_node *node)
      */
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DOT1Q].nparams, protocols[PROTO_DOT1Q].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
-	if (node == NULL)
-		dot1q_tmp = protocols[PROTO_DOT1Q].default_values;
-	else
+    if (node == NULL)
+        dot1q_tmp = protocols[PROTO_DOT1Q].default_values;
+    else
         dot1q_tmp = (struct dot1q_data *) node->protocol[PROTO_DOT1Q].tmp_data;
 
     /* Source MAC */
     snprintf(field_values[DOT1Q_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    dot1q_tmp->mac_source[0], dot1q_tmp->mac_source[1],
-	    dot1q_tmp->mac_source[2], dot1q_tmp->mac_source[3],
-	    dot1q_tmp->mac_source[4], dot1q_tmp->mac_source[5]);
+        dot1q_tmp->mac_source[0], dot1q_tmp->mac_source[1],
+        dot1q_tmp->mac_source[2], dot1q_tmp->mac_source[3],
+        dot1q_tmp->mac_source[4], dot1q_tmp->mac_source[5]);
 
     /* Destination MAC */
     snprintf(field_values[DOT1Q_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
@@ -1351,52 +1339,52 @@ dot1q_update_field(int8_t state, struct term_node *node, void *value)
         break;
         /* Priority */
         case DOT1Q_PRIORITY1:
-	        dot1q_data->priority1 = *(u_int8_t *)value;
+            dot1q_data->priority1 = *(u_int8_t *)value;
         break;
         /* CFI */
         case DOT1Q_CFI1:
-	        dot1q_data->cfi1 = *(u_int8_t *)value;
+            dot1q_data->cfi1 = *(u_int8_t *)value;
         break;
         /* CFI */
         case DOT1Q_VLAN1:
-	        dot1q_data->vlan1 = *(u_int16_t *)value;
+            dot1q_data->vlan1 = *(u_int16_t *)value;
         break;
         /* Tag Proto */
         case DOT1Q_TPI2:
-	        dot1q_data->tpi2 = *(u_int16_t *)value;
-/*	    memcpy((void *)&dot1q_data->tpi2,value,2);*/
+            dot1q_data->tpi2 = *(u_int16_t *)value;
+/*        memcpy((void *)&dot1q_data->tpi2,value,2);*/
         break;
         /* Priority */
         case DOT1Q_PRIORITY2:
-	        dot1q_data->priority2 = *(u_int8_t *)value;
+            dot1q_data->priority2 = *(u_int8_t *)value;
         break;
         /* CFI */
         case DOT1Q_CFI2:
-	        dot1q_data->cfi2 = *(u_int8_t *)value;
+            dot1q_data->cfi2 = *(u_int8_t *)value;
         break;
         /* CFI */
         case DOT1Q_VLAN2:
-	        dot1q_data->vlan2 = *(u_int16_t *)value;
+            dot1q_data->vlan2 = *(u_int16_t *)value;
         break;
 
         case DOT1Q_TPI3:
-	        dot1q_data->tpi3 = *(u_int16_t *)value;
-/*	    memcpy((void *)&dot1q_data->tpi3,value,2);*/
+            dot1q_data->tpi3 = *(u_int16_t *)value;
+/*        memcpy((void *)&dot1q_data->tpi3,value,2);*/
         break;
-		/* Source IP */
-	    case DOT1Q_SRC_IP:
-	        dot1q_data->src_ip = *(u_int32_t *)value;
-	    break;
+        /* Source IP */
+        case DOT1Q_SRC_IP:
+            dot1q_data->src_ip = *(u_int32_t *)value;
+        break;
 
-	    case DOT1Q_DST_IP:
-	        dot1q_data->dst_ip = *(u_int32_t *)value;
-	    break;
+        case DOT1Q_DST_IP:
+            dot1q_data->dst_ip = *(u_int32_t *)value;
+        break;
 
         case DOT1Q_IP_PROTO:
-	        dot1q_data->ip_proto = *(u_int8_t *)value;
-	    break;
-	    default:
-	    break;
+            dot1q_data->ip_proto = *(u_int8_t *)value;
+        break;
+        default:
+        break;
     }
 
     return 0;

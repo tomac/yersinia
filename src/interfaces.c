@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] =
-"$Id: interfaces.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -1086,11 +1081,11 @@ interfaces_clear_stats(int8_t stats)
 
     for (i = 0; i < MAX_PACKET_STATS; i++) 
     {
-	if (stats == PROTO_ALL)
-	    for (j = 0; j < MAX_PROTOCOLS; j++) {
+    if (stats == PROTO_ALL)
+        for (j = 0; j < MAX_PROTOCOLS; j++) {
           memset((void *)protocols[j].stats[i].header, 0, sizeof(struct pcap_pkthdr));
           memset((void *)protocols[j].stats[i].packet, 0, SNAPLEN);
-	    } else {
+        } else {
           memset((void *)protocols[stats].stats[i].header, 0, sizeof(struct pcap_pkthdr));
           memset((void *)protocols[stats].stats[i].packet, 0, SNAPLEN);
         }
@@ -1108,13 +1103,13 @@ interfaces_clear_stats(int8_t stats)
         if (stats == PROTO_ALL) {
 /*            interfaces[i].total_packets = 0;*/
             for (j = 0; j < MAX_PROTOCOLS; j++) {
-		         iface_data->packets[j] = 0;
-		         iface_data->packets_out[j] = 0;
-	         }
+                 iface_data->packets[j] = 0;
+                 iface_data->packets_out[j] = 0;
+             }
         } else {
-	       iface_data->packets[stats] = 0;
-	       iface_data->packets_out[stats] = 0;
-	    }
+           iface_data->packets[stats] = 0;
+           iface_data->packets_out[stats] = 0;
+        }
     }
 
     write_log(0, "Clearing stats for protocol(s) %d...\n", stats);

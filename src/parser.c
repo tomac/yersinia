@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-"$Id: parser.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -256,11 +251,11 @@ parser_vrfy_mac( char *address, u_int8_t *destination )
     u_int16_t i=0, j;
 
     substr = address;
-	/* trim left spaces (can exist in the configuration file) */
-/*	while (*substr == ' ')
-		substr++;*/
+    /* trim left spaces (can exist in the configuration file) */
+/*    while (*substr == ' ')
+        substr++;*/
 
-	aux = substr;
+    aux = substr;
 
     while ( (substr = strchr(substr, ':') ))
     {
@@ -342,7 +337,7 @@ parser_vrfy_bridge_id( char *address, u_int8_t *destination )
     if (*aux != '.')
         return -1;
 
-	aux++;
+    aux++;
 
     for (i=0; i<6; i++)
     {
@@ -549,10 +544,10 @@ parser_get_random_string(u_int8_t *string, u_int8_t len)
         return -1;
 
     while (total < len-1) {
-	if (gettimeofday(&tv, NULL) < 0) {
-		thread_error("Error in gettimeofday", errno);
-		return -1;
-	}
+    if (gettimeofday(&tv, NULL) < 0) {
+        thread_error("Error in gettimeofday", errno);
+        return -1;
+    }
 
 #ifdef HAVE_RAND_R
        i = (u_int32_t)tv.tv_usec;
@@ -626,13 +621,12 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
    FILE *file;
    char buffer[BUFSIZ], *ptr, *ptr2;
    u_int8_t state, i;
-   int16_t proto, field;
+   int16_t proto;
    struct commands_param *params;
 
    params = NULL;
    state = 0;
    proto = -1;
-   field = -1;
 
    if ((file = fopen(tty->config_file, "r")) == NULL) {
       write_log(1, "Error opening configuration file %s\n", tty->config_file);

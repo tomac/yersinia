@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: xstp.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -534,11 +529,11 @@ xstp_th_dos_conf(void *arg)
         attack_gen_mac(stp_data->mac_source);
 
 #ifdef LBL_ALIGN
-		temp = libnet_get_prand(LIBNET_PRu16);
-		memcpy((void *)stp_data->bridge_id, (void *)&temp,2);
-		
-		temp = libnet_get_prand(LIBNET_PRu16);
-		memcpy((void *)stp_data->root_id, (void *)&temp,2);
+        temp = libnet_get_prand(LIBNET_PRu16);
+        memcpy((void *)stp_data->bridge_id, (void *)&temp,2);
+        
+        temp = libnet_get_prand(LIBNET_PRu16);
+        memcpy((void *)stp_data->root_id, (void *)&temp,2);
 #else
         *((u_int16_t *) (stp_data->bridge_id)) = libnet_get_prand(LIBNET_PRu16);
         *((u_int16_t *) (stp_data->root_id)) = libnet_get_prand(LIBNET_PRu16);
@@ -1216,13 +1211,13 @@ xstp_get_printable_packet(struct pcap_data *data)
 
     /* Source MAC */
     snprintf(field_values[XSTP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    ether->_802_3_shost[0], ether->_802_3_shost[1], ether->_802_3_shost[2],
-	    ether->_802_3_shost[3], ether->_802_3_shost[4], ether->_802_3_shost[5]);
+        ether->_802_3_shost[0], ether->_802_3_shost[1], ether->_802_3_shost[2],
+        ether->_802_3_shost[3], ether->_802_3_shost[4], ether->_802_3_shost[5]);
 
     /* Destination MAC */
     snprintf(field_values[XSTP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    ether->_802_3_dhost[0], ether->_802_3_dhost[1], ether->_802_3_dhost[2],
-	    ether->_802_3_dhost[3], ether->_802_3_dhost[4], ether->_802_3_dhost[5]);
+        ether->_802_3_dhost[0], ether->_802_3_dhost[1], ether->_802_3_dhost[2],
+        ether->_802_3_dhost[3], ether->_802_3_dhost[4], ether->_802_3_dhost[5]);
 
     /* ID */
 #ifdef LBL_ALIGN
@@ -1237,70 +1232,70 @@ xstp_get_printable_packet(struct pcap_data *data)
     /* BPDU Type */
     snprintf(field_values[XSTP_TYPE], 3, "%02X", *((u_int8_t *)(stp_data+3)));
 
-	if ((*(u_int8_t *)(stp_data + 3)) != BPDU_TCN) 
-	{
-		/* Flags */
-		snprintf(field_values[XSTP_FLAGS], 3, "%02X", *((u_int8_t *)stp_data+4));
+    if ((*(u_int8_t *)(stp_data + 3)) != BPDU_TCN) 
+    {
+        /* Flags */
+        snprintf(field_values[XSTP_FLAGS], 3, "%02X", *((u_int8_t *)stp_data+4));
 
-		/* Root ID */
-		snprintf(field_values[XSTP_ROOTID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
-			*(stp_data+5)&0xFF, *(stp_data+6)&0xFF, *(stp_data+7)&0xFF,
-			*(stp_data+8)&0xFF, *(stp_data+9)&0xFF, *(stp_data+10)&0xFF,
-			*(stp_data+11)&0xFF, *(stp_data+12)&0xFF);
-		/* Root Pathcost */
+        /* Root ID */
+        snprintf(field_values[XSTP_ROOTID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
+            *(stp_data+5)&0xFF, *(stp_data+6)&0xFF, *(stp_data+7)&0xFF,
+            *(stp_data+8)&0xFF, *(stp_data+9)&0xFF, *(stp_data+10)&0xFF,
+            *(stp_data+11)&0xFF, *(stp_data+12)&0xFF);
+        /* Root Pathcost */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_long,(stp_data+13),4);
-		snprintf(field_values[XSTP_PATHCOST], 9, "%08X", (int32_t) ntohl(aux_long));
+        memcpy((void *)&aux_long,(stp_data+13),4);
+        snprintf(field_values[XSTP_PATHCOST], 9, "%08X", (int32_t) ntohl(aux_long));
 #else
-		snprintf(field_values[XSTP_PATHCOST], 9, "%08X", (int32_t) ntohl(*(int32_t *)(stp_data+13)));
+        snprintf(field_values[XSTP_PATHCOST], 9, "%08X", (int32_t) ntohl(*(int32_t *)(stp_data+13)));
 #endif
 
-		/* Bridge ID */
-		snprintf(field_values[XSTP_BRIDGEID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
-			*(stp_data+17)&0xFF, *(stp_data+18)&0xFF, *(stp_data+19)&0xFF,
-			*(stp_data+20)&0xFF, *(stp_data+21)&0xFF, *(stp_data+22)&0xFF,
-			*(stp_data+23)&0xFF, *(stp_data+24)&0xFF);
+        /* Bridge ID */
+        snprintf(field_values[XSTP_BRIDGEID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
+            *(stp_data+17)&0xFF, *(stp_data+18)&0xFF, *(stp_data+19)&0xFF,
+            *(stp_data+20)&0xFF, *(stp_data+21)&0xFF, *(stp_data+22)&0xFF,
+            *(stp_data+23)&0xFF, *(stp_data+24)&0xFF);
 
-		/* Port ID */
+        /* Port ID */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_short,(stp_data+25),2);
-		snprintf(field_values[XSTP_PORTID], 5, "%04hX", ntohs(aux_short));
+        memcpy((void *)&aux_short,(stp_data+25),2);
+        snprintf(field_values[XSTP_PORTID], 5, "%04hX", ntohs(aux_short));
 #else
-		snprintf(field_values[XSTP_PORTID], 5, "%04hX", ntohs(*(u_int16_t *)(stp_data+25)));
+        snprintf(field_values[XSTP_PORTID], 5, "%04hX", ntohs(*(u_int16_t *)(stp_data+25)));
 #endif
 
-		/* Message age */
+        /* Message age */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_short,(stp_data+27),2);
-		snprintf(field_values[XSTP_AGE], 5, "%04hX", aux_short);
+        memcpy((void *)&aux_short,(stp_data+27),2);
+        snprintf(field_values[XSTP_AGE], 5, "%04hX", aux_short);
 #else
-		snprintf(field_values[XSTP_AGE], 5, "%04hX", *(u_int16_t *)(stp_data+27));
+        snprintf(field_values[XSTP_AGE], 5, "%04hX", *(u_int16_t *)(stp_data+27));
 #endif
 
-		/* Max age */
+        /* Max age */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_short,(stp_data+29),2);
-		snprintf(field_values[XSTP_MAX], 5, "%04hX", aux_short);
+        memcpy((void *)&aux_short,(stp_data+29),2);
+        snprintf(field_values[XSTP_MAX], 5, "%04hX", aux_short);
 #else
-		snprintf(field_values[XSTP_MAX], 5, "%04hX", *(u_int16_t *)(stp_data+29));
+        snprintf(field_values[XSTP_MAX], 5, "%04hX", *(u_int16_t *)(stp_data+29));
 #endif
 
-		/* Hello time */
+        /* Hello time */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_short,(stp_data+31),2);
-		snprintf(field_values[XSTP_HELLO], 5, "%04hX", aux_short);
+        memcpy((void *)&aux_short,(stp_data+31),2);
+        snprintf(field_values[XSTP_HELLO], 5, "%04hX", aux_short);
 #else
-		snprintf(field_values[XSTP_HELLO], 5, "%04hX", *(u_int16_t *)(stp_data+31));
+        snprintf(field_values[XSTP_HELLO], 5, "%04hX", *(u_int16_t *)(stp_data+31));
 #endif
 
-		/* Forward delay */
+        /* Forward delay */
 #ifdef LBL_ALIGN
-		memcpy((void *)&aux_short,(stp_data+33),2);
-		snprintf(field_values[XSTP_FWD], 5, "%04hX", aux_short);
+        memcpy((void *)&aux_short,(stp_data+33),2);
+        snprintf(field_values[XSTP_FWD], 5, "%04hX", aux_short);
 #else
-		snprintf(field_values[XSTP_FWD], 5, "%04hX", *(u_int16_t *)(stp_data+33));
+        snprintf(field_values[XSTP_FWD], 5, "%04hX", *(u_int16_t *)(stp_data+33));
 #endif
-	}
+    }
 
     return (char **)field_values;
 }
@@ -1317,25 +1312,25 @@ xstp_get_printable_store(struct term_node *node)
      */
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_STP].nparams, protocols[PROTO_STP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
-	if (node == NULL)
-		stp = protocols[PROTO_STP].default_values;
-	else
+    if (node == NULL)
+        stp = protocols[PROTO_STP].default_values;
+    else
         stp = (struct stp_data *) node->protocol[PROTO_STP].tmp_data;
 
     /* Source MAC */
     snprintf(field_values[XSTP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    stp->mac_source[0], stp->mac_source[1],
-	    stp->mac_source[2], stp->mac_source[3],
-	    stp->mac_source[4], stp->mac_source[5]);
+        stp->mac_source[0], stp->mac_source[1],
+        stp->mac_source[2], stp->mac_source[3],
+        stp->mac_source[4], stp->mac_source[5]);
     /* Destination MAC */
     snprintf(field_values[XSTP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    stp->mac_dest[0], stp->mac_dest[1],
-	    stp->mac_dest[2], stp->mac_dest[3],
-	    stp->mac_dest[4], stp->mac_dest[5]);
+        stp->mac_dest[0], stp->mac_dest[1],
+        stp->mac_dest[2], stp->mac_dest[3],
+        stp->mac_dest[4], stp->mac_dest[5]);
 
     /* ID */
     snprintf(field_values[XSTP_ID], 5, "%04hX", stp->id);
@@ -1351,20 +1346,20 @@ xstp_get_printable_store(struct term_node *node)
 
     /* Root ID */
     snprintf(field_values[XSTP_ROOTID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
-	    stp->root_id[0]&0xFF, stp->root_id[1]&0xFF,
-	    stp->root_id[2]&0xFF, stp->root_id[3]&0xFF,
-	    stp->root_id[4]&0xFF, stp->root_id[5]&0xFF,
-	    stp->root_id[6]&0xFF, stp->root_id[7]&0xFF);
+        stp->root_id[0]&0xFF, stp->root_id[1]&0xFF,
+        stp->root_id[2]&0xFF, stp->root_id[3]&0xFF,
+        stp->root_id[4]&0xFF, stp->root_id[5]&0xFF,
+        stp->root_id[6]&0xFF, stp->root_id[7]&0xFF);
 
     /* Root Pathcost */
     snprintf(field_values[XSTP_PATHCOST], 9, "%08X", (u_int32_t)stp->root_pc);
 
     /* Bridge ID */
     snprintf(field_values[XSTP_BRIDGEID], 18, "%02X%02X.%02X%02X%02X%02X%02X%02X",
-	    stp->bridge_id[0]&0xFF, stp->bridge_id[1]&0xFF,
-	    stp->bridge_id[2]&0xFF, stp->bridge_id[3]&0xFF,
-	    stp->bridge_id[4]&0xFF, stp->bridge_id[5]&0xFF,
-	    stp->bridge_id[6]&0xFF, stp->bridge_id[7]&0xFF);
+        stp->bridge_id[0]&0xFF, stp->bridge_id[1]&0xFF,
+        stp->bridge_id[2]&0xFF, stp->bridge_id[3]&0xFF,
+        stp->bridge_id[4]&0xFF, stp->bridge_id[5]&0xFF,
+        stp->bridge_id[6]&0xFF, stp->bridge_id[7]&0xFF);
 
     /* Port ID */
     snprintf(field_values[XSTP_PORTID], 5, "%04hX", stp->port_id);
