@@ -31,7 +31,9 @@ static const char rcsid[] =
 #include <config.h>
 #endif
 
+#ifndef _REENTRANT
 #define _REENTRANT
+#endif
 
 #include <stdio.h>
 #include <errno.h>
