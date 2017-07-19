@@ -545,7 +545,7 @@ th_uptime(void *arg)
    struct timeval timeout;
    sigset_t mask;
 
-write_log(0,"\n th_uptime thread = %d\n",(int)pthread_self());
+write_log(0,"\n th_uptime thread = %X\n",(int)pthread_self());
 
    sigfillset(&mask);
 
@@ -653,10 +653,6 @@ void
 write_log( u_int16_t mode, char *msg, ... )
 {
     va_list ap; /* Variable argument list...*/
-#ifdef HAVE_GTK
-	char buffer[4096];
-	GtkTextIter iter2;
-#endif
 
     va_start(ap,msg);
 
@@ -666,16 +662,30 @@ write_log( u_int16_t mode, char *msg, ... )
     if ((!mode || (mode == 1)) && (tty_tmp->log_file))
        vfprintf(tty_tmp->log_file, msg,ap);
 
-	/* Send yersinia log to the main_log gtk widget */
+    va_end(ap);
+
 #ifdef HAVE_GTK
-    if ((!mode || (mode == 1)) && ((tty_tmp->gtk) && (tty_tmp->buffer_log))) {
-       vsnprintf(buffer, 4096, msg,ap);
-	   gtk_text_buffer_get_iter_at_offset (GTK_TEXT_BUFFER (tty_tmp->buffer_log), &iter2, 0);
-	   gtk_text_buffer_insert(GTK_TEXT_BUFFER(tty_tmp->buffer_log), &iter2, buffer, -1);
+	/* Send yersinia log to the main_log gtk widget */
+    if ((!mode || (mode == 1)) && ((tty_tmp->gtk) && (tty_tmp->buffer_log))) 
+    {
+        GtkTextIter iter2;
+        char *buffer = (char *)malloc( 2048 );
+
+        if ( buffer )
+        {
+            va_start( ap,msg );
+
+            vsnprintf( buffer, 2048, msg, ap );
+            gtk_text_buffer_get_iter_at_offset( GTK_TEXT_BUFFER (tty_tmp->buffer_log), &iter2, 0 );
+            gtk_text_buffer_insert( GTK_TEXT_BUFFER(tty_tmp->buffer_log), &iter2, buffer, -1 );
+
+            va_end(ap);
+
+            free( buffer );
+        }
 	}
 #endif
 
-    va_end(ap);
 }
 
 
@@ -754,7 +764,7 @@ clean_exit(void)
 void 
 g00dbye(void)
 {
-    write_log(0," g00dbye function called from %d\n",(int)pthread_self());
+    write_log(0," g00dbye function called from %X\n",(int)pthread_self());
     
     term_delete_all_tty();
     
