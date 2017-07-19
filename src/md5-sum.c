@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] =
-       "$Id: md5-sum.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: dot1q.c,v 1.26 2006/02/16 16:44:44 slay Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -36,7 +31,7 @@ static const char rcsid[] =
 #include <stdio.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/socket.h>       
+#include <sys/socket.h>
 
 #ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
@@ -111,9 +106,9 @@ mpls_init_comms_struct(struct term_node *node)
     }
 
     mpls_data = node->protocol[PROTO_MPLS].tmp_data;
-    
+
     node->protocol[PROTO_MPLS].commands_param = comm_param;
-    
+
     comm_param[MPLS_SMAC]    =  &mpls_data->mac_source; 
     comm_param[MPLS_DMAC]    =  &mpls_data->mac_dest;
     comm_param[MPLS_LABEL1]  =  &mpls_data->label1; 
@@ -472,7 +467,6 @@ mpls_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *da
     struct mpls_data *mpls_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_mpls_pkt = 0;
-    u_int16_t *cursor;
     dlist_t *p;
     struct interface_data *iface_data;
     
@@ -499,8 +493,6 @@ mpls_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *da
             free(packet);
             return -1;
         }
-
-        cursor = (u_int16_t *)(packet + 12);
 
         pcap_aux.header = header;
         pcap_aux.packet = packet;
@@ -612,8 +604,8 @@ mpls_get_printable_packet(struct pcap_data *data)
        return NULL;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_MPLS].nparams, protocols[PROTO_MPLS].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     ether = (struct libnet_ethernet_hdr *) data->packet;
@@ -714,20 +706,20 @@ mpls_get_printable_store(struct term_node *node)
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_MPLS].nparams,
                  protocols[PROTO_MPLS].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     if (node == NULL)
-    	mpls_tmp = protocols[PROTO_MPLS].default_values;
+        mpls_tmp = protocols[PROTO_MPLS].default_values;
     else
         mpls_tmp = (struct mpls_data *) node->protocol[PROTO_MPLS].tmp_data;
 
     /* Source MAC */
     snprintf(field_values[MPLS_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-	    mpls_tmp->mac_source[0], mpls_tmp->mac_source[1],
-	    mpls_tmp->mac_source[2], mpls_tmp->mac_source[3],
-	    mpls_tmp->mac_source[4], mpls_tmp->mac_source[5]);
+        mpls_tmp->mac_source[0], mpls_tmp->mac_source[1],
+        mpls_tmp->mac_source[2], mpls_tmp->mac_source[3],
+        mpls_tmp->mac_source[4], mpls_tmp->mac_source[5]);
 
     /* Destination MAC */
     snprintf(field_values[MPLS_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
@@ -780,7 +772,7 @@ mpls_update_field(int8_t state, struct term_node *node, void *value)
         case MPLS_DMAC:
             memcpy((void *)mpls_data->mac_dest, (void *)value, ETHER_ADDR_LEN);
         break;
-	/* Source IP */
+    /* Source IP */
         case MPLS_SRC_IP:
             mpls_data->src_ip = *(u_int32_t *)value;
         break;

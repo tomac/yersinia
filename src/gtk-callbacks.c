@@ -20,14 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-"$Id: gtk-callbacks.c 48 2007-05-08 09:41:17Z slay $";
-#endif
-
-
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include <time.h>

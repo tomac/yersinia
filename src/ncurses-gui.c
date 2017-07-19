@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] =
-"$Id: ncurses-gui.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -131,7 +126,7 @@ ncurses_gui(void *args)
         ncurses_gui_th_exit(NULL);
     }
 
-    if (term_add_node(&term_node, TERM_CON, (int)NULL, pthread_self()) < 0)
+    if (term_add_node(&term_node, TERM_CON, 0, pthread_self()) < 0)
     {
        if (pthread_mutex_unlock(&terms->mutex) != 0)
           thread_error("ncurses_gui_th pthread_mutex_unlock",errno);

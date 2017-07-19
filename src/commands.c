@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: commands.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -111,7 +106,7 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
              int8_t help, int8_t as_param, u_int8_t prot, 
              struct commands *aux_comm, int8_t tab)
 {
-   int8_t fail, params, last;
+   int8_t fail, last;
    char msg[128];
    u_int8_t last_proto, proto, j, gotit, par_comm;
    struct commands_param *prot_comms;
@@ -123,18 +118,15 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
    {
        if (!(warray->word[warray->indx+1]))
        {
-          params=0;
           last = 1;
        }
        else
        {
-          params=1;
           last = 0;
        }
    }
    else
    {
-      params = 0;
       last = 0;
    }
    
@@ -1737,19 +1729,9 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
                     u_int8_t proto, struct commands *aux_comm, int8_t tab)
 {
    char msg[128];
-   int8_t i, fail, params, aux;
+   int8_t i, fail, aux;
    struct attack *theattack = NULL;
 
-   if (warray->word[warray->indx])
-   {
-       if (!(warray->word[warray->indx+1]))
-          params=0;
-       else
-          params=1;
-   }
-   else
-      params=0;
-      
    if (warray->nwords > (warray->indx+2))
    {
        if (help || tab)

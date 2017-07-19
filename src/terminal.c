@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: terminal.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -231,7 +226,7 @@ term_add_node(struct term_node **node,
              return -1;
           }
           new->state       = LOGIN_STATE;
-		  /* Default value for MAC spoofing is ON (that's evil!) */
+          /* Default value for MAC spoofing is ON (that's evil!) */
           new->mac_spoofing = (tty_tmp->mac_spoofing == -1) ? 1 : tty_tmp->mac_spoofing;
           new->pcap_file.name    = NULL;
           new->pcap_file.pd      = NULL;

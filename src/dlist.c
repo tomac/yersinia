@@ -21,11 +21,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-"$Id: dlist.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #include "config.h"
 
 #include <stdlib.h>

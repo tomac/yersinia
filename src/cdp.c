@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: cdp.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -256,7 +251,6 @@ void
 cdp_th_send_raw(void *arg)
 {
     struct attacks *attacks=NULL;
-    struct cdp_data *cdp_data;
     sigset_t mask;
 
     attacks = arg;
@@ -273,14 +267,12 @@ cdp_th_send_raw(void *arg)
        cdp_th_send_raw_exit(attacks);    
     }
 
-    cdp_data = attacks->data;
-
     cdp_send(attacks);
 
     cdp_th_send_raw_exit(attacks);
 }
 
-	
+    
 void
 cdp_th_send_raw_exit(struct attacks *attacks)
 {
@@ -346,7 +338,7 @@ cdp_th_flood(void *arg)
             cdp_th_flood_exit(attacks);
         }
 
-	    /* Change Address */
+        /* Change Address */
         lbl32 = libnet_get_prand(LIBNET_PRu32);
         if (cdp_update_tlv_item(cdp_data, CDP_TYPE_ADDRESS, (void *)&lbl32) < 0) {
             write_log(0, "Error in cdp_update_tlv_item\n");
@@ -387,7 +379,6 @@ void
 cdp_th_virtual_device(void *arg)
 {
     struct attacks *attacks=NULL;
-    struct cdp_data *cdp_data;
     sigset_t mask;
 
     attacks = arg;
@@ -403,8 +394,6 @@ cdp_th_virtual_device(void *arg)
        thread_error("cdp_th_virtual_device pthread_sigmask()",errno);
        cdp_th_virtual_device_exit(attacks);    
     }
-
-    cdp_data = attacks->data;
 
     thread_create(&attacks->helper_th.id, &cdp_send_hellos, attacks);
 
@@ -596,7 +585,7 @@ cdp_update_tlv_item(struct cdp_data *cdp_data, u_int16_t type, char *value)
     while ((i < MAX_TLV) && (offset < cdp_data->options_len)) {
         if (ntohs((*(u_int16_t *)(cdp_data->options + offset + 2))) > cdp_data->options_len) {
             return -1; /* Oversized packet */
-	}
+    }
         len = ntohs((*(u_int16_t *)(cdp_data->options + offset + 2)));
         if (ntohs((*(u_int16_t *)(cdp_data->options + offset))) == type) { /* found */
 
@@ -620,14 +609,14 @@ cdp_update_tlv_item(struct cdp_data *cdp_data, u_int16_t type, char *value)
                             cdp_data->options[j+gap] = cdp_data->options[j];
                     }
 
-		    /* Compute real size */
-		    if (gap != 0) {
-		        aux_short = htons(len + gap);
-		        memcpy((void *)(cdp_data->options+offset+2), &aux_short, 2);
+            /* Compute real size */
+            if (gap != 0) {
+                aux_short = htons(len + gap);
+                memcpy((void *)(cdp_data->options+offset+2), &aux_short, 2);
                         cdp_data->options_len += gap;
-	            }
+                }
                     memcpy((void *)(cdp_data->options+offset+4), value, value_len);
-		    return 0;
+            return 0;
                 break;
                 case CDP_TYPE_CAPABILITY:
                     aux_long = htonl((*(u_int32_t *)value));
@@ -654,109 +643,109 @@ cdp_edit_tlv(struct term_node *node, u_int8_t action, u_int8_t pointer, u_int16_
     u_int16_t len, offset;
     u_int16_t aux_short;
     u_int32_t aux_long;
-	struct cdp_data *cdp_data;
+    struct cdp_data *cdp_data;
 
     i = 0;
     offset = 0;
     cdp_data = (struct cdp_data *) node->protocol[PROTO_CDP].tmp_data;
 
-	switch(action) {
-		case TLV_DELETE:
-			/* Find the TLV */
-			while ((i < MAX_TLV) && (offset < cdp_data->options_len)) {
-				if (ntohs((*(u_int16_t *)(cdp_data->options + offset + 2))) > cdp_data->options_len) {
-					return -1; /* Oversized packet */
-			    }
+    switch(action) {
+        case TLV_DELETE:
+            /* Find the TLV */
+            while ((i < MAX_TLV) && (offset < cdp_data->options_len)) {
+                if (ntohs((*(u_int16_t *)(cdp_data->options + offset + 2))) > cdp_data->options_len) {
+                    return -1; /* Oversized packet */
+                }
 
-			    len = ntohs((*(u_int16_t *)(cdp_data->options + offset + 2)));
-				if (i == pointer) {
-					cdp_data->options_len -= len;
-					memcpy((void *)(cdp_data->options + offset), (void *)(cdp_data->options + offset + len),
-							cdp_data->options_len - offset);
+                len = ntohs((*(u_int16_t *)(cdp_data->options + offset + 2)));
+                if (i == pointer) {
+                    cdp_data->options_len -= len;
+                    memcpy((void *)(cdp_data->options + offset), (void *)(cdp_data->options + offset + len),
+                            cdp_data->options_len - offset);
 
-					/* Space left in options should be zero */
-					memset((void *)(cdp_data->options + cdp_data->options_len), 0, MAX_TLV*MAX_VALUE_LENGTH - cdp_data->options_len);
-					return 0;
-				}
+                    /* Space left in options should be zero */
+                    memset((void *)(cdp_data->options + cdp_data->options_len), 0, MAX_TLV*MAX_VALUE_LENGTH - cdp_data->options_len);
+                    return 0;
+                }
 
-				i++;
-				offset += len;
-			}
-		break;
-		case TLV_ADD:
-			switch(type) {
-				case CDP_TYPE_DEVID:
-				case CDP_TYPE_PORTID:
-				case CDP_TYPE_VERSION:
-				case CDP_TYPE_PLATFORM:
-					len = strlen((char *)value) + 4;
-					if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
-						/* Type */
-						aux_short = htons(type);
-						memcpy((void *)(cdp_data->options + cdp_data->options_len), (void *)&aux_short, 2);
-						/* Length */
-						aux_short = htons(len);
-						memcpy((void *)(cdp_data->options + cdp_data->options_len + 2), (void *)&aux_short, 2);
-						/* Value */
-						memcpy((void *)(cdp_data->options + cdp_data->options_len + 4), (void *)value, len - 4);
-						cdp_data->options_len += len;
-					} 
-					else
-						return -1;
-				break;
-				case CDP_TYPE_ADDRESS:
-					len = 13 + 4;
-					if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
-						/* Type */
-						aux_short = htons(type);
-						memcpy((void *)cdp_data->options + cdp_data->options_len, &aux_short, 2);
-						/* Length */
-						aux_short = htons(len);
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 2, &aux_short, 2);
-						/* Value */
-						/* Number of IP */
-						aux_long = htonl(0x00000001);
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 4, &aux_long, 4);
-						/* Type */
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 8, "\x01", 1); /* NLPID */
-						/* Length */
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 9, "\x01", 1);
-						/* Protocol */
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 10, "\xcc", 1); /* IP */
-						/* Length */
-						aux_short = htons(0x0004);
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 11, &aux_short, 2);
-						/* IP */
-		/*                aux_long = ntohl(addr.s_addr);*/
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 13, (void *)value, 4);
+                i++;
+                offset += len;
+            }
+        break;
+        case TLV_ADD:
+            switch(type) {
+                case CDP_TYPE_DEVID:
+                case CDP_TYPE_PORTID:
+                case CDP_TYPE_VERSION:
+                case CDP_TYPE_PLATFORM:
+                    len = strlen((char *)value) + 4;
+                    if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
+                        /* Type */
+                        aux_short = htons(type);
+                        memcpy((void *)(cdp_data->options + cdp_data->options_len), (void *)&aux_short, 2);
+                        /* Length */
+                        aux_short = htons(len);
+                        memcpy((void *)(cdp_data->options + cdp_data->options_len + 2), (void *)&aux_short, 2);
+                        /* Value */
+                        memcpy((void *)(cdp_data->options + cdp_data->options_len + 4), (void *)value, len - 4);
+                        cdp_data->options_len += len;
+                    } 
+                    else
+                        return -1;
+                break;
+                case CDP_TYPE_ADDRESS:
+                    len = 13 + 4;
+                    if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
+                        /* Type */
+                        aux_short = htons(type);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len, &aux_short, 2);
+                        /* Length */
+                        aux_short = htons(len);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 2, &aux_short, 2);
+                        /* Value */
+                        /* Number of IP */
+                        aux_long = htonl(0x00000001);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 4, &aux_long, 4);
+                        /* Type */
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 8, "\x01", 1); /* NLPID */
+                        /* Length */
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 9, "\x01", 1);
+                        /* Protocol */
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 10, "\xcc", 1); /* IP */
+                        /* Length */
+                        aux_short = htons(0x0004);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 11, &aux_short, 2);
+                        /* IP */
+        /*                aux_long = ntohl(addr.s_addr);*/
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 13, (void *)value, 4);
 
-						cdp_data->options_len += len;
-					}
-					else
-						return -1;
-				break;
-				case CDP_TYPE_CAPABILITY:
-					len = 4 + 4;
-					if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
-						/* Type */
-						aux_short = htons(type);
-						memcpy((void *)cdp_data->options + cdp_data->options_len, &aux_short, 2);
-						/* Length */
-						aux_short = htons(len);
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 2, &aux_short, 2);
-						/* Value */
-						aux_long = htonl((*(u_int32_t *)value));
-						memcpy((void *)cdp_data->options + cdp_data->options_len + 4, &aux_long, 4);
+                        cdp_data->options_len += len;
+                    }
+                    else
+                        return -1;
+                break;
+                case CDP_TYPE_CAPABILITY:
+                    len = 4 + 4;
+                    if (cdp_data->options_len + len < MAX_TLV*MAX_VALUE_LENGTH) {
+                        /* Type */
+                        aux_short = htons(type);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len, &aux_short, 2);
+                        /* Length */
+                        aux_short = htons(len);
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 2, &aux_short, 2);
+                        /* Value */
+                        aux_long = htonl((*(u_int32_t *)value));
+                        memcpy((void *)cdp_data->options + cdp_data->options_len + 4, &aux_long, 4);
 
-						cdp_data->options_len += len;
-					}
-					else
-						return -1;
+                        cdp_data->options_len += len;
+                    }
+                    else
+                        return -1;
 
-				break;
-			}
-		break;
-	}
+                break;
+            }
+        break;
+    }
 
     return -1;
 }
@@ -770,7 +759,7 @@ cdp_get_printable_packet(struct pcap_data *data)
 {
    struct libnet_802_3_hdr *ether;
    u_char *cdp_data, *ptr;
-   char *buf_ptr, *buf_ptr_orig;
+   char *buf_ptr;
    u_int8_t i, k;
 #ifdef LBL_ALIGN
    u_int16_t aux_short;
@@ -809,7 +798,7 @@ cdp_get_printable_packet(struct pcap_data *data)
 #endif
 
    ptr = cdp_data + 4;
-   buf_ptr_orig = buf_ptr = buffer;
+   buf_ptr = buffer;
    i = 0;
    memset((void *)buffer, 0, 4096);
    total_len = 0;
@@ -867,7 +856,7 @@ cdp_get_printable_packet(struct pcap_data *data)
                         memcpy(buf_ptr, ptr+4, MAX_VALUE_LENGTH);
                         buf_ptr += MAX_VALUE_LENGTH + 1;
                         total_len += MAX_VALUE_LENGTH + 1;
-                        /*				tlv[i][MAX_VALUE_LENGTH-2] = '|';
+                        /*                tlv[i][MAX_VALUE_LENGTH-2] = '|';
                                     tlv[i].value[MAX_VALUE_LENGTH-1] = '\0';*/
                      }
                      break;
@@ -888,7 +877,7 @@ cdp_get_printable_packet(struct pcap_data *data)
                      if (len == 8) {
                         snprintf(buf_ptr, 9, "%02X%02X%02X%02X",
                               *(ptr+4), *(ptr+5), *(ptr+6), *(ptr+7));
-                        /*				cdp->tlv[i].value[8] = '\0';*/
+                        /*                cdp->tlv[i].value[8] = '\0';*/
                         buf_ptr += 9;
                         total_len += 9;
                      }
@@ -946,15 +935,15 @@ cdp_get_printable_store(struct term_node *node)
 #ifdef LBL_ALIGN
     u_int16_t aux_short;
 #endif
-    u_int8_t *ptr, i, k, j;
+    u_int8_t *ptr, i;
     char **field_values;
     char buffer[4096], *buf_ptr;
-    u_int16_t type, len, total;
+    u_int16_t total;
 
     /* smac + dmac + version + ttl + checksum + tlv + null = 7 */
    if ((field_values = (char **) protocol_create_printable(protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
     if (node == NULL)
@@ -1039,9 +1028,9 @@ cdp_get_printable_store(struct term_node *node)
                                 tlv += 16;
                                 total += 16;
                             } else {
-								*tlv = '\0';
-							    tlv++;
-							}
+                                *tlv = '\0';
+                                tlv++;
+                            }
                         break;
                         case CDP_TYPE_CAPABILITY: /* 4 byte field */
                             if (len == 8) {
@@ -1218,39 +1207,39 @@ cdp_update_field(int8_t state, struct term_node *node, void *value)
 {
     struct cdp_data *cdp_data;
     
-	if (node == NULL)
-		cdp_data = protocols[PROTO_CDP].default_values;
-	else
+    if (node == NULL)
+        cdp_data = protocols[PROTO_CDP].default_values;
+    else
         cdp_data = node->protocol[PROTO_CDP].tmp_data;
 
     switch(state)
     {
-		/* Source MAC */
+        /* Source MAC */
         case CDP_SMAC:
-			memcpy((void *)cdp_data->mac_source, (void *)value, ETHER_ADDR_LEN);
+            memcpy((void *)cdp_data->mac_source, (void *)value, ETHER_ADDR_LEN);
         break;
 
         /* Destination MAC */
         case CDP_DMAC:
-			memcpy((void *)cdp_data->mac_dest, (void *)value, ETHER_ADDR_LEN);
+            memcpy((void *)cdp_data->mac_dest, (void *)value, ETHER_ADDR_LEN);
         break;
 
         /* Version */
         case CDP_VER:
-	        cdp_data->version = *(u_int8_t *)value;
+            cdp_data->version = *(u_int8_t *)value;
         break;
 
         /* TTL */
         case CDP_TTL:
-	        cdp_data->ttl = *(u_int8_t *)value;
+            cdp_data->ttl = *(u_int8_t *)value;
         break;
 
         /* Checksum */
-		case CDP_CHECKSUM:
-	        cdp_data->checksum = *(u_int16_t *)value;
+        case CDP_CHECKSUM:
+            cdp_data->checksum = *(u_int16_t *)value;
         break;
-		default:
-		break;
+        default:
+        break;
     }
 
     return 0;
@@ -1313,8 +1302,8 @@ cdp_chksum(u_int8_t *data, u_int32_t count) {
 
     /*  Add left-over byte, if any */
     if( count > 0 ) {
-/*	printf("Left over byte: %04X\n",((*wrd & 0xFF)<<8));*/
-	    sum = sum + ((*wrd &0xFF)<<8);
+/*    printf("Left over byte: %04X\n",((*wrd & 0xFF)<<8));*/
+        sum = sum + ((*wrd &0xFF)<<8);
     }
 
     /*  Fold 32-bit sum to 16 bits */

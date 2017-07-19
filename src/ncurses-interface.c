@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] =
-"$Id: ncurses-interface.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -627,14 +622,11 @@ ncurses_i_ifaces_screen(struct term_node *node, WINDOW *ifaces_window,
 int8_t
 ncurses_i_show_info(u_int8_t mode, WINDOW *main_window, u_int8_t pointer, struct term_node *node)
 {
-   u_int8_t i, j, line, row, col, k;
+   u_int8_t j, line, row, col, k;
    int32_t key_pressed;
    WINDOW *info_window;
    char **values, *ptrtlv;
-   struct tuple_type_desc *func;
    struct commands_param *params;
-
-   func = NULL;
 
    ncurses_c_set_status_line(" Information should be free ");
 
@@ -642,7 +634,6 @@ ncurses_i_show_info(u_int8_t mode, WINDOW *main_window, u_int8_t pointer, struct
    info_window = newpad(MAX_PAD_HEIGHT, MAX_PAD_WIDTH);
    keypad(info_window, TRUE);
 
-   i = 0;
    line = 0;
    params = (struct commands_param *) protocols[mode].parameters;
 
@@ -1541,14 +1532,12 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
    int32_t i, pointer, end, key_pressed;
    struct attack_param *attack_param;
    struct commands_param_extra_item *newitem;
-   u_int32_t type;
    u_int8_t field;
    int8_t ret;
    void *extra;
 
    pointer = 0;
    end = 0;
-   type = 0;
    i = 0;
    key_pressed = 0;
    attack_param = NULL;

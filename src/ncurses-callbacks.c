@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] =
-"$Id: ncurses-callbacks.c 46 2007-05-08 09:13:30Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -109,7 +104,6 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
    char timebuf[19], **values, meaningbuf[NCURSES_MWINDOW_MAX_FIELD_LENGTH+1];
    struct term_console *term_console;
    struct tm *aux;
-   struct tuple_type_desc *func;
    struct commands_param *params;
    struct commands_param_extra *extra_params=NULL;
    time_t this_time;
@@ -117,7 +111,6 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
    tlv = 0;
    max_len = 0;
    values = NULL;
-   func = NULL;
 
    term_console = node->specific;
 
@@ -359,13 +352,10 @@ ncurses_c_engine(WINDOW *my_wins[], PANEL *my_panels[], struct term_node *node)
 {
    int32_t key, key_pressed, ret, max, proto_key;
    u_int8_t end, i, j, k, secs, mode, used, keys[MAX_PROTOCOLS];
-   struct term_console *term_console;
    fd_set read_set, rset;
    struct timeval timeout;
    dlist_t *p;
    struct interface_data *iface_data;
-
-   term_console = node->specific;
 
    for (i = 0; i < MAX_PROTOCOLS; i++)
       pointer[i] = 0;

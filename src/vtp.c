@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef lint
-static const char rcsid[] = 
-       "$Id: vtp.c 43 2007-04-27 11:07:17Z slay $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -393,7 +388,7 @@ vtp_th_dos_del_all(void *arg)
     struct pcap_data pcap_aux;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
-    u_int8_t *packet=NULL, *cursor;
+    u_int8_t *packet=NULL;
     sigset_t mask;
     /* Cisco default vlans */
     u_int8_t vlan_cisco[]={ 0x14, 0x00, 0x01, 0x07, 0x00, 0x01, 0x05, 0xdc,
@@ -451,8 +446,6 @@ vtp_th_dos_del_all(void *arg)
         if (attacks->attack_th.stop)
            break;   
            
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
-
         ether = (struct libnet_802_3_hdr *) packet;
         
         if (!memcmp(vtp_data->mac_source,ether->_802_3_shost,6) )
@@ -622,7 +615,7 @@ vtp_modify_vlan(u_int8_t op, struct attacks *attacks)
     struct libnet_802_3_hdr *ether;
     struct attack_param *param=NULL;
     struct timeval now;
-    u_int8_t *packet=NULL, *cursor=NULL;
+    u_int8_t *packet=NULL;
     char *vlan_name = NULL;
     u_int16_t *vlan=NULL;
 
@@ -651,8 +644,6 @@ vtp_modify_vlan(u_int8_t op, struct attacks *attacks)
         if (attacks->attack_th.stop)
            break;   
            
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
-
         ether = (struct libnet_802_3_hdr *) packet;
         
         if (!memcmp(vtp_data->mac_source,ether->_802_3_shost,6) )
@@ -822,7 +813,7 @@ vtp_add_vlan(u_int16_t vlan, char *vlan_name, u_int8_t **vlans_ptr, u_int16_t *v
 {
     struct vlan_info *vlan_info, *vlan_info2;
     u_int8_t  *cursor, *cursor2, *aux, *vlans, *last_init=NULL;
-    u_int16_t len=0, vlans_len, last_id=0, last_len=0;
+    u_int16_t vlans_len, last_id=0, last_len=0;
     
     vlans = *vlans_ptr;
     
@@ -863,7 +854,6 @@ vtp_add_vlan(u_int16_t vlan, char *vlan_name, u_int8_t **vlans_ptr, u_int16_t *v
           }
           
           cursor+=vlan_info->len;
-          len = vlans_len-vlan_info->len;
           
           if ( (cursor+sizeof(struct vlan_info)) < (vlans+vlans_len))
           {
@@ -993,7 +983,7 @@ vtp_th_dos_crash(void *arg)
     struct pcap_data pcap_aux;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
-    u_int8_t *packet=NULL, *cursor;
+    u_int8_t *packet=NULL;
     sigset_t mask;
     /* Cisco vlans for crashing */
     u_int8_t vlan_cisco[]={ 0x75, 0x00, 0x01, 0x07, 0x20, 0x00, 0x02, 0x0c, 
@@ -1051,8 +1041,6 @@ vtp_th_dos_crash(void *arg)
         if (attacks->attack_th.stop)
            break;   
            
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
-
         ether = (struct libnet_802_3_hdr *) packet;
         
         if (!memcmp(vtp_data->mac_source,ether->_802_3_shost,6) )
@@ -1164,7 +1152,7 @@ vtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *dat
 {
     struct vtp_data *vtp_data;
     struct pcap_data pcap_aux;
-    u_int8_t *packet, *cursor, got_vtp_packet = 0;
+    u_int8_t *packet, got_vtp_packet = 0;
     dlist_t *p;
     struct interface_data *iface_data;
     
@@ -1192,8 +1180,6 @@ vtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *dat
             return -1;
         }
 
-        cursor = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
-
         pcap_aux.header = header;
         pcap_aux.packet = packet;
                                                                                           
@@ -1215,22 +1201,22 @@ char **
 vtp_get_printable_packet(struct pcap_data *data)
 {
     struct libnet_802_3_hdr *ether;
-    u_int8_t *vtp_data, *ptr, *code, *cursor, i;
-    char aux[MAX_VALUE_LENGTH + 1];
+    u_int8_t *vtp_data, *ptr, *code;
     u_int32_t *aux_long;
     u_int16_t *aux_short;
 #ifdef LBL_ALIGN
     u_int32_t aux_long2;
     u_int8_t *aux2;
 #endif
-    char **field_values, *tlv;
-    struct vlan_info *vlan_info;
-    u_int16_t vlans_len=0;
-char aux5[22];    
+    char **field_values;
+    //u_int8_t *cursor, i;
+    //char *tlv;
+    //struct vlan_info *vlan_info;
+    //u_int16_t vlans_len=0;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_VTP].nparams, protocols[PROTO_VTP].parameters)) == NULL) {
-	    thread_error("vtp_get_rpintable calloc()",errno);
-	    return NULL;
+        thread_error("vtp_get_rpintable calloc()",errno);
+        return NULL;
     }
     
     ether = (struct libnet_802_3_hdr *) data->packet;
@@ -1300,8 +1286,7 @@ char aux5[22];
               aux_long+=3;
               ptr = (u_int8_t *)aux_long;
             snprintf(field_values[VTP_MD5], 24, "%02X%02X%02X%02X%02X%02X%02X%02X|",
-                      *ptr, *(ptr+1),*(ptr+2),*(ptr+3),*(ptr+4), *(ptr+5),
-*(ptr+6),*(ptr+7));/*,*(ptr+8)),*(ptr+9), *(ptr+10));
+                      *ptr, *(ptr+1),*(ptr+2),*(ptr+3),*(ptr+4), *(ptr+5), *(ptr+6),*(ptr+7));/*,*(ptr+8)),*(ptr+9), *(ptr+10));
                       *(ptr+11),*(ptr+12),*(ptr+13),*(ptr+14),*(ptr+15));*/
        break;
 
@@ -1309,13 +1294,12 @@ char aux5[22];
             snprintf(field_values[VTP_REVISION], 11, "%010hd", ntohl(*aux_long));
             field_values[VTP_MD5][0]=0;
             field_values[VTP_UPDATER][0] = 0;
+#ifdef KKKKKKKKKKK            
             ptr+=4; /* Point to VLANs info */
-
-            vlans_len = (data->packet + data->header->caplen) - ptr;
             
             cursor = ptr;
             i = 0;
-#ifdef KKKKKKKKKKK            
+            vlans_len = (data->packet + data->header->caplen) - ptr;
             tlv = field_values[VTP_VLAN];
                 
             while( ((cursor+sizeof(struct vlan_info)) < (ptr+vlans_len)) && (i<MAX_TLV) )
@@ -1328,7 +1312,7 @@ char aux5[22];
 
                memset(aux5,0,sizeof(aux5));
                snprintf(aux5, 20, "%s", (char *)(vlan_info+1));
-write_log(0," tlv[%d]=%p    %s  '%s'  vlan_info->len=%d   vlan_info->name_len=%d\n",VTP_VLAN,tlv,aux,aux5,vlan_info->len,vlan_info->name_len);
+               write_log(0," tlv[%d]=%p    %s  '%s'  vlan_info->len=%d   vlan_info->name_len=%d\n",VTP_VLAN,tlv,aux,aux5,vlan_info->len,vlan_info->name_len);
 
                memcpy(tlv,aux,strlen(aux));
                tlv+=strlen(aux)+1;
@@ -1354,8 +1338,8 @@ write_log(0," tlv[%d]=%p    %s  '%s'  vlan_info->len=%d   vlan_info->name_len=%d
                }
                i++;
                cursor+=vlan_info->len;
-write_log(0,"pasa cursor+=vlan_info->len...\n");
-thread_usleep(500000);
+                write_log(0,"pasa cursor+=vlan_info->len...\n");
+                thread_usleep(500000);
             }
 #endif
             
@@ -1391,13 +1375,13 @@ vtp_get_printable_store(struct term_node *node)
      */
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_VTP].nparams, protocols[PROTO_VTP].parameters)) == NULL) {
-	    write_log(0, "Error in calloc\n");
-	    return NULL;
+        write_log(0, "Error in calloc\n");
+        return NULL;
     }
 
-	if (node == NULL)
-		vtp_tmp = protocols[PROTO_VTP].default_values;
-	else
+    if (node == NULL)
+        vtp_tmp = protocols[PROTO_VTP].default_values;
+    else
         vtp_tmp = (struct vtp_data *) node->protocol[PROTO_VTP].tmp_data;
 
     /* Source MAC */
@@ -1417,12 +1401,12 @@ vtp_get_printable_store(struct term_node *node)
     memcpy(field_values[VTP_DOMAIN], vtp_tmp->domain, VTP_DOMAIN_SIZE);
 
     snprintf(field_values[VTP_MD5], 33, "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-	    vtp_tmp->md5[0],vtp_tmp->md5[1],vtp_tmp->md5[2],
-	    vtp_tmp->md5[3],vtp_tmp->md5[4],vtp_tmp->md5[5],
-	    vtp_tmp->md5[6],vtp_tmp->md5[7],vtp_tmp->md5[8],
-	    vtp_tmp->md5[9],vtp_tmp->md5[10],vtp_tmp->md5[11],
-	    vtp_tmp->md5[12],vtp_tmp->md5[13],vtp_tmp->md5[14],
-	    vtp_tmp->md5[15]);
+        vtp_tmp->md5[0],vtp_tmp->md5[1],vtp_tmp->md5[2],
+        vtp_tmp->md5[3],vtp_tmp->md5[4],vtp_tmp->md5[5],
+        vtp_tmp->md5[6],vtp_tmp->md5[7],vtp_tmp->md5[8],
+        vtp_tmp->md5[9],vtp_tmp->md5[10],vtp_tmp->md5[11],
+        vtp_tmp->md5[12],vtp_tmp->md5[13],vtp_tmp->md5[14],
+        vtp_tmp->md5[15]);
 
     parser_get_formated_inet_address(vtp_tmp->updater, field_values[VTP_UPDATER], 16);
 
@@ -1560,7 +1544,7 @@ int8_t
 vtp_update_field(int8_t state, struct term_node *node, void *value)
 {
     struct vtp_data *vtp_data;
-	u_int16_t len;
+    u_int16_t len;
     
     if (node == NULL)
        vtp_data = protocols[PROTO_VTP].default_values;
@@ -1578,25 +1562,25 @@ vtp_update_field(int8_t state, struct term_node *node, void *value)
         case VTP_DMAC:
            memcpy((void *)vtp_data->mac_dest, (void *)value, ETHER_ADDR_LEN);
         break;
-		
+        
         /* Version */
         case VTP_VERSION:
-	   vtp_data->version = *(u_int8_t *)value;
+       vtp_data->version = *(u_int8_t *)value;
         break;
 
         /* Code */
         case VTP_CODE:
-	   vtp_data->code = *(u_int8_t *)value;
+       vtp_data->code = *(u_int8_t *)value;
         break;
 
         /* Followers */
         case VTP_FOLLOWERS:
-	   vtp_data->followers = *(u_int8_t *)value;
+       vtp_data->followers = *(u_int8_t *)value;
         break;
 
         /* Seq */
         case VTP_SEQ:
-	   vtp_data->seq = *(u_int8_t *)value;
+       vtp_data->seq = *(u_int8_t *)value;
         break;
 
         /* Domain */
