@@ -409,7 +409,7 @@ interfaces_enable(char *iface)
                   return -1;
                }
             }
-         } 
+         }
          else
             iface_data->users++;
 
@@ -421,7 +421,7 @@ interfaces_enable(char *iface)
 
          return i;
       }
-   }                
+   }
 
    if (pthread_mutex_unlock(&interfaces->mutex) != 0)
       thread_error("interfaces_enable pthread_mutex_unlock",errno);
@@ -627,8 +627,6 @@ interfaces_init_libnet(char *iface)
        write_log(0,"libnet_init failed on %s -> %s\n", iface_data->ifname, errbuf);
        return -1;
     }
-    
-    write_log(0, " %s libnet_handler %X\n",iface_data->ifname,iface_data->libnet_handler);
     /* we need 'pseudorandom' numbers ;) */
     libnet_seed_prand(iface_data->libnet_handler);
 

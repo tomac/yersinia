@@ -84,7 +84,7 @@ gtk_gui (void *args)
 
    terms->work_state = RUNNING;
    
-   write_log(0,"\n gtk_gui_th = %d\n",(int)pthread_self());
+   write_log(0,"\n gtk_gui_th = %X\n",(int)pthread_self());
    iface_data = NULL;
 
    sigfillset(&mask);
@@ -160,7 +160,7 @@ gtk_gui (void *args)
 
    add_pixmap_directory (PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
 
-   if (interfaces->list)
+   if (interfaces && interfaces->list)
       iface_data = dlist_data(interfaces->list);
    else {
       gtk_i_create_warningdialog("Hmm... you don't have any valid interface. \
