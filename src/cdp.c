@@ -1186,7 +1186,7 @@ cdp_load_values(struct pcap_data *data, void *values)
               return -1;
            }
            
-           memcpy((void *)newitem->id, (void *)&type, 2);
+           memcpy((void *)&newitem->id, (void *)&type, 2);
            memcpy((void *)newitem->value, (void *)(ptr + 4), len - 4);
            cdp->extra = dlist_append(cdp->extra, (void *)newitem);
         }
