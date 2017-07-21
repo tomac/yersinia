@@ -51,7 +51,7 @@
 
 #define PROMISC   1
 #define TIMEOUT   500
-#define FILTER    "stp || (udp and (port 1985 or port 68 or port 67)) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2000) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2004) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2003) || arp || vlan || (ether[14]=0xaa and ether[15]=0xaa and ether[0]=0x01 and ether[1]=0x00 and ether[2]=0x0c and ether[3]=0x00 and ether[4]=0x00) || (ether[0]=0x01 and ether[1]=0x80 and ether[2]=0xc2 and ether[12:2] = 0x888e) || mpls"
+#define FILTER    "stp || (udp and (port 1985 or port 68 or port 67)) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2000) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2004) || (ether host 01:00:0c:cc:cc:cc and ether[20:2] = 0x2003) || arp || (ether[12:2] = 0x8100) || (ether[14]=0xaa and ether[15]=0xaa and ether[0]=0x01 and ether[1]=0x00 and ether[2]=0x0c and ether[3]=0x00 and ether[4]=0x00) || (ether[0]=0x01 and ether[1]=0x80 and ether[2]=0xc2 and ether[12:2] = 0x888e) || mpls"
 
 /* Fields for recognizing packets */
 #define F_ETHERTYPE 1 
