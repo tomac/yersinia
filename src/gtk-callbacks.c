@@ -674,32 +674,39 @@ gtk_c_clock_update(GtkWidget *clock)
 
 
 void
-gtk_c_tree_update(GtkWidget *tree_model)
+gtk_c_tree_update( GtkWidget *tree_model )
 {
-  u_int8_t i, j;
-  GtkTreeIter iter;
-  GtkTreePath *path;
-  char tmp[3];
-  
-  j = 0;
-  for (i=0; i < MAX_PROTOCOLS; i++)
-  {
-    if (protocols[i].visible) {
-      snprintf(tmp, 3, "%d", j);
-      /* Modify a particular row */
-      path = gtk_tree_path_new_from_string (tmp);
-      gtk_tree_model_get_iter (GTK_TREE_MODEL (tree_model), &iter, path);
-      gtk_tree_path_free (path);
-      gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 1, protocols[i].packets, -1);
-      j++;
-    }
-  }
+    u_int8_t i, j;
+    GtkTreeIter iter;
+    GtkTreePath *path;
+    char tmp[3];
 
-  snprintf(tmp, 3, "%d", j);
-  path = gtk_tree_path_new_from_string(tmp);
-  gtk_tree_model_get_iter (GTK_TREE_MODEL (tree_model), &iter, path);
-  gtk_tree_path_free (path);
-  gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 1, packet_stats.global_counter.total_packets, -1);
+    j = 0;
+    for( i=0; i < MAX_PROTOCOLS; i++ )
+    {
+        if (protocols[i].visible) 
+        {
+          snprintf( tmp, 3, "%d", j );
+          /* Modify a particular row */
+          path = gtk_tree_path_new_from_string( tmp );
+          if ( path )
+          {
+              gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path );
+              gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 1, protocols[i].packets, -1 );
+              gtk_tree_path_free( path );
+          }
+          j++;
+        }
+    }
+
+    snprintf( tmp, 3, "%d", j );
+    path = gtk_tree_path_new_from_string( tmp );
+    if ( path )
+    {
+        gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path );
+        gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 1, packet_stats.global_counter.total_packets, -1 );
+        gtk_tree_path_free( path );
+    }
 }
 
 
