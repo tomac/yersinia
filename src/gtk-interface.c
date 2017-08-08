@@ -199,9 +199,9 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
       if (protocols[i].visible)
          gtk_widget_show (menu_protocols_proto1);
       gtk_container_add (GTK_CONTAINER (menu_protocols_menu), menu_protocols_proto1);
-      g_signal_connect ((gpointer) menu_protocols_proto1, "toggle",
-            G_CALLBACK (gtk_c_on_protocols_toggle),
-            &i);
+      /* Disabled, wrong usage!! Variable 'i' on stack!!
+      g_signal_connect ((gpointer) menu_protocols_proto1, "toggled", G_CALLBACK (gtk_c_on_protocols_toggle), &i);
+      */
    }
 
    /* Menu Actions */
@@ -641,9 +641,9 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    /*  g_signal_connect ((gpointer) menu_options_edit, "toggle",
        G_CALLBACK (gtk_c_on_menu_options_edit_toggle),
        helper);*/
-   g_signal_connect ((gpointer) menu_options_macspoofing, "toggle",
-         G_CALLBACK (on_menu_options_macspoofing_toggle),
-         helper->node);
+   g_signal_connect( (gpointer) menu_options_macspoofing, "toggled",
+                      G_CALLBACK( on_menu_options_macspoofing_toggle ),
+                      helper );
    g_signal_connect ((gpointer) menu_help_about, "activate",
          G_CALLBACK (on_help_about_activate),
          NULL);

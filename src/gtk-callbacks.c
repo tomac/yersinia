@@ -150,7 +150,7 @@ on_protocols_proto1_activate           (GtkMenuItem     *menuitem,
 {
 }
 
-
+/* Currently disabled...
 void
 gtk_c_on_protocols_toggle(GtkMenuItem *menuitem, gpointer user_data)
 {
@@ -160,8 +160,7 @@ gtk_c_on_protocols_toggle(GtkMenuItem *menuitem, gpointer user_data)
     n_mode = (u_int8_t *) user_data;
     notebook = lookup_widget(GTK_WIDGET(menuitem), "main_vhv2_notebook");
     n_label = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), *n_mode);
-    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "main_statusbar");
-    write_log(0, "joe, voy a hacer algo con %d\n", *n_mode);
+    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "statusbar");
 
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
        gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "Closing protocol");
@@ -173,7 +172,7 @@ gtk_c_on_protocols_toggle(GtkMenuItem *menuitem, gpointer user_data)
        gtk_widget_show(n_label);
     }
 }
-
+*/
 
 void
 gtk_c_on_actions_execute_activate(GtkMenuItem *menuitem, gpointer user_data)
@@ -220,7 +219,7 @@ gtk_c_on_menu_actions_load_default_activate (GtkMenuItem *menuitem, gpointer use
        write_log(0, "Warning: no init_attribs for mode %d\n", mode);
     }
 
-    gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Loading protocol default values...");
+    gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Loaded protocol default values");
 }
 
 
@@ -257,7 +256,7 @@ gtk_c_on_actions_clear_activate(GtkMenuItem *menuitem, gpointer user_data)
       }
    }
    interfaces_clear_stats(helper->extra);
-   snprintf(buffer, 64, "Clearing stats for mode %s...", gtk_widget_get_name(GTK_WIDGET(menuitem)));
+   snprintf(buffer, 64, "Cleared stats for mode %s", gtk_widget_get_name(GTK_WIDGET(menuitem)));
    gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, buffer);
 }
 
@@ -557,20 +556,16 @@ gtk_c_update_hexview(GtkTreeSelection *selection, gpointer userdata)
    }
 }
 
-
-void
-on_menu_actions_clear_activate  (GtkMenuItem     *menuitem,
-                                 GtkWidget       *notebook)
+void on_menu_actions_clear_activate( GtkMenuItem *menuitem, GtkWidget *notebook )
 {
     GtkWidget *main_statusbar;
     u_int8_t mode;
 
     mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
-    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "main_statusbar");
+    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "statusbar");
     interfaces_clear_stats(mode);
-    gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "Clearing Mode stats...");
+    gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "Mode stats cleared");
 }
-
 
 void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
 {
@@ -626,21 +621,20 @@ void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
 }
 
 
-void on_menu_options_macspoofing_toggle (GtkCheckMenuItem *menu, struct term_node *node)
+void on_menu_options_macspoofing_toggle( GtkCheckMenuItem *menu_item, gpointer user_data )
 {
-   GtkWidget *notebook, *main_statusbar;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data ;
 
-   notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
-   main_statusbar = lookup_widget(GTK_WIDGET(notebook), "main_statusbar");
-   if (node->mac_spoofing) {
-      node->mac_spoofing = 0;
-      gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "MAC Spoofing set to OFF");
-      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu), FALSE);
-   } else {
-      node->mac_spoofing = 1;
-      gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "MAC Spoofing set to ON");
-      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu), TRUE);
-   }
+    if ( helper->node->mac_spoofing ) 
+    {
+        helper->node->mac_spoofing = 0;
+        gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, "MAC Spoofing set to OFF" );
+    } 
+    else 
+    {
+        helper->node->mac_spoofing = 1;
+        gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, "MAC Spoofing set to ON" );
+    }
 }
 
 
