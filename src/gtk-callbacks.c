@@ -1030,22 +1030,18 @@ gtk_c_toggle_interface(GtkWidget *toggle, struct term_node *node)
 void
 gtk_c_view_popup_menu(GtkWidget *menuitem, gpointer userdata)
 {
-    struct gtk_s_helper *helper;
-    u_int8_t mode, row;
-    struct term_node *node;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)userdata;
 
-    helper = (struct gtk_s_helper *)userdata;
-
-    node = (struct term_node *) helper->node;
-    mode = helper->mode;
-    row = helper->row;
-
-    //write_log(0, "Cargando de mode es %d y row es %d\n", mode, row);
-    if (protocols[mode].load_values)
-        (*protocols[mode].load_values)((struct pcap_data *)&protocols[mode].stats[row], node->protocol[mode].tmp_data);
-    else {
-        write_log(0, "Warning: no load_values in protocol %d\n", mode);
+    if ( protocols[ helper->mode ].load_values )
+    {
+        if ( ( helper->row >= 0 ) && ( helper->row < MAX_PACKET_STATS ) && ( protocols[ helper->mode ].stats[ helper->row ].packet ) )
+            (*protocols[ helper->mode ].load_values)( (struct pcap_data *)&protocols[ helper->mode ].stats[ helper->row ],
+                                                      helper->node->protocol[ helper->mode ].tmp_data );
+        else
+            write_log(0, "WARNING: gtk_c_view_popup_menu: Mode[%d] Invalid row [%d] or NULL packet pointer!!\n", helper->mode, helper->row );
     }
+    else
+         write_log(0, "WARNING: gtk_c_view_popup_menu: No load_values callback for protocol %d\n", helper->mode);
 }
 
 
