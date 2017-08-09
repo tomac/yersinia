@@ -941,7 +941,7 @@ gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
          gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, params[j].ldesc, -1);
          gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, values[k], -1);
          if (params[j].meaning)
-            gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 2, parser_get_meaning(values[k], params[j].meaning));
+            gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 2, parser_get_meaning( values[k], params[j].meaning ), -1 );
          k++;
       }
       j++;
