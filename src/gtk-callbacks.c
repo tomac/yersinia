@@ -241,7 +241,6 @@ gtk_c_on_actions_clear_activate(GtkMenuItem *menuitem, gpointer user_data)
    struct gtk_s_helper *helper;
    u_int8_t i;
    char buffer[64];
-
    helper = (struct gtk_s_helper *)user_data;
    if (strcmp("ALL", gtk_widget_get_name(GTK_WIDGET(menuitem))) == 0)
        helper->extra = PROTO_ALL;
@@ -561,63 +560,75 @@ void on_menu_actions_clear_activate( GtkMenuItem *menuitem, GtkWidget *notebook 
     GtkWidget *main_statusbar;
     u_int8_t mode;
 
-    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
-    main_statusbar = lookup_widget(GTK_WIDGET(notebook), "statusbar");
-    interfaces_clear_stats(mode);
-    gtk_statusbar_push(GTK_STATUSBAR(main_statusbar), 0, "Mode stats cleared");
+    mode = gtk_notebook_get_current_page( GTK_NOTEBOOK( notebook ) );
+
+    if ( mode < MAX_PROTOCOLS ) 
+    {
+        main_statusbar = lookup_widget(GTK_WIDGET(notebook), "statusbar");
+        interfaces_clear_stats( mode );
+        gtk_statusbar_push( GTK_STATUSBAR( main_statusbar ), 0, "Mode stats cleared" );
+    }
 }
 
 void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
 {
-   GtkWidget *notebook, *widget, *warning;
-   struct gtk_s_helper *helper;
-   u_int8_t i, j;
-   struct commands_param *param;
-   char tmp_name[5], *text;
+    GtkWidget *notebook, *widget, *warning;
+    struct gtk_s_helper *helper;
+    u_int8_t i, j;
+    struct commands_param *param;
+    char tmp_name[5], *text;
 
-   helper = (struct gtk_s_helper *)userdata;
-    write_log(0,"EDIT: mode %d\n", helper->mode );
-   notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
+    helper = (struct gtk_s_helper *)userdata;
 
-   if (helper->edit_mode) {
-      for(i = 0; i < MAX_PROTOCOLS; i++) {
-         if (protocols[i].visible) {
-            param = (struct commands_param *)protocols[i].parameters;
-            for (j = 0; j < protocols[i].nparams; j++) {
-               if ((param[j].type != FIELD_DEFAULT) && (param[j].type != FIELD_IFACE) && (param[j].type != FIELD_EXTRA)) {
-                  snprintf(tmp_name, 5, "%02d%02d", i, j);
-                  widget = lookup_widget(GTK_WIDGET(notebook), tmp_name);
-                  text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
-                  if (parser_filter_param(param[j].type, helper->node->protocol[i].commands_param[j],
-                           text, param[j].size_print, param[j].size) < 0) {
-                     warning = gtk_i_create_warningdialog("Bad Parameter %s with wrong value %s in protocol %s!", 
-                           param[j].ldesc, text, protocols[i].namep);
-                     gtk_widget_show(warning);
-                     //break;
-                  }
-                  gtk_entry_set_editable(GTK_ENTRY(widget), FALSE);
-               }
-            }
-         }
-      }
-      helper->edit_mode = 0;
-      gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Edit mode disabled");
-   } else {
-      helper->edit_mode = 1;
-      for (i = 0; i < MAX_PROTOCOLS; i++) {
-         if (protocols[i].visible) {
-            param = (struct commands_param *)protocols[i].parameters;
-            for (j = 0; j < protocols[i].nparams; j++) {
-               if ((param[j].type != FIELD_DEFAULT) && (param[j].type != FIELD_IFACE) && (param[j].type != FIELD_EXTRA)) {
-                  snprintf(tmp_name, 5, "%02d%02d", i, j);
-                  widget = lookup_widget(GTK_WIDGET(notebook), tmp_name);
-                  gtk_entry_set_editable(GTK_ENTRY(widget), TRUE);
-               }
-            }
-         }
-      }
-      gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Edit mode enabled");
-   }
+    if ( helper->mode < MAX_PROTOCOLS )
+    {
+        notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
+        if (helper->edit_mode) 
+        {
+          for(i = 0; i < MAX_PROTOCOLS; i++) 
+          {
+             if (protocols[i].visible) 
+             {
+                param = (struct commands_param *)protocols[i].parameters;
+                for (j = 0; j < protocols[i].nparams; j++) 
+                {
+                   if ((param[j].type != FIELD_DEFAULT) && (param[j].type != FIELD_IFACE) && (param[j].type != FIELD_EXTRA)) {
+                      snprintf(tmp_name, 5, "%02d%02d", i, j);
+                      widget = lookup_widget(GTK_WIDGET(notebook), tmp_name);
+                      text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
+                      if (parser_filter_param(param[j].type, helper->node->protocol[i].commands_param[j],
+                               text, param[j].size_print, param[j].size) < 0) {
+                         warning = gtk_i_create_warningdialog("Bad Parameter %s with wrong value %s in protocol %s!", 
+                               param[j].ldesc, text, protocols[i].namep);
+                         gtk_widget_show(warning);
+                         //break;
+                      }
+                      gtk_entry_set_editable(GTK_ENTRY(widget), FALSE);
+                   }
+                }
+             }
+          }
+          helper->edit_mode = 0;
+          gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Edit mode disabled");
+        } 
+        else 
+        {
+          helper->edit_mode = 1;
+          for (i = 0; i < MAX_PROTOCOLS; i++) {
+             if (protocols[i].visible) {
+                param = (struct commands_param *)protocols[i].parameters;
+                for (j = 0; j < protocols[i].nparams; j++) {
+                   if ((param[j].type != FIELD_DEFAULT) && (param[j].type != FIELD_IFACE) && (param[j].type != FIELD_EXTRA)) {
+                      snprintf(tmp_name, 5, "%02d%02d", i, j);
+                      widget = lookup_widget(GTK_WIDGET(notebook), tmp_name);
+                      gtk_entry_set_editable(GTK_ENTRY(widget), TRUE);
+                   }
+                }
+             }
+          }
+          gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Edit mode enabled");
+        }
+    }
 }
 
 
