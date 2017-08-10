@@ -576,7 +576,7 @@ void gtk_c_on_menu_options_edit_toggle (GtkWidget *menu, gpointer userdata)
    char tmp_name[5], *text;
 
    helper = (struct gtk_s_helper *)userdata;
-
+    write_log(0,"EDIT: mode %d\n", helper->mode );
    notebook = lookup_widget(GTK_WIDGET(menu), "main_vhv2_notebook");
 
    if (helper->edit_mode) {
