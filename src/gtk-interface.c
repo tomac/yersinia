@@ -644,9 +644,9 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    g_signal_connect( (gpointer) menu_options_macspoofing, "toggled",
                       G_CALLBACK( on_menu_options_macspoofing_toggle ),
                       helper );
-   g_signal_connect ((gpointer) menu_help_about, "activate",
-         G_CALLBACK (on_help_about_activate),
-         NULL);
+   g_signal_connect( (gpointer) menu_help_about, "activate",
+                      G_CALLBACK( gtk_i_create_aboutdialog ),
+                      NULL );
 
    /* Toolbar signals */
    g_signal_connect ((gpointer) toolbar_launch, "clicked",
@@ -883,40 +883,43 @@ gtk_i_create_capturedialog (struct gtk_s_helper *helper)
 }
 
 
-GtkWidget*
-gtk_i_create_aboutdialog (void)
+void gtk_i_create_aboutdialog( GtkMenuItem *menuitem, gpointer user_data )
+
 {
-   GtkWidget *aboutdialog;
-   int j;
-   const gchar *authors[] = {
+    GtkWidget *aboutdialog;
+    int j;
+    const gchar *authors[] = {
       "David Barroso Berrueta <tomac@yersinia.net>",
       "Alfredo Andr\303\251s Omella <slay@yersinia.net>",
       NULL
-   };
-   /* TRANSLATORS: Replace this string with your names, one name per line. */
-   gchar *translators = _("translator-credits");
-   GdkPixbuf *aboutdialog_logo_pixbuf;
+    };
+    gchar *translators = _("translator-credits");
+    GdkPixbuf *aboutdialog_logo_pixbuf;
 
-   aboutdialog = gtk_about_dialog_new ();
-   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
-   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Yersinia"));
-   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _(" Yersinia\n By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>\nCopyright 2005, 2006, 2007 Alfredo Andres and David Barroso"));
-   j = term_motd();
-   if (j >= 0)
-      gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _(vty_motd[j]));
+    aboutdialog = gtk_about_dialog_new();
 
-   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), LICENSE); 
-   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www.yersinia.net");
-   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("http://daslfkjsdf"));
-   gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (aboutdialog), authors);
-   gtk_about_dialog_set_translator_credits (GTK_ABOUT_DIALOG (aboutdialog), translators);
-   aboutdialog_logo_pixbuf = create_pixbuf ("yersinia.png");
-   gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG (aboutdialog), aboutdialog_logo_pixbuf);
+    gtk_about_dialog_set_version( GTK_ABOUT_DIALOG( aboutdialog ), VERSION );
+    gtk_about_dialog_set_name( GTK_ABOUT_DIALOG( aboutdialog ), _( "Yersinia" ) );
+    gtk_about_dialog_set_copyright( GTK_ABOUT_DIALOG( aboutdialog ), _( " Yersinia\n By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>\nCopyright 2005, 2006, 2007 Alfredo Andres and David Barroso" ) );
 
-   /* Store pointers to all widgets, for use by lookup_widget(). */
-   GLADE_HOOKUP_OBJECT_NO_REF (aboutdialog, aboutdialog, "aboutdialog");
+    j = term_motd();
 
-   return aboutdialog;
+    if (j >= 0)
+      gtk_about_dialog_set_comments( GTK_ABOUT_DIALOG( aboutdialog ), _( vty_motd[j] ) );
+
+    gtk_about_dialog_set_license( GTK_ABOUT_DIALOG( aboutdialog ), LICENSE ); 
+    gtk_about_dialog_set_website( GTK_ABOUT_DIALOG( aboutdialog ), "http://www.yersinia.net");
+    gtk_about_dialog_set_website_label( GTK_ABOUT_DIALOG( aboutdialog), _("http://www.yersinia.net"));
+    gtk_about_dialog_set_authors( GTK_ABOUT_DIALOG( aboutdialog ), authors );
+    gtk_about_dialog_set_translator_credits( GTK_ABOUT_DIALOG( aboutdialog ), translators );
+
+    aboutdialog_logo_pixbuf = create_pixbuf( "yersinia.png" );
+    
+    gtk_about_dialog_set_logo( GTK_ABOUT_DIALOG( aboutdialog ), aboutdialog_logo_pixbuf );
+
+    gtk_dialog_run( GTK_DIALOG( aboutdialog ) );
+
+    gtk_widget_destroy( aboutdialog );
 }
 
 

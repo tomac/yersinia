@@ -639,16 +639,6 @@ void on_menu_options_macspoofing_toggle( GtkCheckMenuItem *menu_item, gpointer u
 
 
 void
-on_help_about_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-   GtkWidget *aboutdialog;
-
-   aboutdialog = gtk_i_create_aboutdialog();
-   gtk_widget_show(aboutdialog);
-}
-
-
-void
 gtk_c_clock_update(GtkWidget *clock)
 {
    struct tm *aux;

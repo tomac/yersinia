@@ -59,7 +59,6 @@ void gtk_c_on_menu_actions_list_attacks_activate (GtkMenuItem *menuitem, gpointe
 void on_menu_actions_clear_activate (GtkMenuItem *, GtkWidget *);
 void gtk_c_on_menu_options_edit_toggle (GtkWidget *, gpointer);
 void on_menu_options_macspoofing_toggle (GtkCheckMenuItem *, gpointer);
-void on_help_about_activate(GtkMenuItem *menuitem, gpointer user_data);
 void gtk_c_on_actions_clear_activate(GtkMenuItem *, gpointer);
 void gtk_c_on_capture_activate(GtkMenuItem *, gpointer);
 void gtk_c_capturedialog_save(GtkWidget *, gpointer);
