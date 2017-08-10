@@ -129,7 +129,7 @@ thread_destroy(THREAD *thread)
 {
    pthread_t id = thread->id;
    
-   write_log(0,"\n thread_destroy %d destroying %d...\n",(int)pthread_self(),
+   write_log(0,"\n thread_destroy %X destroying %X...\n",(int)pthread_self(),
             (int)id);
 
    thread->stop = 1;
@@ -140,7 +140,7 @@ thread_destroy(THREAD *thread)
       return -1;
    }
 
-   write_log(0," thread_destroy %d after PTHREAD_JOIN %d...\n",
+   write_log(0," thread_destroy %X after PTHREAD_JOIN %X...\n",
             (int)pthread_self(), (int)id);
 
    thread->stop = 0;

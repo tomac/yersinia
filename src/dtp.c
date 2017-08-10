@@ -346,7 +346,7 @@ dtp_send_negotiate(void *arg)
 
     secs = 0;
     
-write_log(0,"\n dtp_helper: %d init...\n",(int)pthread_self());
+write_log(0,"\n dtp_helper: %X init...\n",(int)pthread_self());
         
     while(!attacks->helper_th.stop)
     {
@@ -367,7 +367,7 @@ write_log(0,"\n dtp_helper: %d init...\n",(int)pthread_self());
         hello.tv_usec = 0;
     } 
 
-write_log(0," dtp_helper: %d finished...\n",(int)pthread_self());
+write_log(0," dtp_helper: %X finished...\n",(int)pthread_self());
 
     pthread_mutex_unlock(&attacks->helper_th.finished);
     
