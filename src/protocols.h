@@ -55,7 +55,6 @@ typedef uint8_t  u_int8_t;
 #define PROTO_NOVISIBLE 0
 
 #define NO_PROTO -1 
-#define ALL_PROTO 999
 #define COMMON_TLV 69
 
 /* Read the HGTTG */
