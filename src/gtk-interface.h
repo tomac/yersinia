@@ -35,7 +35,7 @@ GtkWidget* gtk_i_create_Main (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_opendialog (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_savedialog (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_capturedialog (struct gtk_s_helper *);
-GtkWidget* gtk_i_create_aboutdialog (void);
+void gtk_i_create_aboutdialog( GtkMenuItem *menuitem, gpointer user_data );
 GtkWidget* gtk_i_create_attacksdialog (GtkWidget *, struct gtk_s_helper *, u_int8_t);
 GtkWidget* create_viewpacketdialog (void);
 GtkWidget* create_interfacesdialog (struct term_node *);
