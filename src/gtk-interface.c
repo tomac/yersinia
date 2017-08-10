@@ -912,13 +912,13 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
    GtkWidget *attacksdialog;
    GtkWidget *attacks_frame;
    GtkWidget *attacks_vbox;
-   GtkWidget *attacks_v_table;
+   GtkWidget *attacks_v_table = NULL ;
    GtkWidget *attacks_notebook;
    GtkWidget *attacks_n_labels[MAX_PROTOCOLS];
    GtkWidget *attacks_vt_radio_attack[MAX_PROTOCOLS];
-   GtkWidget *attacks_vt_label_attack;
-   GtkWidget *attacks_vt_label_dos;
-   GtkWidget *attacks_vt_check_attack1;
+   GtkWidget *attacks_vt_label_attack = NULL ;
+   GtkWidget *attacks_vt_label_dos = NULL ;
+   GtkWidget *attacks_vt_check_attack1 = NULL ;
    GtkWidget *attacks_v_hbox;
    GtkWidget *attacks_vh_cancel_button;
    GtkWidget *attacks_vh_ok_button;
