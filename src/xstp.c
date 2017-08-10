@@ -344,13 +344,13 @@ xstp_send_bpdu_tcn(u_int8_t mac_spoofing, struct stp_data *stp_data, struct inte
     lhandler = iface->libnet_handler;
 
     t = libnet_build_stp_tcn(
-            stp_data->id,             /* protocol id */
-            stp_data->version,        /* protocol version */
-            stp_data->bpdu_type,      /* BPDU type */
-            NULL,                     /* payload */
-            0,                        /* payload size */
-            lhandler,                 /* libnet handle */
-            0);                       /* libnet id */
+            stp_data->id,      /* protocol id */
+            stp_data->version, /* protocol version */
+            0x80,              /* BPDU type */
+            NULL,              /* payload */
+            0,                 /* payload size */
+            lhandler,          /* libnet handle */
+            0);                /* libnet id */
 
     if (t == -1) 
     {
@@ -360,13 +360,13 @@ xstp_send_bpdu_tcn(u_int8_t mac_spoofing, struct stp_data *stp_data, struct inte
     }  
 
     t = libnet_build_802_2(
-            LIBNET_SAP_STP,          /* DSAP */   
-            LIBNET_SAP_STP,          /* SSAP */
-            0x03,                    /* control */
-            NULL,                    /* payload */  
-            0,                       /* payload size */
-            lhandler,                /* libnet handle */
-            0);                      /* libnet id */
+            LIBNET_SAP_STP, /* DSAP */ 
+            LIBNET_SAP_STP, /* SSAP */
+            0x03,           /* control */
+            NULL,           /* payload */
+            0,              /* payload size */
+            lhandler,       /* libnet handle */
+            0);             /* libnet id */
     if (t == -1) 
     {
         thread_libnet_error( "Can't build ethernet header",lhandler);
@@ -376,8 +376,7 @@ xstp_send_bpdu_tcn(u_int8_t mac_spoofing, struct stp_data *stp_data, struct inte
 
     t = libnet_build_802_3(
             stp_data->mac_dest,                 /* ethernet destination */
-            (mac_spoofing) ? stp_data->mac_source : iface->etheraddr,
-            /* ethernet source */
+            (mac_spoofing) ? stp_data->mac_source : iface->etheraddr, /* ethernet source */
             LIBNET_802_2_H + LIBNET_STP_TCN_H,  /* frame size */
             NULL,                               /* payload */
             0,                                  /* payload size */
