@@ -80,7 +80,6 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    GtkWidget *menu_capture_proto1;
    GtkWidget *menu_options;
    GtkWidget *menu_options_menu;
-   GtkWidget *menu_options_edit;
    GtkWidget *menu_options_macspoofing;
    GtkWidget *menu_help;
    GtkWidget *menu_help_menu;
@@ -329,19 +328,6 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
 
    menu_options_menu = gtk_menu_new ();
    gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_options), menu_options_menu);
-
-   /* Menu Options - Edit mode */
-   /*menu_options_edit = gtk_check_menu_item_new_with_mnemonic (_("_Edit mode"));
-     if (helper->edit_mode)
-     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_options_edit), TRUE);
-     else
-     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_options_edit), FALSE);
-
-     gtk_widget_show (menu_options_edit);
-     gtk_container_add (GTK_CONTAINER (menu_options_menu), menu_options_edit);
-     gtk_widget_add_accelerator (menu_options_edit, "activate", accel_group,
-     GDK_E, (GdkModifierType) GDK_CONTROL_MASK,
-     GTK_ACCEL_VISIBLE);*/
 
    /* Menu Options - MAC Spoofing */
    menu_options_macspoofing = gtk_check_menu_item_new_with_mnemonic (_("_MAC Spoofing"));
@@ -638,9 +624,7 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    g_signal_connect ((gpointer) menu_actions_clear, "activate",
          G_CALLBACK (on_menu_actions_clear_activate),
          main_vhv2_notebook);
-   /*  g_signal_connect ((gpointer) menu_options_edit, "toggle",
-       G_CALLBACK (gtk_c_on_menu_options_edit_toggle),
-       helper);*/
+
    g_signal_connect( (gpointer) menu_options_macspoofing, "toggled",
                       G_CALLBACK( on_menu_options_macspoofing_toggle ),
                       helper );
@@ -701,7 +685,6 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    GLADE_HOOKUP_OBJECT (Main, menu_capture_menu, "menu_capture_menu");
    GLADE_HOOKUP_OBJECT (Main, menu_options, "menu_options");
    GLADE_HOOKUP_OBJECT (Main, menu_options_menu, "menu_options_menu");
-   GLADE_HOOKUP_OBJECT (Main, menu_options_edit, "menu_options_edit");
    GLADE_HOOKUP_OBJECT (Main, menu_options_macspoofing, "menu_options_macspoofing");
    GLADE_HOOKUP_OBJECT (Main, menu_help, "menu_help");
    GLADE_HOOKUP_OBJECT (Main, menu_help_menu, "menu_help_menu");
