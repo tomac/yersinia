@@ -202,24 +202,19 @@ gtk_c_on_actions_interfaces_activate (GtkMenuItem *menuitem, gpointer user_data)
 }
 
 
-void
-gtk_c_on_menu_actions_load_default_activate (GtkMenuItem *menuitem, gpointer user_data)
+void gtk_c_on_menu_actions_load_default_activate( GtkMenuItem *menuitem, gpointer user_data )
 {
-    GtkWidget *notebook;
-    struct gtk_s_helper *helper;
-    u_int8_t mode;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *) user_data ;
 
-    helper = (struct gtk_s_helper *) user_data;
-    notebook = lookup_widget(GTK_WIDGET(menuitem), "main_vhv2_notebook");
-    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+    if ( helper->mode < MAX_PROTOCOLS )
+    {
+        if ( protocols[ helper->mode ].init_attribs )
+           (*protocols[ helper->mode ].init_attribs)( helper->node );
+        else
+           write_log(0, "Warning: no init_attribs for mode %d\n", helper->mode );
 
-    if (protocols[mode].init_attribs)
-       (*protocols[mode].init_attribs)(helper->node);
-    else {
-       write_log(0, "Warning: no init_attribs for mode %d\n", mode);
+        gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, "Loaded protocol default values");
     }
-
-    gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Loaded protocol default values");
 }
 
 
