@@ -47,6 +47,7 @@ GtkWidget* gtk_i_create_add_extradialog (struct gtk_s_helper *, u_int8_t);
 GtkWidget* gtk_i_create_attackparamsdialog (struct gtk_s_helper *, struct attack_param *, u_int8_t);
 GtkWidget* create_protocol_mwindow(GtkWidget *, struct gtk_s_helper *, u_int8_t);
 void gtk_i_view_menu(GtkWidget *, GtkWidget *, GdkEventButton *, struct gtk_s_helper *);
+void gtk_i_modaldialog( int msg_type, char *msg, ...);
 
 /* For the credits comments */
 extern int8_t term_motd(void);

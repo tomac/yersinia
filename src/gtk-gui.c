@@ -80,7 +80,6 @@ gtk_gui (void *args)
    struct gtk_s_helper helper;
    struct interface_data *iface_data, *iface;
    GtkWidget *Main;
-   GtkWidget *warningdialog;
 
    pthread_mutex_lock(&terms->gui_gtk_th.finished);
 
@@ -195,10 +194,9 @@ gtk_gui (void *args)
    helper.edit_mode = 0;
    Main = gtk_i_create_Main (&helper);
    gtk_widget_show (Main);
-   warningdialog = gtk_i_create_warningdialog ("%s", "Warning!!!  This is an alpha version of the GTK GUI. Not all the options are implemented in this GUI, but if you are brave enough, you are allowed to test it and tell us all the bugs you could find (if you are able to survive!)"); 
 
-   gtk_widget_show (warningdialog);
-
+   gtk_i_modaldialog( GTK_MESSAGE_WARNING, "%s", "This is an alpha version of the GTK GUI. Not all the options are implemented in this GUI, but if you are brave enough, you are allowed to test it and tell us all the bugs you could find (if you are able to survive!)");
+ 
    gtk_main ();
 
    write_log(0, "Exiting GTK mode...\n");
