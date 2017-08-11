@@ -1,9 +1,8 @@
-dnl $Id: configure.in 43 2007-04-27 11:07:17Z slay $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
-AC_INIT(yersinia, 0.7.3, yersinia@yersinia.net)
+AC_INIT(yersinia, 0.8.0beta1, yersinia@yersinia.net)
 
 AC_CONFIG_SRCDIR([src/yersinia.c])
 
