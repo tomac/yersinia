@@ -342,24 +342,29 @@ gtk_c_attacks_synchro(GtkNotebook *attacks_notebook, GtkNotebookPage *page, guin
 }
 
 
-void
-gtk_c_attacks_radio_changed(GtkWidget *radio, gpointer userdata)
+void gtk_c_attacks_radio_changed( GtkWidget *radio, gpointer userdata )
 {
-   u_int8_t i;
-   struct gtk_s_helper *helper;
+    u_int8_t i;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *) userdata;;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio))) {
-      helper = (struct gtk_s_helper *) userdata;
-      i = 0;
-      while(protocols[helper->mode].attacks[i].s) {
-         if (strcmp(gtk_button_get_label(GTK_BUTTON(radio)), protocols[helper->mode].attacks[i].s) == 0) {
-            helper->row = i;
-            helper->attack = (struct attack *) &protocols[helper->mode].attacks[i];
-            break;
+    if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( radio ) ) ) 
+    {
+        if ( helper->mode < MAX_PROTOCOLS )
+        {
+            i = 0;
+
+            while( protocols[ helper->mode ].attacks[i].s )
+            {
+                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attacks[i].s ) == 0 )
+                {
+                    helper->attack = (struct attack *) &protocols[ helper->mode ].attacks[i];
+                    helper->row    = i;
+                    break;
+                }
+                i++;
+            }
+        }
     }
-         i++;
-      }
-   }
 }
 
 
