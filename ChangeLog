@@ -1,7 +1,25 @@
-$Id: ChangeLog 46 2007-05-08 09:13:30Z slay $
-
 CHANGES for Yersinia
 ====================
+
+2017/08/11
+----------
+- Version 0.8.0beta1
+- Cleaned up some code (removed unused variables and macros, fixed compiler warnings, changed logging...)
+- FIX: Error searching for pcap folder, thanks to digininja
+- FIX: Changed pcap filter for sniffing of 802.1Q packets, issue #27
+- FIX: CDP: Bad pointer usage, issue #14
+- FIX: STP: Bad crafting of TCN packet, issue #32
+- FIX: GTK: Bug on write_log that leads to random crashes, issue #9
+- FIX: GTK: Usage of NULL variable using right click, issue #6
+- FIX: GTK: Packet counters update, issue #26
+- FIX: GTK: Add missing argument in function, issues #19, #20, #21, #22, #23 and #28
+- FIX: GTK: Using nonexistant widget throws a critical error, issue #16
+- FIX: GTK: Unable to close About window using the close button, issue #17
+- FIX: GTK: Some toggled menues (MAC spoofing and others) don't work, issue #29
+- FIX: GTK: Out of bound access on protocols array from buttons "Clear stats" and "Edit", issue #30
+- FIX: GTK: Out of bound access on protocols array from button "Load default", issue #31
+- FIX: GTK: Bad usage of attacks index, issues #24 and #25
+
 
 2013/08/21
 ----------

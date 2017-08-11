@@ -925,6 +925,9 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
    struct attack *theattack = NULL;
    u_int8_t i, j, num_attacks;
 
+   helper->attack = NULL ;
+   helper->row    = 0 ;
+
    attacksdialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
    gtk_window_set_title (GTK_WINDOW (attacksdialog), _("Choose attack"));
    gtk_window_set_position (GTK_WINDOW (attacksdialog), GTK_WIN_POS_CENTER_ON_PARENT);

@@ -142,7 +142,7 @@ attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack,
                 node->protocol[proto].attacks[i].up      = 0;
                 return -1;
             }
-            write_log(0, " attack_launch: %d Attack thread %ld is born!!\n", (int)pthread_self(),
+            write_log(0, " attack_launch: %X Attack thread %X is born!!\n", (int)pthread_self(),
             (u_long) node->protocol[proto].attacks[i].attack_th.id);
             return 0;
         }
@@ -195,7 +195,7 @@ attack_kill_th(struct term_node *node, pthread_t pid)
 int8_t 
 attack_th_exit(struct attacks *attacks)
 {
-write_log(0," attack_th_exit -> attack_th.stop=%d   attack_th.id=%d....\n",attacks->attack_th.stop,
+write_log(0," attack_th_exit -> attack_th.stop=%d   attack_th.id=%X....\n",attacks->attack_th.stop,
 attacks->attack_th.id);
 
     if (attacks->attack_th.stop == 0)
@@ -205,7 +205,7 @@ attacks->attack_th.id);
 
     if (attacks->helper_th.id) 
     {
-       write_log(0," attack_th_exit: %d thread_destroy helper %d...\n",
+       write_log(0," attack_th_exit: %X thread_destroy helper %X...\n",
                  (int)pthread_self(), (int)attacks->helper_th.id);    
        thread_destroy(&attacks->helper_th);
     }    
@@ -232,7 +232,7 @@ attacks->attack_th.id);
     if (attacks->used_ints)
        free(attacks->used_ints);
 
-    write_log(0, " attack_th_exit: %d finished\n", (int) pthread_self());
+    write_log(0, " attack_th_exit: %X finished\n", (int) pthread_self());
     
     return 0;
 }

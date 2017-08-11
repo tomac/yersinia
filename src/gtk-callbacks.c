@@ -202,24 +202,19 @@ gtk_c_on_actions_interfaces_activate (GtkMenuItem *menuitem, gpointer user_data)
 }
 
 
-void
-gtk_c_on_menu_actions_load_default_activate (GtkMenuItem *menuitem, gpointer user_data)
+void gtk_c_on_menu_actions_load_default_activate( GtkMenuItem *menuitem, gpointer user_data )
 {
-    GtkWidget *notebook;
-    struct gtk_s_helper *helper;
-    u_int8_t mode;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *) user_data ;
 
-    helper = (struct gtk_s_helper *) user_data;
-    notebook = lookup_widget(GTK_WIDGET(menuitem), "main_vhv2_notebook");
-    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+    if ( helper->mode < MAX_PROTOCOLS )
+    {
+        if ( protocols[ helper->mode ].init_attribs )
+           (*protocols[ helper->mode ].init_attribs)( helper->node );
+        else
+           write_log(0, "Warning: no init_attribs for mode %d\n", helper->mode );
 
-    if (protocols[mode].init_attribs)
-       (*protocols[mode].init_attribs)(helper->node);
-    else {
-       write_log(0, "Warning: no init_attribs for mode %d\n", mode);
+        gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, "Loaded protocol default values");
     }
-
-    gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Loaded protocol default values");
 }
 
 
@@ -347,24 +342,29 @@ gtk_c_attacks_synchro(GtkNotebook *attacks_notebook, GtkNotebookPage *page, guin
 }
 
 
-void
-gtk_c_attacks_radio_changed(GtkWidget *radio, gpointer userdata)
+void gtk_c_attacks_radio_changed( GtkWidget *radio, gpointer userdata )
 {
-   u_int8_t i;
-   struct gtk_s_helper *helper;
+    u_int8_t i;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *) userdata;;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio))) {
-      helper = (struct gtk_s_helper *) userdata;
-      i = 0;
-      while(protocols[helper->mode].attacks[i].s) {
-         if (strcmp(gtk_button_get_label(GTK_BUTTON(radio)), protocols[helper->mode].attacks[i].s) == 0) {
-            helper->row = i;
-            helper->attack = (struct attack *) &protocols[helper->mode].attacks[i];
-            break;
+    if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( radio ) ) ) 
+    {
+        if ( helper->mode < MAX_PROTOCOLS )
+        {
+            i = 0;
+
+            while( protocols[ helper->mode ].attacks[i].s )
+            {
+                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attacks[i].s ) == 0 )
+                {
+                    helper->attack = (struct attack *) &protocols[ helper->mode ].attacks[i];
+                    helper->row    = i;
+                    break;
+                }
+                i++;
+            }
+        }
     }
-         i++;
-      }
-   }
 }
 
 
