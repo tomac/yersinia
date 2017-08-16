@@ -80,6 +80,7 @@ gboolean gtk_c_view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event,
 void gtk_c_on_extra_button_clicked(GtkButton *, gpointer);
 void gtk_c_extra_button_add_clicked(GtkButton *, gpointer);
 void gtk_c_add_extra_button_add_ok_clicked(GtkButton *, gpointer);
+void gtk_c_statusbar_destroy( GtkWidget *, gpointer );
 
 /* External functions */
 extern void write_log( u_int16_t mode, char *msg, ... );

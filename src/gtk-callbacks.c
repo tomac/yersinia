@@ -135,12 +135,20 @@ gtk_c_savedialog_save(GtkWidget *button, gpointer userdata)
 
 void gtk_c_on_file_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-   struct gtk_s_helper *helper;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data;
 
-   helper = (struct gtk_s_helper *)user_data;
-   gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, "Exiting... be patient");
+    if ( helper->statusbar != NULL )
+        gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, "Exiting... be patient" );
    
-   gtk_main_quit();
+    gtk_main_quit();
+}
+
+
+void gtk_c_statusbar_destroy( GtkWidget *widget, gpointer user_data )
+{
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data;
+
+    helper->statusbar = NULL ;
 }
 
 
