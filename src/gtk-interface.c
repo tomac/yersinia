@@ -587,6 +587,9 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
 
    /* Status bar - botton of the screen */
    helper->statusbar = gtk_statusbar_new ();
+
+   g_signal_connect( (gpointer)helper->statusbar, "destroy", G_CALLBACK( gtk_c_statusbar_destroy ), (gpointer)helper );
+
    gtk_widget_show (helper->statusbar);
 
    gtk_box_pack_start (GTK_BOX (main_vbox), helper->statusbar, FALSE, FALSE, 0);
