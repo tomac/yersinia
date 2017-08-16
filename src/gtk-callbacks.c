@@ -725,7 +725,7 @@ gtk_c_refresh_mwindow_notebook(GtkNotebook *notebook, GtkNotebookPage *page, gui
 gboolean
 gtk_c_refresh_mwindow(gpointer userdata)
 {
-   u_int8_t i, j, k, val, tlv, mode;
+   u_int8_t i, j, k, val, tlv;
    char *ptrtlv;
    char timebuf[19], meaningbuf[64], **values;
    struct commands_param *params;
@@ -742,43 +742,39 @@ gtk_c_refresh_mwindow(gpointer userdata)
    notebook = GTK_NOTEBOOK(helper->notebook);
    tlv = 0;
    values = NULL;
-   mode = 0;
-
-   mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
 
    /* Check if it is Yersinia log */
-   if (mode == MAX_PROTOCOLS) {
+   if ( ! helper->mode || ( helper->mode >= MAX_PROTOCOLS ) ) 
       return TRUE;
-   }
 
-   params = protocols[mode].parameters;
-   extra_params = protocols[mode].extra_parameters;
+   params = protocols[helper->mode].parameters;
+   extra_params = protocols[helper->mode].extra_parameters;
 
-   if ((tree_model = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(protocols_tree[mode])))) == NULL)
+   if ((tree_model = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(protocols_tree[helper->mode])))) == NULL)
       write_log(0, "Error in gtk_tree_view_get_model\n");
 
    valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(tree_model), &iter);
 
    for (i = 0; i < MAX_PACKET_STATS; i++)
    {
-      if (protocols[mode].stats[i].header->ts.tv_sec > 0) 
+      if (protocols[helper->mode].stats[i].header->ts.tv_sec > 0) 
       {
          /* If there isn't a row, append it */
          if (!valid) {
             gtk_list_store_append (GTK_LIST_STORE (tree_model), &iter);
          }
 
-         if (protocols[mode].get_printable_packet)
+         if (protocols[helper->mode].get_printable_packet)
          {
-            if ((values = (*protocols[mode].get_printable_packet)(&protocols[mode].stats[i])) == NULL) 
+            if ((values = (*protocols[helper->mode].get_printable_packet)(&protocols[helper->mode].stats[i])) == NULL) 
             {
-               write_log(0, "Error in get_printable_packet (mode %d)\n", mode);
+               write_log(0, "Error in get_printable_packet (mode %d)\n", helper->mode);
                return FALSE;
             }
          }
          else
          {
-            write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", mode);
+            write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", helper->mode);
             return FALSE;
          }
 
@@ -788,7 +784,7 @@ gtk_c_refresh_mwindow(gpointer userdata)
          val++;
 
          /* Normal parameters (-2 for the interface and defaults) */
-         while (j < protocols[mode].nparams)
+         while (j < protocols[helper->mode].nparams)
          {
             if (params[j].mwindow)
             {
@@ -806,11 +802,11 @@ gtk_c_refresh_mwindow(gpointer userdata)
 
             j++;
          }
-         if ((protocols[mode].extra_nparams > 0))
+         if ( protocols[helper->mode].extra_nparams > 0 )
          {
             tlv = k;
             j = 0;
-            while(j < protocols[mode].extra_nparams)
+            while(j < protocols[helper->mode].extra_nparams)
             {
                if (extra_params[j].mwindow)
                {
@@ -840,11 +836,11 @@ gtk_c_refresh_mwindow(gpointer userdata)
             }
          }
 
-         gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, protocols[mode].stats[i].iface, -1);
+         gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, protocols[helper->mode].stats[i].iface, -1);
          val++;
-         gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, protocols[mode].stats[i].total, -1);
+         gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, protocols[helper->mode].stats[i].total, -1);
          val++;
-         strftime(timebuf, 19, "%d %b %H:%M:%S", localtime((time_t *)&protocols[mode].stats[i].header->ts));
+         strftime(timebuf, 19, "%d %b %H:%M:%S", localtime((time_t *)&protocols[helper->mode].stats[i].header->ts));
          gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, timebuf, -1);
 
          k = 0;
@@ -867,13 +863,13 @@ gtk_c_refresh_mwindow(gpointer userdata)
 
    /* Ok, now refresh the bwindow */
    if (!helper->edit_mode) {
-      for (i = 0; i < protocols[mode].nparams; i++)
+      for (i = 0; i < protocols[helper->mode].nparams; i++)
       {
          if ((params[i].type != FIELD_DEFAULT) && (params[i].type != FIELD_IFACE) && (params[i].type != FIELD_EXTRA))
          {
-            snprintf(tmp_name, 5, "%02d%02d", mode, i);
+            snprintf(tmp_name, 5, "%02d%02d", helper->mode, i);
             entry[i] = lookup_widget(GTK_WIDGET(notebook), tmp_name);
-            parser_binary2printable(mode, i, helper->node->protocol[mode].commands_param[i], msg);
+            parser_binary2printable( helper->mode, i, helper->node->protocol[helper->mode].commands_param[i], msg );
             gtk_entry_set_text(GTK_ENTRY(entry[i]), msg);
          }
       }
