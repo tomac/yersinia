@@ -143,6 +143,8 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    gtk_window_set_title (GTK_WINDOW (Main), title);
    gtk_window_set_default_size (GTK_WINDOW (Main), 640, 480);
 
+    g_signal_connect( Main, "delete_event", G_CALLBACK( gtk_c_on_file_quit_activate ), helper );
+
    main_vbox = gtk_vbox_new (FALSE, 0);
    gtk_widget_show (main_vbox);
    gtk_container_add (GTK_CONTAINER (Main), main_vbox);
