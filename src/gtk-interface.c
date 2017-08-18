@@ -1123,88 +1123,124 @@ create_interfacesdialog (struct term_node *node)
 }
 
 
-GtkWidget*
-gtk_i_create_listattacksdialog (struct term_node *node)
+GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
 {
-   GtkWidget *listattacksdialog;
-   GtkWidget *listattacks_frame;
-   GtkWidget *listattacks_vbox;
-   GtkWidget *listattacks_v_hbox;
-   GtkWidget *listattacks_vh_label;
-   GtkWidget *listattacks_vh_labeld;
-   GtkWidget *listattacks_vh_button;
-   GtkWidget *listattacks_v_cancel_button;
-   GtkWidget *listattacks_v_ok_button;
-   struct attack *theattack = NULL;
-   u_int8_t i, j;
+    GtkWidget *main_dialog ;
+    GtkWidget *frame ;
+    GtkWidget *frame_vbox ;
+    GtkWidget *main_vbox ;
+    GtkWidget *attack_hbox ;
+    GtkWidget *stop_button ;
+    GtkWidget *quit_hbox ;
+    GtkWidget *stopall_button ;
+    GtkWidget *quit_button ;
+    GtkWidget *label ;
+    struct attack *theattack ;
+    u_int8_t i, j;
+    int attack_count = 0 ;
+    GTK_DIALOG_ATTACK_CONTEXT *dialog_ctx;
+    GTK_ATTACK_CONTEXT *attack_ctx ;
 
-   listattacksdialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-   gtk_window_set_title (GTK_WINDOW (listattacksdialog), _("Attacks list"));
-   gtk_window_set_position (GTK_WINDOW (listattacksdialog), GTK_WIN_POS_CENTER_ON_PARENT);
+    dialog_ctx = (GTK_DIALOG_ATTACK_CONTEXT *)calloc( 1, sizeof( GTK_DIALOG_ATTACK_CONTEXT ) );
+    attack_ctx = &dialog_ctx->enabled_attacks[0] ;
 
-   listattacks_frame = gtk_frame_new(_("Attacks list"));
-   gtk_widget_show(listattacks_frame);
-   gtk_container_add(GTK_CONTAINER (listattacksdialog), listattacks_frame);
+    main_dialog = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
-   listattacks_vbox = gtk_vbox_new (FALSE, 0);
-   gtk_widget_show (listattacks_vbox);
-   gtk_container_add (GTK_CONTAINER (listattacks_frame), listattacks_vbox);
+    gtk_window_set_title( GTK_WINDOW( main_dialog ), _( "Running Attacks" ) );
+    gtk_window_set_position( GTK_WINDOW( main_dialog ), GTK_WIN_POS_CENTER_ON_PARENT );
+    gtk_window_set_resizable( GTK_WINDOW( main_dialog ), FALSE );
 
-   for (i = 0; i < MAX_PROTOCOLS; i++)
-   {
-      theattack = protocols[i].attacks;
-      for (j = 0; j < MAX_THREAD_ATTACK; j++)
-      {
-         if (node->protocol[i].attacks[j].up)
-         {
-            listattacks_v_hbox = gtk_hbox_new(FALSE, 0);
-            gtk_widget_show(listattacks_v_hbox);
+    dialog_ctx->dialog = main_dialog ;
+    dialog_ctx->node   = node ;
 
-            listattacks_vh_label = gtk_label_new(protocols[i].namep);
-            gtk_widget_show(listattacks_vh_label);
-            gtk_box_pack_start(GTK_BOX(listattacks_v_hbox), listattacks_vh_label, TRUE, TRUE, 0);
-            /*
-               listattacks_vh_labeln = gtk_new_label(node->protocols[i].attacks[j].attack);
-               gtk_widget_show(listattacks_vh_labeln):
-               gtk_box_pack_start(GTK_BOX(listattacks_v_hbox), listattacks_vh_labeln, TRUE, TRUE, 0);
-               */
-            listattacks_vh_labeld = gtk_label_new(theattack[node->protocol[i].attacks[j].attack].s);
-            gtk_widget_show(listattacks_vh_labeld);
-            gtk_box_pack_start(GTK_BOX(listattacks_v_hbox), listattacks_vh_labeld, TRUE, TRUE, 0);
+    g_signal_connect( main_dialog, "delete_event", G_CALLBACK( gtk_c_listattacks_delete_event ), (gpointer)dialog_ctx );
 
-            listattacks_vh_button = gtk_button_new_with_label("Cancel attack");
-            gtk_widget_show(listattacks_vh_button);
-            gtk_box_pack_start(GTK_BOX(listattacks_v_hbox), listattacks_vh_button, TRUE, TRUE, 0);
+    frame      = gtk_frame_new( NULL );
+    frame_vbox = gtk_vbox_new( FALSE, 0 );
+    main_vbox  = gtk_vbox_new( FALSE, 0 );
 
-            gtk_box_pack_start(GTK_BOX (listattacks_vbox), listattacks_v_hbox, TRUE, TRUE, 0);
-         }
-      }
-   }
+    gtk_box_pack_start( GTK_BOX( main_vbox ), frame, FALSE, FALSE, 0 );
 
-   listattacks_v_cancel_button = gtk_button_new_with_mnemonic (_("Cancel all attacks"));
-   gtk_widget_show (listattacks_v_cancel_button);
-   gtk_box_pack_start (GTK_BOX (listattacks_vbox), listattacks_v_cancel_button, FALSE, FALSE, 0);
+    /* Attacks list... */
+    for( i = 0; i < MAX_PROTOCOLS; i++ )
+    {
+        theattack = protocols[i].attacks;
 
-   g_signal_connect ((gpointer) listattacks_v_cancel_button, "clicked",
-         G_CALLBACK (gtk_c_listattacks_destroyall),
-         node);
+        for( j = 0; j < MAX_THREAD_ATTACK; j++ )
+        {
+            if ( node->protocol[i].attacks[j].up )
+            {
+                attack_hbox = gtk_hbox_new( FALSE, 5 );
 
-   listattacks_v_ok_button = gtk_button_new_with_mnemonic (_("Cancel"));
-   gtk_widget_show (listattacks_v_ok_button);
-   gtk_box_pack_start (GTK_BOX (listattacks_vbox), listattacks_v_ok_button, FALSE, FALSE, 0);
+                /* Attack Proto */
+                label = gtk_label_new( protocols[i].namep );
+                gtk_widget_show( label );
+                gtk_box_pack_start( GTK_BOX( attack_hbox ), label, FALSE, FALSE, 5 );
 
-   g_signal_connect_swapped ((gpointer) listattacks_v_ok_button, "clicked",
-         G_CALLBACK (gtk_widget_destroy),
-         GTK_OBJECT (listattacksdialog));
+                /* Attack Description... */
+                label = gtk_label_new( theattack[ node->protocol[ i ].attacks[ j ].attack ].s );
+                gtk_widget_show( label );
+                gtk_box_pack_start( GTK_BOX( attack_hbox ), label, FALSE, FALSE, 0 );
 
-   /* Store pointers to all widgets, for use by lookup_widget(). */
-   GLADE_HOOKUP_OBJECT_NO_REF (listattacksdialog, listattacksdialog, "listattacksdialog");
-   GLADE_HOOKUP_OBJECT (listattacksdialog, listattacks_vbox, "listattacks_vbox");
-   GLADE_HOOKUP_OBJECT (listattacksdialog, listattacks_v_ok_button, "listattacks_v_ok_button");
-   GLADE_HOOKUP_OBJECT (listattacksdialog, listattacks_v_cancel_button, "listattacks_v_cancel_button");
+                /* Attack stop button... */
+                stop_button = gtk_button_new_with_label( "Stop" );
+                gtk_widget_show( stop_button );
+                gtk_box_pack_end( GTK_BOX( attack_hbox ), stop_button, FALSE, FALSE, 5 );
 
-   return listattacksdialog;
+                attack_ctx->protocol = i ;
+                attack_ctx->attack   = j ;
+                attack_ctx->dialog   = main_dialog ;
+                attack_ctx->node     = node ;
+                attack_ctx->h_box    = attack_hbox ;
+
+                g_signal_connect( (gpointer)stop_button, "clicked", G_CALLBACK( gtk_c_listattacks_stop_click ), (gpointer)attack_ctx );
+
+                attack_ctx++;
+
+                gtk_box_pack_start( GTK_BOX( frame_vbox ), attack_hbox, FALSE, FALSE, 3 );
+                gtk_widget_show( attack_hbox );
+
+                attack_count++;
+            }
+        }
+    }
+
+    /* Bottom buttons... */
+    quit_hbox = gtk_hbox_new( FALSE, 0 );
+
+    if ( attack_count )
+    {
+        stopall_button = gtk_button_new_with_label( "Stop ALL" );
+        g_signal_connect( (gpointer)stopall_button, "clicked", G_CALLBACK( gtk_c_listattacks_stopall_click ), (gpointer)dialog_ctx );
+        gtk_box_pack_start( GTK_BOX( quit_hbox ), stopall_button, TRUE, FALSE, 0 );
+        gtk_widget_show( stopall_button );
+    }
+    else
+    {
+        label = gtk_label_new( " No attacks currently running " );
+        gtk_widget_show( label );
+        gtk_box_pack_start( GTK_BOX( frame_vbox ), label, FALSE, FALSE, 10 );
+    }
+
+    quit_button = gtk_button_new_with_label( "  Quit  " );
+    g_signal_connect( (gpointer)quit_button, "clicked", G_CALLBACK( gtk_c_listattacks_quit_click ), (gpointer)dialog_ctx );
+    gtk_box_pack_start( GTK_BOX( quit_hbox ), quit_button, TRUE, FALSE, 0 );
+
+    gtk_box_pack_start( GTK_BOX( main_vbox ), quit_hbox, FALSE, FALSE, 5 );
+
+    gtk_widget_show( quit_button );
+    gtk_widget_show( quit_hbox );
+
+    gtk_widget_show( frame_vbox );
+    gtk_widget_show( frame );
+    gtk_widget_show( main_vbox );
+
+    gtk_container_add( GTK_CONTAINER( frame ), frame_vbox );
+    gtk_container_add( GTK_CONTAINER( main_dialog ), main_vbox );
+
+    return main_dialog ;
 }
+
 
 void gtk_i_modaldialog( int gtk_msg_type, char *msg, ...)
 {

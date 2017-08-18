@@ -66,7 +66,6 @@ void gtk_c_attacks_synchro(GtkNotebook *, GtkNotebookPage *, guint,  gpointer);
 void gtk_c_attacks_radio_changed(GtkWidget *, gpointer);
 void gtk_c_attacks_launch(GtkWidget *, gpointer);
 void gtk_c_attackparams_launch(GtkWidget *, gpointer);
-void gtk_c_listattacks_destroyall(GtkWidget *, gpointer);
 void gtk_c_update_hexview(GtkTreeSelection *, gpointer);
 void gtk_c_clock_update(GtkWidget *);
 void gtk_c_tree_update(GtkWidget *);
@@ -81,6 +80,10 @@ void gtk_c_on_extra_button_clicked(GtkButton *, gpointer);
 void gtk_c_extra_button_add_clicked(GtkButton *, gpointer);
 void gtk_c_add_extra_button_add_ok_clicked(GtkButton *, gpointer);
 void gtk_c_statusbar_destroy( GtkWidget *, gpointer );
+gboolean gtk_c_listattacks_delete_event( GtkWidget *, GdkEvent *, gpointer );
+void gtk_c_listattacks_quit_click( GtkWidget *, gpointer );
+void gtk_c_listattacks_stopall_click( GtkWidget *, gpointer );
+void gtk_c_listattacks_stop_click( GtkWidget *, gpointer );
 
 /* External functions */
 extern void write_log( u_int16_t mode, char *msg, ... );
