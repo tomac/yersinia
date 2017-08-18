@@ -118,7 +118,7 @@ typedef struct _GTK_ATTACK_CONTEXT_ {
 typedef struct _GTK_DIALOG_ATTACK_CONTEXT_ {
     GtkWidget *dialog ;      /* Attacks list main dialog */
     struct term_node *node ;
-    GTK_ATTACK_CONTEXT enabled_attacks[ MAX_PROTOCOLS * MAX_THREAD_ATTACK ];
+    GTK_ATTACK_CONTEXT *enabled_attacks_list ;
 } GTK_DIALOG_ATTACK_CONTEXT ;
 
 

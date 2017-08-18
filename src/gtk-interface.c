@@ -1142,7 +1142,9 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
     GTK_ATTACK_CONTEXT *attack_ctx ;
 
     dialog_ctx = (GTK_DIALOG_ATTACK_CONTEXT *)calloc( 1, sizeof( GTK_DIALOG_ATTACK_CONTEXT ) );
-    attack_ctx = &dialog_ctx->enabled_attacks[0] ;
+    dialog_ctx->enabled_attacks_list = (GTK_ATTACK_CONTEXT *)malloc( sizeof( GTK_ATTACK_CONTEXT ) * MAX_PROTOCOLS * MAX_THREAD_ATTACK );
+
+    attack_ctx = dialog_ctx->enabled_attacks_list ;
 
     main_dialog = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 

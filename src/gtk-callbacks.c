@@ -446,6 +446,8 @@ void gtk_c_listattacks_free( gpointer userdata )
 
     gtk_widget_destroy( GTK_WIDGET( dialog_ctx->dialog ) );
 
+    free( dialog_ctx->enabled_attacks_list );
+
     free( dialog_ctx );
 }
 
