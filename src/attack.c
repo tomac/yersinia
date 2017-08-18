@@ -191,6 +191,23 @@ attack_kill_th(struct term_node *node, pthread_t pid)
     return 0;
 }
 
+/* Kill attack by index... */
+int8_t attack_kill_index( struct term_node *node, uint8_t proto_arg, uint8_t attack_arg )
+{
+    if ( ( proto_arg < MAX_PROTOCOLS ) && ( attack_arg < MAX_THREAD_ATTACK ) )
+    {
+        if ( node->protocol[ proto_arg ].attacks[ attack_arg ].up == 1 )
+        {
+            thread_destroy( &node->protocol[ proto_arg ].attacks[ attack_arg ].attack_th );
+
+            pthread_mutex_destroy( &node->protocol[ proto_arg ].attacks[ attack_arg ].attack_th.finished );
+
+            return 1;
+        }
+    }
+
+    return 0 ;
+}
 
 int8_t 
 attack_th_exit(struct attacks *attacks)

@@ -40,6 +40,7 @@ int8_t attack_init_params(struct term_node *, struct attack_param *, u_int8_t);
 void   attack_free_params(struct attack_param *, u_int8_t);
 int8_t attack_filter_all_params(struct attack_param *, u_int8_t, u_int8_t *);
 void   attack_gen_mac(u_int8_t *);
+int8_t attack_kill_index( struct term_node *, uint8_t, uint8_t );
 
 extern int8_t thread_destroy(THREAD *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
