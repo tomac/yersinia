@@ -440,18 +440,50 @@ gtk_c_attackparams_launch(GtkWidget *button, gpointer userdata)
 }
 
 
-void
-gtk_c_listattacks_destroyall(GtkWidget *button, gpointer userdata)
+void gtk_c_listattacks_free( gpointer userdata )
 {
-   struct term_node *node;
-   GtkWidget *listattacksdialog;
+    GTK_DIALOG_ATTACK_CONTEXT *dialog_ctx = (GTK_DIALOG_ATTACK_CONTEXT *)userdata ;
 
-   node = (struct term_node *) userdata;
-   listattacksdialog = lookup_widget(GTK_WIDGET(button), "listattacksdialog");
+    gtk_widget_destroy( GTK_WIDGET( dialog_ctx->dialog ) );
 
-   attack_kill_th(node, ALL_ATTACK_THREADS);
+    free( dialog_ctx );
+}
 
-   gtk_widget_destroy(GTK_WIDGET(listattacksdialog));
+
+void gtk_c_listattacks_stopall_click( GtkWidget *button, gpointer userdata )
+{
+    GTK_DIALOG_ATTACK_CONTEXT *dialog_ctx = (GTK_DIALOG_ATTACK_CONTEXT *)userdata ;
+
+    attack_kill_th( dialog_ctx->node, ALL_ATTACK_THREADS );
+
+    gtk_c_listattacks_free( userdata );
+}
+
+
+void gtk_c_listattacks_stop_click( GtkWidget *button, gpointer userdata )
+{
+    GTK_ATTACK_CONTEXT *gtk_attack_ctx = (GTK_ATTACK_CONTEXT *)userdata ;
+
+    attack_kill_index( gtk_attack_ctx->node, gtk_attack_ctx->protocol, gtk_attack_ctx->attack );
+
+    gtk_widget_set_sensitive( gtk_attack_ctx->h_box, FALSE );
+
+}
+
+
+gboolean gtk_c_listattacks_delete_event( GtkWidget *widget, GdkEvent *event, gpointer userdata )
+{
+    gtk_c_listattacks_free( userdata );
+
+    write_log(0,"listattacks destruido\n");
+
+    return FALSE ;
+}
+
+
+void gtk_c_listattacks_quit_click( GtkWidget *button, gpointer userdata )
+{
+    gtk_c_listattacks_free( userdata );
 }
 
 

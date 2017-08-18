@@ -105,4 +105,21 @@ struct gtk_s_helper {
    struct attack_param *attack_param;
 };
 
+
+typedef struct _GTK_ATTACK_CONTEXT_ {
+    GtkWidget *dialog ;      /* Attacks list main dialog */
+    GtkWidget *h_box ;       /* Horizontal box where the current attack lies, useful for disabling grahpically... */
+    struct term_node *node ;
+    u_int8_t protocol ;
+    u_int8_t attack ;
+} GTK_ATTACK_CONTEXT ;
+
+
+typedef struct _GTK_DIALOG_ATTACK_CONTEXT_ {
+    GtkWidget *dialog ;      /* Attacks list main dialog */
+    struct term_node *node ;
+    GTK_ATTACK_CONTEXT enabled_attacks[ MAX_PROTOCOLS * MAX_THREAD_ATTACK ];
+} GTK_DIALOG_ATTACK_CONTEXT ;
+
+
 #endif
