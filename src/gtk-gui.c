@@ -195,7 +195,7 @@ gtk_gui (void *args)
    Main = gtk_i_create_Main (&helper);
    gtk_widget_show (Main);
 
-   gtk_i_modaldialog( GTK_MESSAGE_WARNING, "%s", "This is an alpha version of the GTK GUI. Not all the options are implemented in this GUI, but if you are brave enough, you are allowed to test it and tell us all the bugs you could find (if you are able to survive!)");
+   gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Alpha version!", "%s", "This is an alpha version of the GTK GUI. Not all the options are implemented in this GUI, but if you are brave enough, you are allowed to test it and tell us all the bugs you could find (if you are able to survive!)");
  
    gtk_main ();
 
