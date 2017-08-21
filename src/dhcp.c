@@ -714,7 +714,7 @@ dhcp_th_rogue_server(void *arg)
             ptr = values[DHCP_TLV];
             top = ptr + (2*MAX_TLV*MAX_VALUE_LENGTH);
 
-            while((ptr < top) && (strncmp(ptr, "MESSAGETYPE", 11) != 0)) 
+            while((ptr < top) && (strncmp(ptr, "MessageType", 11) != 0)) 
                     ptr += strlen(ptr) + 1;
 
             /* DISCOVER or REQUEST */
@@ -735,11 +735,13 @@ dhcp_th_rogue_server(void *arg)
 
         dhcp_data->op = LIBNET_DHCP_REPLY;
 
-        memcpy((void *)&dhcp_data->sip, (void *)param[DHCP_ROGUE_SERVER].value, 4);
-        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_ROUTER].value);
-        memcpy((void *)&dhcp_data->siaddr, (void *)&lbl32, 4);
-        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_START_IP].value);
-        memcpy((void *)&dhcp_data->yiaddr, (void *)&lbl32, 4);
+        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_SERVER].value );
+        memcpy((void *)&dhcp_data->sip, (void *)&lbl32, 4);
+
+        memcpy((void *)&dhcp_data->siaddr, (void *)param[DHCP_ROGUE_ROUTER].value, 4);
+
+        memcpy((void *)&dhcp_data->yiaddr, (void *)param[DHCP_ROGUE_START_IP].value, 4);
+
         dhcp_data->giaddr = 0;
         dhcp_data->dip = inet_addr("255.255.255.255");
         /* ciaddr must be 0 */
@@ -758,6 +760,7 @@ dhcp_th_rogue_server(void *arg)
         dhcp_data->options[10] = 4;
         lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_LEASE].value);
         memcpy((void *)&dhcp_data->options[11], (void *)&lbl32, 4);
+
         dhcp_data->options[15] = LIBNET_DHCP_RENEWTIME;
         dhcp_data->options[16] = 4;
         lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_RENEW].value);
@@ -765,17 +768,24 @@ dhcp_th_rogue_server(void *arg)
 
         dhcp_data->options[21] = LIBNET_DHCP_SUBNETMASK;
         dhcp_data->options[22] = 4;
-        memcpy((void *)&dhcp_data->options[23], (void *)param[DHCP_ROGUE_SUBNET].value, 4);
+        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_SUBNET].value);
+        memcpy((void *)&dhcp_data->options[23], (void *)&lbl32, 4);
+
         dhcp_data->options[27] = LIBNET_DHCP_ROUTER;
         dhcp_data->options[28] = 4;
-        memcpy((void *)&dhcp_data->options[29], (void *)param[DHCP_ROGUE_ROUTER].value, 4);
+        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_ROUTER].value);
+        memcpy((void *)&dhcp_data->options[29], (void *)&lbl32, 4);
+
         dhcp_data->options[33] = LIBNET_DHCP_DNS;
         dhcp_data->options[34] = 4;
-        memcpy((void *)&dhcp_data->options[35], (void *)param[DHCP_ROGUE_DNS].value, 4);
+        lbl32 = htonl(*(u_int32_t *)param[DHCP_ROGUE_DNS].value);
+        memcpy((void *)&dhcp_data->options[35], (void *)&lbl32, 4);
+
         dhcp_data->options[39] = LIBNET_DHCP_DOMAINNAME;
         slen = strlen(param[DHCP_ROGUE_DOMAIN].value);
         dhcp_data->options[40] = slen;
         memcpy((void *)&dhcp_data->options[41], (void *)param[DHCP_ROGUE_DOMAIN].value, slen);
+
         dhcp_data->options[40 + slen + 1] = LIBNET_DHCP_END;
         dhcp_data->options_len = 40 + slen + 2;
 
