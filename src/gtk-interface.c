@@ -1244,7 +1244,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
 }
 
 
-void gtk_i_modaldialog( int gtk_msg_type, char *msg, ...)
+void gtk_i_modaldialog( int gtk_msg_type, char *header, char *msg, ...)
 {
     GtkWidget *dialog ;
     va_list ap ;
@@ -1256,11 +1256,16 @@ void gtk_i_modaldialog( int gtk_msg_type, char *msg, ...)
         vsnprintf( buffer, 2048, msg, ap );
         va_end( ap );
 
-        dialog = gtk_message_dialog_new( NULL, 
-                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                         gtk_msg_type,
-                                         GTK_BUTTONS_OK,
-                                         "%s", buffer );
+        if ( header )
+            dialog = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             gtk_msg_type, GTK_BUTTONS_OK,
+                                             "%s", header );
+        else
+            dialog = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             gtk_msg_type, GTK_BUTTONS_OK,
+                                             NULL );
+
+        gtk_message_dialog_format_secondary_text( GTK_MESSAGE_DIALOG( dialog ), "%s", buffer );
 
         gtk_dialog_run( GTK_DIALOG( dialog ) );
 
