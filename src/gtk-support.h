@@ -92,23 +92,23 @@ void        glade_set_atk_action_description (AtkAction       *action,
 
 
 struct gtk_s_helper {
-	struct term_node *node;
-	u_int8_t mode;
-	u_int8_t row;
-	u_int8_t extra;
-	GtkWidget *notebook;
-	GtkTooltips *tooltips;
-   GtkTreeSelection *select;
-	GtkWidget *statusbar;
-	u_int8_t edit_mode;
-   struct attack *attack;
-   struct attack_param *attack_param;
+    struct term_node *node;
+    u_int8_t mode;
+    u_int8_t row;
+    u_int8_t extra;
+    GtkWidget *notebook;
+    GtkTooltips *tooltips;
+    GtkTreeSelection *select;
+    GtkWidget *statusbar;
+    u_int8_t edit_mode;
+    struct attack *attack;
+    struct attack_param *attack_param;
 };
 
 
 typedef struct _GTK_ATTACK_CONTEXT_ {
     GtkWidget *dialog ;      /* Attacks list main dialog */
-    GtkWidget *h_box ;       /* Horizontal box where the current attack lies, useful for disabling grahpically... */
+    GtkWidget *h_box ;       /* Horizontal box where the current attack lies, useful for disabling graphically... */
     struct term_node *node ;
     u_int8_t protocol ;
     u_int8_t attack ;
@@ -120,6 +120,16 @@ typedef struct _GTK_DIALOG_ATTACK_CONTEXT_ {
     struct term_node *node ;
     GTK_ATTACK_CONTEXT *enabled_attacks_list ;
 } GTK_DIALOG_ATTACK_CONTEXT ;
+
+
+typedef struct _GTK_ATTACK_PARAMS_CONTEXT_ {
+    struct gtk_s_helper *helper ;
+    GtkWidget *dialog ;           /* Attacks parameters dialog */
+    GtkWidget **vh_entry ;        /* Widget list relating to attack parameters */
+    u_int8_t nparams ;            /* parameters count */
+    struct attack_param *params_list ;
+    int8_t attack_status ;
+} GTK_ATTACK_PARAMS_CONTEXT ;
 
 
 #endif
