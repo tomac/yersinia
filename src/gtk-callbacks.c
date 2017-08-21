@@ -376,67 +376,114 @@ void gtk_c_attacks_radio_changed( GtkWidget *radio, gpointer userdata )
 }
 
 
-void
-gtk_c_attacks_launch(GtkWidget *button, gpointer userdata)
+void gtk_c_attacks_launch( GtkWidget *button, gpointer userdata )
 {
-   struct gtk_s_helper *helper;
-   GtkWidget *attacksdialog;
-   GtkWidget *attackparamsdialog;
+    struct gtk_s_helper *helper;
+    GtkWidget *attacksdialog;
+    GtkWidget *attackparamsdialog;
+    GTK_ATTACK_PARAMS_CONTEXT *params_ctx ;
 
-   helper = (struct gtk_s_helper *)userdata;
-   attacksdialog = lookup_widget(GTK_WIDGET(button), "attacksdialog");
+    helper = (struct gtk_s_helper *)userdata;
+    attacksdialog = lookup_widget(GTK_WIDGET(button), "attacksdialog");
 
-   if ((helper->attack) && (helper->attack->nparams)) {
-      if ((helper->attack_param = calloc(1, (sizeof(struct attack_param) * helper->attack->nparams))) == NULL)
-      {
-         thread_error(" ncurses_i_attack_screen attack_param calloc",errno);
-         return;
-      }
+    if ( helper->attack && helper->attack->nparams )
+    {
+        params_ctx = (GTK_ATTACK_PARAMS_CONTEXT *)malloc( sizeof( GTK_ATTACK_PARAMS_CONTEXT ) );
 
-      memcpy(helper->attack_param, (void *)(helper->attack->param), sizeof(struct attack_param) * helper->attack->nparams);
+        params_ctx->attack_status = -1 ;
 
-      if (attack_init_params(helper->node, helper->attack_param, helper->attack->nparams) < 0) {
-         free(helper->attack_param);
-         return;
-      }
+        params_ctx->helper = helper ;
 
-      attackparamsdialog = gtk_i_create_attackparamsdialog(helper, helper->attack_param, helper->attack->nparams);
-      gtk_widget_show(attackparamsdialog);
+        params_ctx->nparams = helper->attack->nparams ;
 
-   } else {
-      if (attack_launch(helper->node, helper->mode, helper->row, NULL, 0) < 0)
-         write_log(0, "Error launching attack %d", helper->row);
-   }
+        params_ctx->vh_entry = (GtkWidget **)calloc( params_ctx->nparams, sizeof( GtkWidget * ) ); 
 
-   gtk_widget_destroy(attacksdialog);
+        params_ctx->params_list = (struct attack_param *)calloc( 1, ( sizeof( struct attack_param ) * params_ctx->nparams ) );
+
+        memcpy( params_ctx->params_list, (void *)(helper->attack->param), sizeof( struct attack_param ) * params_ctx->nparams );
+
+        if ( attack_init_params( helper->node, params_ctx->params_list, params_ctx->nparams ) < 0 ) 
+        {
+            free( params_ctx->params_list );
+            free( params_ctx->vh_entry );
+            free( params_ctx );
+            return;
+        }
+
+        attackparamsdialog = gtk_i_create_attackparamsdialog( params_ctx );
+
+        gtk_widget_show( attackparamsdialog );
+    }
+    else
+    {
+        if ( attack_launch( helper->node, helper->mode, helper->row, NULL, 0) < 0 )
+            write_log(0, "Error launching attack %d", helper->row);
+    }
+
+    gtk_widget_destroy( attacksdialog );
 }
 
 
-void
-gtk_c_attackparams_launch(GtkWidget *button, gpointer userdata)
+void gtk_c_attackparams_free( gpointer userdata )
 {
-   GtkWidget *widget, *warning;
-   struct gtk_s_helper *helper;
-   char tmp_name[3], *text;
-   u_int8_t i, field;
+    GTK_ATTACK_PARAMS_CONTEXT *params_ctx = (GTK_ATTACK_PARAMS_CONTEXT *)userdata ;
 
-   helper = (struct gtk_s_helper *) userdata;
+    gtk_widget_destroy( GTK_WIDGET( params_ctx->dialog ) );
 
-   for (i=0; i < helper->attack->nparams; i++) {
-      snprintf(tmp_name, 3, "%02d", i);
-      widget = lookup_widget(GTK_WIDGET(button), tmp_name);
+    if ( params_ctx->attack_status == -1 ) /* Attack error */
+    {
+        attack_free_params( params_ctx->params_list, params_ctx->nparams );
 
-      text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
-      strncpy(helper->attack_param[i].print, text, helper->attack->param[i].size_print);
-   }
+        free( params_ctx->params_list );
+    }
 
-   if (attack_filter_all_params(helper->attack_param, helper->attack->nparams, &field) < 0) {
-      warning = gtk_i_create_warningdialog("Bad data on field %s!!", helper->attack->param[field].desc);
-      gtk_widget_show(warning);
-   } else {
-      if (attack_launch(helper->node, helper->mode, helper->row, helper->attack_param, helper->attack->nparams) < 0)
-         write_log(0, "Error launching attack %d", helper->row);
-   }
+    free( params_ctx->vh_entry );
+
+    free( params_ctx );
+}
+
+
+void gtk_c_attackparams_cancel_click( GtkWidget *button, gpointer userdata )
+{
+    gtk_c_attackparams_free( userdata );
+}
+
+
+gboolean gtk_c_attackparams_delete_event( GtkWidget *widget, GdkEvent *event, gpointer userdata )
+{
+    gtk_c_attackparams_free( userdata );
+
+    return FALSE ;
+}
+
+
+void gtk_c_attackparams_ok_click( GtkWidget *button, gpointer userdata )
+{
+    GTK_ATTACK_PARAMS_CONTEXT *params_ctx = (GTK_ATTACK_PARAMS_CONTEXT *)userdata ;
+    char *text;
+    u_int8_t i, field;
+
+    for ( i=0; i < params_ctx->nparams; i++ )
+    {
+        text = (char *)gtk_entry_get_text( GTK_ENTRY( params_ctx->vh_entry[i] ) );
+
+        strncpy( params_ctx->params_list[i].print, text, params_ctx->helper->attack->param[i].size_print );
+    }
+
+    if ( attack_filter_all_params( params_ctx->params_list, params_ctx->nparams, &field ) < 0 )
+    {
+        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Bad data on field '%s'!!", params_ctx->helper->attack->param[field].desc );
+    }
+    else
+    {
+        params_ctx->attack_status = attack_launch( params_ctx->helper->node, params_ctx->helper->mode, params_ctx->helper->row,
+                                                   params_ctx->params_list, params_ctx->nparams );
+
+        if ( params_ctx->attack_status < 0 )
+            write_log(0, "Error launching attack %d", params_ctx->helper->row);
+
+        gtk_c_attackparams_free( userdata );
+    }
 }
 
 
@@ -476,8 +523,6 @@ void gtk_c_listattacks_stop_click( GtkWidget *button, gpointer userdata )
 gboolean gtk_c_listattacks_delete_event( GtkWidget *widget, GdkEvent *event, gpointer userdata )
 {
     gtk_c_listattacks_free( userdata );
-
-    write_log(0,"listattacks destruido\n");
 
     return FALSE ;
 }
@@ -949,7 +994,7 @@ gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
    params = (struct commands_param *)protocols[mode].parameters;
 
    if (protocols[mode].stats[row].header->ts.tv_sec <= 0) {
-      write_log(0, "Ohhh no hay paquetes del modo %d, fila %d :(\n", mode, row);
+      /* write_log(0, "Ohhh no hay paquetes del modo %d, fila %d :(\n", mode, row); */
       return;
    }
 
@@ -1142,8 +1187,8 @@ gtk_c_on_extra_button_clicked(GtkButton *button, gpointer userdata)
 
    helper = (struct gtk_s_helper *)userdata;
 
-   //write_log(0, "helper es %d\n", helper->mode);
    extrawindow = gtk_i_create_extradialog(helper);
+
    gtk_widget_show(extrawindow);
 }
 
@@ -1157,7 +1202,6 @@ gtk_c_extra_button_add_clicked(GtkButton *button, gpointer userdata)
 
    helper = (struct gtk_s_helper *)userdata;
 
-   //write_log(0, "helper es %X\n", helper);
    proto = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
    window = gtk_i_create_add_extradialog(helper, proto);
    gtk_widget_show(window);

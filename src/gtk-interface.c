@@ -1480,86 +1480,74 @@ gtk_i_create_add_extradialog (struct gtk_s_helper *helper, u_int8_t proto)
 }
 
 
-GtkWidget*
-gtk_i_create_attackparamsdialog (struct gtk_s_helper *helper, struct attack_param *param, u_int8_t nparams)
+GtkWidget *gtk_i_create_attackparamsdialog( GTK_ATTACK_PARAMS_CONTEXT *params_ctx )
 {
-   GtkWidget *attackparamsdialog;
-   GtkWidget *attackparams_frame;
-   GtkWidget *attackparams_vbox;
-   GtkWidget *attackparams_v_hbox;
-   GtkWidget *attackparams_vh_label;
-   GtkWidget **attackparams_vh_entry;
-   GtkWidget *attackparams_vh_button;
-   GtkWidget *attackparams_v_cancel_button;
-   GtkWidget *attackparams_v_ok_button;
-   u_int8_t i;
-   char tmp_name[3];
+    GtkWidget *attackparamsdialog;
+    GtkWidget *attackparams_frame;
+    GtkWidget *attackparams_vbox;
+    GtkWidget *attackparams_v_hbox;
+    GtkWidget *attackparams_vh_label;
+    GtkWidget *attackparams_vh_button;
+    GtkWidget *attackparams_v_cancel_button;
+    GtkWidget *attackparams_v_ok_button;
+    u_int8_t i;
 
-   if ((attackparams_vh_entry = (GtkWidget **) calloc(nparams, sizeof(GtkWidget *))) == NULL) {
-      write_log(0, "Error in calloc\n");
-      return NULL;
-   }
+    attackparamsdialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (attackparamsdialog), _("Parameters list"));
+    gtk_window_set_position (GTK_WINDOW (attackparamsdialog), GTK_WIN_POS_CENTER_ON_PARENT);
 
-   attackparamsdialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-   gtk_window_set_title (GTK_WINDOW (attackparamsdialog), _("Parameters list"));
-   gtk_window_set_position (GTK_WINDOW (attackparamsdialog), GTK_WIN_POS_CENTER_ON_PARENT);
+    params_ctx->dialog = attackparamsdialog ;
 
-   attackparams_frame = gtk_frame_new(_("Parameters list"));
-   gtk_widget_show(attackparams_frame);
-   gtk_container_add(GTK_CONTAINER (attackparamsdialog), attackparams_frame);
+    attackparams_frame = gtk_frame_new(_("Parameters list"));
+    gtk_widget_show(attackparams_frame);
+    gtk_container_add(GTK_CONTAINER (attackparamsdialog), attackparams_frame);
 
-   attackparams_vbox = gtk_vbox_new (FALSE, 0);
-   gtk_widget_show (attackparams_vbox);
-   gtk_container_add (GTK_CONTAINER (attackparams_frame), attackparams_vbox);
+    attackparams_vbox = gtk_vbox_new (FALSE, 0);
+    gtk_widget_show (attackparams_vbox);
+    gtk_container_add (GTK_CONTAINER (attackparams_frame), attackparams_vbox);
 
-   for (i = 0; i < nparams; i++)
-   {
-      attackparams_v_hbox = gtk_hbox_new(FALSE, 0);
-      gtk_widget_show(attackparams_v_hbox);
-      attackparams_vh_label = gtk_label_new(_(param[i].desc));
-      gtk_widget_show(attackparams_vh_label);
-      attackparams_vh_entry[i] = gtk_entry_new();
-      gtk_entry_set_editable(GTK_ENTRY(attackparams_vh_entry[i]), TRUE);
-      gtk_entry_set_width_chars(GTK_ENTRY(attackparams_vh_entry[i]), param[i].size_print);
-      gtk_entry_set_max_length(GTK_ENTRY(attackparams_vh_entry[i]), param[i].size_print);
-      gtk_widget_show(attackparams_vh_entry[i]);
+    for (i = 0; i < params_ctx->nparams; i++)
+    {
+        attackparams_v_hbox = gtk_hbox_new(FALSE, 0);
+        gtk_widget_show(attackparams_v_hbox);
 
-      gtk_box_pack_start(GTK_BOX(attackparams_v_hbox), attackparams_vh_label, TRUE, TRUE, 0);
-      gtk_box_pack_start(GTK_BOX(attackparams_v_hbox), attackparams_vh_entry[i], TRUE, TRUE, 0);
-      gtk_box_pack_start(GTK_BOX (attackparams_vbox), attackparams_v_hbox, TRUE, TRUE, 0);
+        attackparams_vh_label = gtk_label_new( _( params_ctx->params_list[i].desc ) );
 
-      snprintf(tmp_name, 3, "%02d", i);
-      GLADE_HOOKUP_OBJECT (attackparamsdialog, attackparams_vh_entry[i], tmp_name);
-   }
+        gtk_widget_show(attackparams_vh_label);
 
-   attackparams_vh_button = gtk_hbox_new(TRUE, 0);
-   gtk_widget_show(attackparams_vh_button);
-   gtk_container_add (GTK_CONTAINER (attackparams_vbox), attackparams_vh_button);
+        params_ctx->vh_entry[i] = gtk_entry_new();
 
-   attackparams_v_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
-   gtk_widget_show (attackparams_v_cancel_button);
-   gtk_box_pack_start (GTK_BOX (attackparams_vh_button), attackparams_v_cancel_button, TRUE, FALSE, 0);
+        gtk_entry_set_editable( GTK_ENTRY( params_ctx->vh_entry[i]), TRUE );
+        gtk_entry_set_width_chars( GTK_ENTRY( params_ctx->vh_entry[i] ), params_ctx->params_list[i].size_print );
+        gtk_entry_set_max_length( GTK_ENTRY( params_ctx->vh_entry[i] ), params_ctx->params_list[i].size_print );
 
-   attackparams_v_ok_button = gtk_button_new_with_mnemonic (_("OK"));
-   gtk_widget_show (attackparams_v_ok_button);
-   gtk_box_pack_start (GTK_BOX (attackparams_vh_button), attackparams_v_ok_button, TRUE, FALSE, 0);
+        gtk_widget_show( params_ctx->vh_entry[i] );
 
-   /* TODO: attack_free_param */
-   g_signal_connect_swapped ((gpointer) attackparams_v_cancel_button, "clicked",
-         G_CALLBACK (gtk_widget_destroy),
-         GTK_OBJECT (attackparamsdialog));
+        gtk_box_pack_start( GTK_BOX( attackparams_v_hbox ), attackparams_vh_label, TRUE, TRUE, 0 );
 
-   g_signal_connect((gpointer) attackparams_v_ok_button, "clicked",
-         G_CALLBACK (gtk_c_attackparams_launch),
-         helper);
+        gtk_box_pack_start( GTK_BOX( attackparams_v_hbox ), params_ctx->vh_entry[i], TRUE, TRUE, 0 );
 
-   /* Store pointers to all widgets, for use by lookup_widget(). */
-   GLADE_HOOKUP_OBJECT_NO_REF (attackparamsdialog, attackparamsdialog, "attackparamsdialog");
-   GLADE_HOOKUP_OBJECT (attackparamsdialog, attackparams_vbox, "attackparams_vbox");
-   GLADE_HOOKUP_OBJECT (attackparamsdialog, attackparams_v_ok_button, "attackparams_v_ok_button");
-   GLADE_HOOKUP_OBJECT (attackparamsdialog, attackparams_v_cancel_button, "attackparams_v_cancel_button");
+        gtk_box_pack_start( GTK_BOX( attackparams_vbox ), attackparams_v_hbox, TRUE, TRUE, 0 );
+    }
 
-   return attackparamsdialog;
+    attackparams_vh_button = gtk_hbox_new(TRUE, 0);
+    gtk_widget_show(attackparams_vh_button);
+    gtk_container_add (GTK_CONTAINER (attackparams_vbox), attackparams_vh_button);
+
+    attackparams_v_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+    gtk_widget_show (attackparams_v_cancel_button);
+    gtk_box_pack_start (GTK_BOX (attackparams_vh_button), attackparams_v_cancel_button, TRUE, FALSE, 0);
+
+    attackparams_v_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+    gtk_widget_show (attackparams_v_ok_button);
+    gtk_box_pack_start (GTK_BOX (attackparams_vh_button), attackparams_v_ok_button, TRUE, FALSE, 0);
+
+    g_signal_connect( (gpointer) attackparams_v_cancel_button, "clicked", G_CALLBACK( gtk_c_attackparams_cancel_click ), (gpointer)params_ctx );
+    g_signal_connect( (gpointer) attackparams_v_ok_button, "clicked", G_CALLBACK( gtk_c_attackparams_ok_click ), (gpointer)params_ctx );
+
+    g_signal_connect( attackparamsdialog, "delete_event", G_CALLBACK( gtk_c_attackparams_delete_event ), (gpointer)params_ctx );
+
+    return attackparamsdialog;
 }
 
 
