@@ -424,7 +424,7 @@ static struct attack_param dhcp_dos_send_release_params[] = {
 #define DHCP_ATTACK_ROGUE_SERVER       2
 #define DHCP_ATTACK_DOS_SEND_RELEASE   3
 
-static struct attack dhcp_attack[] = {
+static struct _attack_definition dhcp_attack[] = {
   { DHCP_ATTACK_SEND_RAW,          "sending RAW packet",        NONDOS, SINGLE,    dhcp_th_send_raw,      NULL, 0 },
 /*  { DHCP_ATTACK_SEND_DISCOVER,     "sending DISCOVER packet",   NONDOS, dhcp_th_send_discover, NULL, 0 },*/
   { DHCP_ATTACK_DOS_SEND_DISCOVER, "sending DISCOVER packet",   DOS,    CONTINOUS, dhcp_th_dos_send_discover,NULL, 0 },
@@ -473,7 +473,7 @@ extern struct interface_data *interfaces_get_packet(list_t *, struct interface_d
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 extern struct terminals *terms;
 
 extern int8_t bin_data[];

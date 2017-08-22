@@ -361,12 +361,12 @@ void gtk_c_attacks_radio_changed( GtkWidget *radio, gpointer userdata )
         {
             i = 0;
 
-            while( protocols[ helper->mode ].attacks[i].desc )
+            while( protocols[ helper->mode ].attack_def_list[i].desc )
             {
-                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attacks[i].desc ) == 0 )
+                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attack_def_list[i].desc ) == 0 )
                 {
-                    helper->attack = (struct attack *) &protocols[ helper->mode ].attacks[i];
-                    helper->row    = i;
+                    helper->attack_def = &protocols[ helper->mode ].attack_def_list[i];
+                    helper->row        = i;
                     break;
                 }
                 i++;
@@ -386,7 +386,7 @@ void gtk_c_attacks_launch( GtkWidget *button, gpointer userdata )
     helper = (struct gtk_s_helper *)userdata;
     attacksdialog = lookup_widget(GTK_WIDGET(button), "attacksdialog");
 
-    if ( helper->attack && helper->attack->nparams )
+    if ( helper->attack_def && helper->attack_def->nparams )
     {
         params_ctx = (GTK_ATTACK_PARAMS_CONTEXT *)malloc( sizeof( GTK_ATTACK_PARAMS_CONTEXT ) );
 
@@ -394,13 +394,13 @@ void gtk_c_attacks_launch( GtkWidget *button, gpointer userdata )
 
         params_ctx->helper = helper ;
 
-        params_ctx->nparams = helper->attack->nparams ;
+        params_ctx->nparams = helper->attack_def->nparams ;
 
         params_ctx->vh_entry = (GtkWidget **)calloc( params_ctx->nparams, sizeof( GtkWidget * ) ); 
 
         params_ctx->params_list = (struct attack_param *)calloc( 1, ( sizeof( struct attack_param ) * params_ctx->nparams ) );
 
-        memcpy( params_ctx->params_list, (void *)(helper->attack->param), sizeof( struct attack_param ) * params_ctx->nparams );
+        memcpy( params_ctx->params_list, (void *)(helper->attack_def->param), sizeof( struct attack_param ) * params_ctx->nparams );
 
         if ( attack_init_params( helper->node, params_ctx->params_list, params_ctx->nparams ) < 0 ) 
         {
@@ -467,12 +467,12 @@ void gtk_c_attackparams_ok_click( GtkWidget *button, gpointer userdata )
     {
         text = (char *)gtk_entry_get_text( GTK_ENTRY( params_ctx->vh_entry[i] ) );
 
-        strncpy( params_ctx->params_list[i].print, text, params_ctx->helper->attack->param[i].size_print );
+        strncpy( params_ctx->params_list[i].print, text, params_ctx->helper->attack_def->param[i].size_print );
     }
 
     if ( attack_filter_all_params( params_ctx->params_list, params_ctx->nparams, &field ) < 0 )
     {
-        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Bad data on field '%s'!!", params_ctx->helper->attack->param[field].desc );
+        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Bad data on field '%s'!!", params_ctx->helper->attack_def->param[field].desc );
     }
     else
     {

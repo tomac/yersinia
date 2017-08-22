@@ -54,7 +54,7 @@ void   parser_str_tolower( char *);
 void   parser_help( void );
 int8_t parser_vrfy_mac( char *, u_int8_t * );
 int8_t parser_vrfy_bridge_id( char *, u_int8_t * );
-int8_t parser_command2index(register const struct attack *, register int8_t);
+int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 
 int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
 int8_t parser_get_formated_inet_address_fill(u_int32_t in, char *inet, u_int16_t inet_len, int8_t fill_up);

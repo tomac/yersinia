@@ -927,11 +927,11 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
    GtkWidget *attacks_v_hbox;
    GtkWidget *attacks_vh_cancel_button;
    GtkWidget *attacks_vh_ok_button;
-   struct attack *theattack = NULL;
+   struct _attack_definition *attack_def = NULL;
    u_int8_t i, j, num_attacks;
 
-   helper->attack = NULL ;
-   helper->row    = 0 ;
+   helper->attack_def = NULL ;
+   helper->row        = 0 ;
 
    attacksdialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
    gtk_window_set_title (GTK_WINDOW (attacksdialog), _("Choose attack"));
@@ -951,8 +951,9 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
 
    for (i=0; i < MAX_PROTOCOLS; i++)
    {   
-      if (protocols[i].attacks) {
-         theattack = (struct attack *)protocols[i].attacks;
+      if ( protocols[i].attack_def_list ) 
+      {
+         attack_def = protocols[i].attack_def_list;
 
          attacks_frame = gtk_frame_new(_("Choose attack"));
          if (protocols[i].visible)
@@ -966,7 +967,7 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
 
          gtk_notebook_set_tab_label (GTK_NOTEBOOK (attacks_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (attacks_notebook), i), attacks_n_labels[i]);
 
-         attacks_v_table = gtk_table_new (SIZE_ARRAY(theattack), 3, FALSE);
+         attacks_v_table = gtk_table_new (SIZE_ARRAY(attack_def), 3, FALSE);
          gtk_widget_show (attacks_v_table);
          gtk_container_add(GTK_CONTAINER(attacks_frame), attacks_v_table);
          gtk_container_set_border_width (GTK_CONTAINER (attacks_v_table), 10);
@@ -986,14 +987,17 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
          gtk_misc_set_alignment (GTK_MISC (attacks_vt_label_dos), 0, 0.5);
 
          num_attacks = 0;
-         while(theattack[num_attacks].desc)
+
+         while ( attack_def[num_attacks].desc )
             num_attacks++;
 
-         for(j = 0; j < num_attacks; j++) {
+         for(j = 0; j < num_attacks; j++) 
+         {
             if (j == 0)
-               attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label(NULL, theattack[j].desc);
+               attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label( NULL, attack_def[j].desc );
             else
-               attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(attacks_vt_radio_attack[i]), (theattack[j].desc));
+               attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label_from_widget( GTK_RADIO_BUTTON( attacks_vt_radio_attack[i] ), ( attack_def[j].desc ) );
+
             gtk_widget_show (attacks_vt_radio_attack[i]);
 
             g_signal_connect(attacks_vt_radio_attack[i], "toggled", (GCallback) gtk_c_attacks_radio_changed, helper);
@@ -1004,7 +1008,8 @@ gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_
 
             attacks_vt_check_attack1 = gtk_check_button_new();
             gtk_widget_set_sensitive(GTK_WIDGET(attacks_vt_check_attack1), FALSE);
-            if (theattack[j].type == DOS)
+
+            if ( attack_def[j].type == DOS )
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(attacks_vt_check_attack1), TRUE);
             else
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(attacks_vt_check_attack1), FALSE);
@@ -1135,7 +1140,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
     GtkWidget *stopall_button ;
     GtkWidget *quit_button ;
     GtkWidget *label ;
-    struct attack *theattack ;
+    struct _attack_definition *attack_def ;
     u_int8_t i, j;
     int attack_count = 0 ;
     GTK_DIALOG_ATTACK_CONTEXT *dialog_ctx;
@@ -1166,7 +1171,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
     /* Attacks list... */
     for( i = 0; i < MAX_PROTOCOLS; i++ )
     {
-        theattack = protocols[i].attacks;
+        attack_def = protocols[i].attack_def_list;
 
         for( j = 0; j < MAX_THREAD_ATTACK; j++ )
         {
@@ -1180,7 +1185,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
                 gtk_box_pack_start( GTK_BOX( attack_hbox ), label, FALSE, FALSE, 5 );
 
                 /* Attack Description... */
-                label = gtk_label_new( theattack[ node->protocol[ i ].attacks[ j ].attack ].desc );
+                label = gtk_label_new( attack_def[ node->protocol[ i ].attacks[ j ].attack ].desc );
                 gtk_widget_show( label );
                 gtk_box_pack_start( GTK_BOX( attack_hbox ), label, FALSE, FALSE, 0 );
 
@@ -1493,7 +1498,7 @@ GtkWidget *gtk_i_create_attackparamsdialog( GTK_ATTACK_PARAMS_CONTEXT *params_ct
     GtkWidget *ok_button;
     u_int8_t i;
     gchar *title_text = g_strconcat( protocols[ params_ctx->helper->mode ].namep, " attack parameters", NULL );
-    gchar *frame_text = g_strconcat( " ", protocols[ params_ctx->helper->mode ].attacks[ params_ctx->helper->row ].desc, " ", NULL );
+    gchar *frame_text = g_strconcat( " ", protocols[ params_ctx->helper->mode ].attack_def_list[ params_ctx->helper->row ].desc, " ", NULL );
 
     main_dialog = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 

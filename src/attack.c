@@ -133,7 +133,7 @@ attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack,
             }
 
             if (thread_create(&node->protocol[proto].attacks[i].attack_th.id, 
-                             (*protocols[proto].attacks[attack].attack_th_launch), 
+                             (*protocols[proto].attack_def_list[attack].attack_th_launch), 
                              &node->protocol[proto].attacks[i]) < 0)
             {
                 free(node->protocol[proto].attacks[i].data);

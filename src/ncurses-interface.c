@@ -365,15 +365,13 @@ ncurses_i_help_screen(u_int8_t mode, WINDOW *help_screen, PANEL *help_panel)
 /* 
  * Attack information panel
  */
-void 
-ncurses_i_attack_screen(struct term_node *node, u_int8_t mode, 
-        WINDOW *attack_screen, PANEL *attack_panel)
+void ncurses_i_attack_screen( struct term_node *node, u_int8_t mode, WINDOW *attack_screen, PANEL *attack_panel )
 {
    int32_t i, key_pressed=0, j, row, col, y, x;
    u_int8_t field;
    int8_t ret;
    struct attack_param *attack_param = NULL;
-   struct attack *theattack = NULL;
+   struct _attack_definition *attack_def = NULL;
 
    ncurses_c_set_status_line(" Those strange attacks... ");
 
@@ -383,9 +381,10 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
    if ((row - 15 != y) || (col - 50 != x))
       mvwin(attack_screen, (row - 15)/2, (col - 50)/2);
 
-   if (protocols[mode].attacks)
-      theattack = protocols[mode].attacks;
-   else {
+   if ( protocols[ mode ].attack_def_list )
+      attack_def = protocols[ mode ].attack_def_list;
+   else 
+   {
       write_log(0, "Warning: no attacks for mode %d\n", mode);
       return;
    }
@@ -399,11 +398,11 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
    mvwprintw(attack_screen, 1, 2, "No   DoS   Description");
    wattroff(attack_screen, COLOR_PAIR(1));
 
-   while(theattack[i].desc != NULL) 
+   while( attack_def[i].desc != NULL ) 
    {
       mvwprintw(attack_screen, i+2, 2, "%d", i);
-      mvwprintw(attack_screen, i+2, 7, "%c", (theattack[i].type == DOS) ? 'X' : ' ');
-      mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].desc);
+      mvwprintw(attack_screen, i+2, 7, "%c", (attack_def[i].type == DOS) ? 'X' : ' ');
+      mvwprintw(attack_screen, i+2, 13, "%s", attack_def[i].desc);
       i++;
    }
 
@@ -431,18 +430,18 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
             if (j < i) 
             { /* does the attack exist? */
 
-               if (theattack[j].nparams) /* Do we need parameters for attack? */
+               if ( attack_def[j].nparams) /* Do we need parameters for attack? */
                {
                   if ((attack_param = calloc(1,
-                              (sizeof(struct attack_param) * theattack[j].nparams))) == NULL)
+                              (sizeof(struct attack_param) * attack_def[j].nparams))) == NULL)
                   {
                      thread_error(" ncurses_i_attack_screen attack_param calloc",errno);
                      key_pressed='Q';
                      break;
                   }
-                  memcpy( attack_param, (void *)(theattack[j].param),
-                        sizeof(struct attack_param) * theattack[j].nparams);
-                  if (attack_init_params(node, attack_param, theattack[j].nparams) < 0)
+                  memcpy( attack_param, (void *)( attack_def[j].param),
+                        sizeof(struct attack_param) * attack_def[j].nparams);
+                  if (attack_init_params(node, attack_param, attack_def[j].nparams) < 0)
                   {
                      free(attack_param);
                      key_pressed='Q';
@@ -453,18 +452,17 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
                   hide_panel(attack_panel);
 
                   /* Now we can ask for parameters... */
-                  ncurses_i_get_printable_store(attack_param, theattack[j].nparams);
+                  ncurses_i_get_printable_store(attack_param, attack_def[j].nparams);
 
                   do {
-                     if (ncurses_i_attack_get_params(attack_param, 
-                              theattack[j].nparams) < 0) /* Q pressed */
+                     if (ncurses_i_attack_get_params(attack_param, attack_def[j].nparams) < 0) /* Q pressed */
                      {
-                        attack_free_params(attack_param, theattack[j].nparams);
+                        attack_free_params(attack_param, attack_def[j].nparams);
                         free(attack_param);
                         key_pressed='Q';
                         break;
                      }
-                     ret = attack_filter_all_params(attack_param,theattack[j].nparams, &field);
+                     ret = attack_filter_all_params( attack_param, attack_def[j].nparams, &field );
                      if ( ret == -1) /* Error on data...*/
                      {
                         ncurses_i_error_window(1,
@@ -484,11 +482,11 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
                      mvwprintw(attack_screen, 1, 2, "No   DoS   Description");
                      wattroff(attack_screen, COLOR_PAIR(1));
 
-                     while(theattack[i].desc != NULL) 
+                     while ( attack_def[i].desc != NULL )
                      {
                         mvwprintw(attack_screen, i+2, 2, "%d", i);
-                        mvwprintw(attack_screen, i+2, 7, "%c", (theattack[i].type == DOS) ? 'X' : ' ');
-                        mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].desc);
+                        mvwprintw(attack_screen, i+2, 7, "%c", ( attack_def[i].type == DOS) ? 'X' : ' ');
+                        mvwprintw(attack_screen, i+2, 13, "%s", attack_def[i].desc);
                         i++;
                      }
 
@@ -501,7 +499,7 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
                show_panel(attack_panel);
                ncurses_c_refresh();
 
-               if (attack_launch(node, mode, j, attack_param, theattack[j].nparams) < 0)
+               if (attack_launch(node, mode, j, attack_param, attack_def[j].nparams) < 0)
                   write_log(0, "Error launching attack %d", j);
 
                key_pressed='Q';
@@ -866,12 +864,11 @@ ncurses_i_view_packet(u_int8_t mode, WINDOW *main_window, u_int8_t pointer)
 /* 
  * List attack
  */
-void 
-ncurses_i_list_attacks(WINDOW *list_window, struct term_node *node)
+void ncurses_i_list_attacks( WINDOW *list_window, struct term_node *node )
 {
    u_int8_t end, kill, j, pointer, a, i, used, indx=0, files[MAX_PROTOCOLS*MAX_THREAD_ATTACK][2];
    int32_t key_pressed;
-   struct attack *theattack = NULL;
+   struct _attack_definition *attack_def = NULL;
 
    used = 0; j = 0;
 
@@ -933,12 +930,12 @@ ncurses_i_list_attacks(WINDOW *list_window, struct term_node *node)
 
          if (node->protocol[files[i][0]].attacks[files[i][1]].up) 
          {
-            theattack = protocols[files[i][0]].attacks;
+            attack_def = protocols[files[i][0]].attack_def_list;
 
             mvwprintw(list_window, i+4, 2, "%8s   %-2d      %s", 
                   protocols[files[i][0]].namep, 
                   node->protocol[files[i][0]].attacks[files[i][1]].attack, 
-                  theattack[node->protocol[files[i][0]].attacks[files[i][1]].attack].desc);
+                  attack_def[ node->protocol[files[i][0]].attacks[files[i][1]].attack].desc);
          }
          i++;
       }

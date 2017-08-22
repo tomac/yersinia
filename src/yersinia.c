@@ -457,33 +457,29 @@ void
 doloop(struct term_node *node, int mode)
 {
     struct term_tty *term_tty;
-    struct attack *theattack = NULL;
+    struct _attack_definition *attack_def = NULL;
     struct timeval timeout;
     fd_set read_set;
     int ret, fail;
     struct termios old_term, term;
-    
+
     term_tty = node->specific;
 
-    theattack = protocols[mode].attacks;
+    attack_def = protocols[ mode ].attack_def_list ;
 
-    if (term_tty->attack >= 0) 
+    if ( term_tty->attack >= 0 )
     {
-        if (theattack[term_tty->attack].nparams)
+        if ( attack_def[ term_tty->attack ].nparams )
         {
             printf("\n<*> Ouch!! At the moment the command line interface doesn't support attacks <*>\n");
-            printf("<*> that needs parameters and the one you've choosed needs %d <*>\n",
-                         theattack[term_tty->attack].nparams);
+            printf("<*> that needs parameters and the one you've choosed needs %d <*>\n", attack_def[ term_tty->attack ].nparams );
         }
         else
         {
-            printf("<*> Starting %s attack %s...\n", 
-                (theattack[term_tty->attack].type)?"DOS":"NONDOS",
-                theattack[term_tty->attack].desc); 
+            printf("<*> Starting %s attack %s...\n", ( attack_def[ term_tty->attack ].type ) ? "DOS" : "NONDOS", attack_def[ term_tty->attack ].desc);
 
             if (attack_launch(node, mode, term_tty->attack, NULL, 0) < 0)
-                write_log(1, "Error launching attack %d (mode %d)!!\n", 
-                            term_tty->attack, mode);
+                write_log(1, "Error launching attack %d (mode %d)!!\n", term_tty->attack, mode);
 
             fflush(stdin); fflush(stdout);
             setvbuf(stdout, NULL, _IONBF, 0);
@@ -495,10 +491,11 @@ doloop(struct term_node *node, int mode)
             term.c_lflag &= ~ECHO;
             tcsetattr(0,TCSANOW,&term);
 
-            if (theattack[term_tty->attack].single == CONTINOUS) {
+            if ( attack_def[ term_tty->attack ].single == CONTINOUS ) 
+            {
                 printf("<*> Press any key to stop the attack <*>\n");
                 fail = 0;
-                while(!fail && !node->thread.stop)
+                while( !fail && !node->thread.stop )
                 {
                     FD_ZERO(&read_set);
                     FD_SET(0, &read_set);
@@ -521,7 +518,8 @@ doloop(struct term_node *node, int mode)
                        }
                     }
                  }
-             } else
+            } 
+            else
                 /* Command line, only one attack (0), let's wait for its conclusion... */
                 while (node->protocol[mode].attacks[0].up)
                     thread_usleep(150000);

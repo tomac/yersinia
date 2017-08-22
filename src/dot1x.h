@@ -168,7 +168,7 @@ static struct attack_param dot1x_mitm_params[] = {
 #define DOT1X_ATTACK_SEND 0
 #define DOT1X_ATTACK_MITM 1
 
-static struct attack dot1x_attack[] = {
+static struct _attack_definition dot1x_attack[] = {
     { DOT1X_ATTACK_SEND, "sending 802.1X packet",         NONDOS, SINGLE,    dot1x_th_send, NULL, 0           },
     { DOT1X_ATTACK_MITM, "Mitm 802.1X with 2 interfaces", NONDOS, CONTINOUS, dot1x_th_mitm, dot1x_mitm_params,
               SIZE_ARRAY(dot1x_mitm_params) },
@@ -198,7 +198,7 @@ extern struct interface_data *interfaces_get_packet(list_t *, struct interface_d
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 extern int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 
 extern struct terminals *terms;
 

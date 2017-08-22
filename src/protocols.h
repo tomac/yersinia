@@ -81,7 +81,7 @@ typedef uint8_t  u_int8_t;
 
 struct term_node;
 struct attacks;
-struct attack;
+struct _attack_definition;
 struct pcap_pkthdr;
 struct words_array;
 
@@ -184,7 +184,7 @@ struct protocol_def {
        get_printable_packet_t get_printable_packet;
        get_printable_store_t get_printable_store;
        load_values_t load_values;
-       struct attack *attacks;
+       struct _attack_definition *attack_def_list;
        struct pcap_data stats[MAX_PACKET_STATS];
        update_field_t update_field;
        edit_tlv_t edit_tlv;
@@ -214,7 +214,7 @@ void   protocol_init(void);
 int8_t protocol_register(u_int8_t, const char *, const char *, const char *,
                          u_int16_t, init_attribs_t, learn_packet_t, 
                          get_printable_packet_t, get_printable_store_t,
-                         load_values_t, struct attack *, 
+                         load_values_t, struct _attack_definition *, 
                          update_field_t, struct proto_features *, 
                          struct commands_param *, u_int8_t, 
                          struct commands_param_extra *, u_int8_t, get_extra_field_t,
