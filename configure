@@ -6422,7 +6422,7 @@ fi
 if test $use_gtk = yes; then
      $as_echo "#define HAVE_GTK 1" >>confdefs.h
 
-     pkg_modules="gtk+-2.0 >= 2.0.0"
+     pkg_modules="gtk+-2.0 >= 2.6.0"
 
 
 
