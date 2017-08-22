@@ -231,12 +231,12 @@ struct attack_param {
        char  *print; /* Printable */
 };
 
-struct attack {
+struct _attack_definition {
        int16_t v;        /* value       */
        char *desc;       /* descr       */
        int8_t type;      /* DoS attack? */
        int8_t single;    /* Is only one packet or is a continous attack? */
-       void (*attack_th_launch)(void *);
+       void (*attack_th_launch)(void *); /* Protocol attack callback */
        const struct attack_param *param; /* Attack parameters */
        u_int8_t nparams; /* How many parameters */
 };

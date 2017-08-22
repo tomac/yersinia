@@ -153,7 +153,7 @@ void mpls_th_send_double_icmp(void *);
 void mpls_send(struct attacks *);
 void mpls_th_send_exit(struct attacks *);
 
-static struct attack mpls_attack[] = {
+static struct _attack_definition mpls_attack[] = {
     { MPLS_ATTACK_SEND_TCP,        "sending TCP MPLS packet", NONDOS, SINGLE,             mpls_th_send_tcp, NULL, 0 },
     { MPLS_ATTACK_SEND_DOUBLE_TCP, "sending TCP MPLS with double header", NONDOS, SINGLE, mpls_th_send_double_tcp, NULL, 0 },
     { MPLS_ATTACK_SEND_UDP,        "sending UDP MPLS packet", NONDOS, SINGLE,             mpls_th_send_udp, NULL, 0 },
@@ -188,7 +188,7 @@ extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 extern int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
 extern int8_t parser_get_formated_inet_address_fill(u_int32_t in, char *inet, u_int16_t inet_len, int8_t fill_up);
 
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 
 
 

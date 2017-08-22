@@ -101,7 +101,7 @@ struct gtk_s_helper {
     GtkTreeSelection *select;
     GtkWidget *statusbar;
     u_int8_t edit_mode;
-    struct attack *attack;
+    struct _attack_definition *attack_def;
     struct attack_param *attack_param;
 };
 

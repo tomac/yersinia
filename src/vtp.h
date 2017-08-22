@@ -246,7 +246,7 @@ static struct attack_param vtp_vlan_del_param[] = {
 #define VTP_ATTACK_CRASH   4
 
 
-static struct attack vtp_attack[] = {
+static struct _attack_definition vtp_attack[] = {
   { VTP_ATTACK_SEND,   "sending VTP packet",     NONDOS, SINGLE, vtp_th_send,        NULL,    0 },
   { VTP_ATTACK_DEL_ALL,"deleting all VTP vlans", DOS,    SINGLE, vtp_th_dos_del_all, NULL,    0 },
   { VTP_ATTACK_DEL,    "deleting one vlan",      DOS,    SINGLE, vtp_th_dos_del,     vtp_vlan_del_param,
@@ -285,7 +285,7 @@ extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 extern int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
 extern void   md5_sum(const u_char *, size_t, u_char *);
 
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 extern struct terminals *terms;
 
 extern int8_t bin_data[];

@@ -1517,7 +1517,7 @@ command_proto_attacks(struct term_node *node, u_int16_t proto)
 {
    int8_t i,j;
    char msg[128];
-   struct attack *theattack=NULL;
+   struct _attack_definition *attack_def = NULL;
   
    snprintf(msg,sizeof(msg),"\r\n   No.    Protocol    Attack\r\n");
    if (term_vty_write(node,msg, strlen(msg)) < 0)
@@ -1533,14 +1533,14 @@ command_proto_attacks(struct term_node *node, u_int16_t proto)
           j=proto;
        if (protocols[j].visible)
        {
-           theattack = protocols[j].attacks;
+           attack_def = protocols[j].attack_def_list;
            for (i=0; i < MAX_THREAD_ATTACK; i++)
            {
                if (node->protocol[j].attacks[i].up)
                {
                    snprintf(msg,sizeof(msg), "\r\n    %-1d      %-8s   %s", i,
                             node->protocol[j].name,
-                            theattack[node->protocol[j].attacks[i].attack].desc);
+                            attack_def[node->protocol[j].attacks[i].attack].desc);
                    if (term_vty_write(node,msg,strlen(msg)) < 0)
                       return -1;
                }
@@ -1730,7 +1730,7 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
 {
    char msg[128];
    int8_t i, fail, aux;
-   struct attack *theattack = NULL;
+   struct _attack_definition *attack_def = NULL;
 
    if (warray->nwords > (warray->indx+2))
    {
@@ -1744,13 +1744,13 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
 
    if ( (help || tab) && !warray->word[warray->indx])
    {
-      theattack = protocols[proto].attacks;
+      attack_def = protocols[proto].attack_def_list;
       i=0;
-      while(theattack[i].desc != NULL)
+      while(attack_def[i].desc != NULL)
       {
           snprintf(msg,sizeof(msg),"  <%d>   %s attack %s\r\n", i, 
-                    (theattack[i].type == DOS) ? "DOS" : "NONDOS",
-                       theattack[i].desc);
+                    (attack_def[i].type == DOS) ? "DOS" : "NONDOS",
+                       attack_def[i].desc);
           fail = term_vty_write(node,msg,strlen(msg));
           if (fail == -1)
              return -1;
@@ -1776,7 +1776,7 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
       return fail;
    }
 
-   if (!protocols[proto].attacks[0].desc)
+   if ( ! protocols[ proto ].attack_def_list[0].desc)
    {
       snprintf(msg,sizeof(msg),"\r\n%% Protocol %s has no attacks defined", protocols[proto].description);
       fail = term_vty_write(node,msg,strlen(msg));
@@ -1789,9 +1789,9 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
     /* Dirty trick to take the max attack number... 
      * Man, i'm now in the plane flying to Madrid with
      * Ramon so don't be cruel! */
-    theattack = protocols[proto].attacks;
+    attack_def = protocols[proto].attack_def_list;
     i=0;
-    while(theattack[i].desc != NULL)
+    while(attack_def[i].desc != NULL)
         i++;
    
    if ( (aux < 0) || (aux > (i-1)) )
@@ -1809,7 +1809,7 @@ command_run_attack(struct term_node *node, u_int8_t proto, int8_t aux)
    char msg[128];
    int8_t fail=1;
    struct attack_param *attack_param = NULL;
-   struct attack *theattack = NULL;
+   struct _attack_definition *attack_def = NULL;
    struct term_vty *vty = node->specific;
 
    if (dlist_data(node->used_ints->list))
@@ -1822,25 +1822,26 @@ command_run_attack(struct term_node *node, u_int8_t proto, int8_t aux)
        return fail;
    }
    
-   theattack = protocols[proto].attacks;
+   attack_def = protocols[proto].attack_def_list;
    
-   if (theattack[aux].nparams) /* Do we need parameters for attack? */
+   if (attack_def[aux].nparams) /* Do we need parameters for attack? */
    {
        if ((attack_param = calloc(1,
-                  (sizeof(struct attack_param) * theattack[aux].nparams))) == NULL)
+                  (sizeof(struct attack_param) * attack_def[aux].nparams))) == NULL)
        {
           thread_error(" command_run_attack calloc",errno);
           return -1;
        }
-       memcpy( attack_param, (void *)(theattack[aux].param),
-               sizeof(struct attack_param) * theattack[aux].nparams);
-       if (attack_init_params(node, attack_param, theattack[aux].nparams) < 0)
+
+       memcpy( attack_param, (void *)(attack_def[aux].param), sizeof( struct attack_param ) * attack_def[aux].nparams );
+
+       if (attack_init_params(node, attack_param, attack_def[aux].nparams) < 0)
        {
           free(attack_param);
           return -1;
        }
        vty->substate = 0;
-       vty->nparams = theattack[aux].nparams;
+       vty->nparams = attack_def[aux].nparams;
        vty->attack_param = attack_param;
        vty->attack_proto = proto;
        vty->attack_index = aux;

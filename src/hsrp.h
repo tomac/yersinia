@@ -211,7 +211,7 @@ void hsrp_th_send_raw_exit(struct attacks *);
 void hsrp_th_become_active(void *);
 void hsrp_th_become_active_exit(struct attacks *);
 
-static struct attack hsrp_attack[] = {
+static struct _attack_definition hsrp_attack[] = {
   { HSRP_ATTACK_SEND_RAW,     "sending raw HSRP packet", NONDOS, SINGLE,    hsrp_th_send_raw, NULL, 0   },
   { HSRP_ATTACK_BECOME_ACTIVE, "becoming ACTIVE router", NONDOS, CONTINOUS, hsrp_th_become_active, hsrp_active_params, 
   SIZE_ARRAY(hsrp_active_params)    },
@@ -241,7 +241,7 @@ extern struct interface_data *interfaces_get_packet(list_t *, struct interface_d
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
 extern int8_t parser_get_inet_aton(char *, struct in_addr *);
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 
 extern struct terminals *terms;
 extern int8_t bin_data[];

@@ -74,7 +74,7 @@ protocol_register(u_int8_t proto, const char *name, const char *desc,
       learn_packet_t learn, get_printable_packet_t packet,
       get_printable_store_t store, 
       load_values_t load,
-      struct attack *attacks, 
+      struct _attack_definition *attacks, 
       update_field_t update_field, 
       struct proto_features *features, 
       struct commands_param *param, 
@@ -102,7 +102,7 @@ protocol_register(u_int8_t proto, const char *name, const char *desc,
    protocols[proto].get_printable_packet = packet;
    protocols[proto].get_printable_store = store;
    protocols[proto].load_values = load;
-   protocols[proto].attacks = attacks;
+   protocols[proto].attack_def_list = attacks;
    protocols[proto].update_field = update_field;
    protocols[proto].features = features;
    protocols[proto].parameters = param;

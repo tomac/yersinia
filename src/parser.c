@@ -403,15 +403,15 @@ parser_help(void)
  *
  */
 int8_t
-parser_command2index(register const struct attack *lp, register int8_t v)
+parser_command2index(register const struct _attack_definition *attack_def, register int8_t v)
 {
     int i=0;
 
-    while (lp->desc != NULL) 
+    while ( attack_def->desc != NULL ) 
     {
-        if (lp->v == v)
+        if ( attack_def->v == v )
             return (i);
-        ++lp;
+        ++attack_def;
         ++i;
     }
     return (i);
@@ -1544,7 +1544,7 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
     char *param;
     u_int32_t aux_long;
     struct term_tty *term_tty=NULL;
-    struct attack *first_attack;
+    struct _attack_definition *first_attack;
     struct commands_param *comm_par;
     dlist_t *p = NULL;
     struct interface_data *iface_data;
@@ -1642,14 +1642,14 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
              write_log(2,"Parameter 'attack' needs an argument!!\n");
              return -1;
           }
-          if (!protocols[proto].attacks)
+          if (!protocols[proto].attack_def_list)
           {
              write_log(2,"Ouch!! No attacks defined for protocol %s!!\n",protocols[proto].namep);
              return -1;
           }
           if (has_help)
           {
-              first_attack =  protocols[proto].attacks;
+              first_attack =  protocols[proto].attack_def_list;
               while (first_attack->desc != NULL) 
               {
                   write_log(2,"    <%d>    %s attack %s\n",first_attack->v,
@@ -1661,7 +1661,7 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
           }
           aux_args++;
           aux = atoi(*aux_args);
-          first_attack =  protocols[proto].attacks;          
+          first_attack = protocols[proto].attack_def_list;          
           j=0;
           while(first_attack[j].desc != NULL)
                 j++;

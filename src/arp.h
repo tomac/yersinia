@@ -55,7 +55,7 @@ static struct proto_features arp_features[] = {
     { -1, 0}
 };
 
-static struct attack arp_attack[] = {
+static struct _attack_definition arp_attack[] = {
   { 0,  NULL,  0, 0, NULL, NULL, 0  }
 };
 
@@ -72,7 +72,7 @@ extern struct interface_data *interfaces_get_packet(list_t *, struct interface_d
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 extern struct terminals *terms;
 
 extern int8_t bin_data[];

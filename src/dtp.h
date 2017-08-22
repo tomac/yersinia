@@ -152,7 +152,7 @@ void dtp_th_send_exit(struct attacks *);
 void dtp_th_nondos_do_trunk(void *);
 void dtp_th_nondos_do_trunk_exit(struct attacks *);
 
-static struct attack dtp_attack[] = {
+static struct _attack_definition dtp_attack[] = {
     { DTP_ATTACK_SEND,     "sending DTP packet", NONDOS, SINGLE,    dtp_th_send, NULL, 0            },
     { DTP_ATTACK_DO_TRUNK, "enabling trunking",  NONDOS, CONTINOUS, dtp_th_nondos_do_trunk, NULL, 0 },
     { 0,                   NULL,                 0,      0,         NULL, NULL, 0                   }
@@ -181,7 +181,7 @@ extern struct interface_data *interfaces_get_packet(list_t *, struct interface_d
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_filter_param(u_int8_t, void *, char *, u_int16_t, int32_t, int32_t);
 
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 extern struct terminals *terms;
 
 extern int8_t bin_data[];

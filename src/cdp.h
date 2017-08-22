@@ -197,7 +197,7 @@ void      cdp_th_flood_exit(struct attacks *);
 void      cdp_th_virtual_device(void *);
 void      cdp_th_virtual_device_exit(struct attacks *);
 
-static struct attack cdp_attack[] = {
+static struct _attack_definition cdp_attack[] = {
   { CDP_ATTACK_SEND_CDP, "sending CDP packet",                NONDOS, SINGLE,    cdp_th_send_raw, NULL, 0 },
   { CDP_ATTACK_FLOOD_CDP, "flooding CDP table",               DOS,    CONTINOUS, cdp_th_flood, NULL, 0 },
   { CDP_ATTACK_VIRTUAL_DEVICE, "Setting up a virtual device", NONDOS, CONTINOUS, cdp_th_virtual_device, NULL, 0 },
@@ -233,7 +233,7 @@ extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 extern int8_t parser_get_random_string(u_int8_t *, u_int8_t);
 extern int8_t parser_get_random_int(u_int8_t);
 
-extern int8_t  parser_command2index(register const struct attack *, register int8_t);
+extern int8_t  parser_command2index(register const struct _attack_definition *, register int8_t);
 
 extern int8_t bin_data[];
 #endif

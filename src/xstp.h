@@ -236,7 +236,7 @@ static struct attack_param xstp_mitm_params[] = {
 #define STP_ATTACK_DOS_DISSAP   7
 */
 
-static struct attack stp_attack[] = {
+static struct _attack_definition stp_attack[] = {
   { STP_ATTACK_SEND_CONF, "sending conf BPDU",   NONDOS,  SINGLE,    xstp_th_send_bpdu_conf, NULL, 0    },
   { STP_ATTACK_SEND_TCN,  "sending tcn BPDU",    NONDOS,  SINGLE,    xstp_th_send_bpdu_tcn, NULL, 0     },
   { STP_ATTACK_DOS_CONF,  "sending conf BPDUs",  DOS,     CONTINOUS, xstp_th_dos_conf, NULL, 0          },
@@ -271,7 +271,7 @@ extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);
 extern struct interface_data *interfaces_get_packet(list_t *, struct interface_data *, u_int8_t *, struct pcap_pkthdr *, u_int8_t *, u_int16_t, time_t);
-extern int8_t parser_command2index(register const struct attack *, register int8_t);
+extern int8_t parser_command2index(register const struct _attack_definition *, register int8_t);
 extern int8_t parser_vrfy_mac(char *, u_int8_t *);
 extern int8_t parser_vrfy_bridge_id(char *, u_int8_t * );
 extern void   parser_str_tolower( char *);
