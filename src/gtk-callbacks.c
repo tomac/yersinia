@@ -515,8 +515,9 @@ void gtk_c_listattacks_stop_click( GtkWidget *button, gpointer userdata )
 
     attack_kill_index( gtk_attack_ctx->node, gtk_attack_ctx->protocol, gtk_attack_ctx->attack );
 
-    gtk_widget_set_sensitive( gtk_attack_ctx->h_box, FALSE );
+    gtk_button_set_label( GTK_BUTTON( button ), "Stopped" );
 
+    gtk_widget_set_sensitive( gtk_attack_ctx->h_box, FALSE );
 }
 
 
