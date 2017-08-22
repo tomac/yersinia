@@ -407,7 +407,7 @@ parser_command2index(register const struct attack *lp, register int8_t v)
 {
     int i=0;
 
-    while (lp->s != NULL) 
+    while (lp->desc != NULL) 
     {
         if (lp->v == v)
             return (i);
@@ -1650,11 +1650,11 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
           if (has_help)
           {
               first_attack =  protocols[proto].attacks;
-              while (first_attack->s != NULL) 
+              while (first_attack->desc != NULL) 
               {
                   write_log(2,"    <%d>    %s attack %s\n",first_attack->v,
                             (first_attack->type)?"DOS":"NONDOS", 
-                            first_attack->s);
+                            first_attack->desc);
                   ++first_attack;
               }
               return -1;
@@ -1663,7 +1663,7 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
           aux = atoi(*aux_args);
           first_attack =  protocols[proto].attacks;          
           j=0;
-          while(first_attack[j].s != NULL)
+          while(first_attack[j].desc != NULL)
                 j++;
           if ( (aux < 0) || (aux > (j-1)) )
           {
