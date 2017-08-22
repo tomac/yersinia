@@ -1185,7 +1185,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
                 gtk_box_pack_start( GTK_BOX( attack_hbox ), label, FALSE, FALSE, 0 );
 
                 /* Attack stop button... */
-                stop_button = gtk_button_new_with_label( "Stop" );
+                stop_button = gtk_button_new_with_label( "   Stop   " );
                 gtk_widget_show( stop_button );
                 gtk_box_pack_end( GTK_BOX( attack_hbox ), stop_button, FALSE, FALSE, 5 );
 
@@ -1212,7 +1212,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
 
     if ( attack_count )
     {
-        stopall_button = gtk_button_new_with_label( "Stop ALL" );
+        stopall_button = gtk_button_new_with_label( " Stop ALL " );
         g_signal_connect( (gpointer)stopall_button, "clicked", G_CALLBACK( gtk_c_listattacks_stopall_click ), (gpointer)dialog_ctx );
         gtk_box_pack_start( GTK_BOX( quit_hbox ), stopall_button, TRUE, FALSE, 0 );
         gtk_widget_show( stopall_button );
@@ -1224,7 +1224,7 @@ GtkWidget *gtk_i_create_listattacksdialog( struct term_node *node )
         gtk_box_pack_start( GTK_BOX( frame_vbox ), label, FALSE, FALSE, 10 );
     }
 
-    quit_button = gtk_button_new_with_label( "  Quit  " );
+    quit_button = gtk_button_new_with_label( "   Quit   " );
     g_signal_connect( (gpointer)quit_button, "clicked", G_CALLBACK( gtk_c_listattacks_quit_click ), (gpointer)dialog_ctx );
     gtk_box_pack_start( GTK_BOX( quit_hbox ), quit_button, TRUE, FALSE, 0 );
 
