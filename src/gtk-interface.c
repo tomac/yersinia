@@ -911,153 +911,148 @@ void gtk_i_create_aboutdialog( GtkMenuItem *menuitem, gpointer user_data )
 }
 
 
-GtkWidget*
-gtk_i_create_attacksdialog (GtkWidget *notebook, struct gtk_s_helper *helper, u_int8_t mode)
+GtkWidget *gtk_i_create_attacksdialog( GtkWidget *notebook, struct gtk_s_helper *helper, u_int8_t mode )
 {
-   GtkWidget *attacksdialog;
-   GtkWidget *attacks_frame;
-   GtkWidget *attacks_vbox;
-   GtkWidget *attacks_v_table = NULL ;
-   GtkWidget *attacks_notebook;
-   GtkWidget *attacks_n_labels[MAX_PROTOCOLS];
-   GtkWidget *attacks_vt_radio_attack[MAX_PROTOCOLS];
-   GtkWidget *attacks_vt_label_attack = NULL ;
-   GtkWidget *attacks_vt_label_dos = NULL ;
-   GtkWidget *attacks_vt_check_attack1 = NULL ;
-   GtkWidget *attacks_v_hbox;
-   GtkWidget *attacks_vh_cancel_button;
-   GtkWidget *attacks_vh_ok_button;
-   struct _attack_definition *attack_def = NULL;
-   u_int8_t i, j, num_attacks;
+    GtkWidget *main_dialog;
+    GtkWidget *attacks_frame;
+    GtkWidget *attacks_vbox;
+    GtkWidget *attacks_v_table = NULL ;
+    GtkWidget *attacks_notebook;
+    GtkWidget *attacks_n_labels[MAX_PROTOCOLS];
+    GtkWidget *attacks_vt_radio_attack[MAX_PROTOCOLS];
+    GtkWidget *attacks_vt_label_attack = NULL ;
+    GtkWidget *attacks_vt_label_dos = NULL ;
+    GtkWidget *attacks_vt_check_attack1 = NULL ;
+    GtkWidget *attacks_v_hbox;
+    GtkWidget *attacks_vh_cancel_button;
+    GtkWidget *attacks_vh_ok_button;
+    struct _attack_definition *attack_def ;
+    u_int8_t i, j, num_attacks;
 
-   helper->attack_def = NULL ;
-   helper->row        = 0 ;
+    helper->attack_def = NULL ;
+    helper->row        = 0 ;
 
-   attacksdialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-   gtk_window_set_title (GTK_WINDOW (attacksdialog), _("Choose attack"));
-   gtk_window_set_position (GTK_WINDOW (attacksdialog), GTK_WIN_POS_CENTER_ON_PARENT);
+    main_dialog = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    gtk_window_set_title( GTK_WINDOW( main_dialog ), _( "Choose protocol attack" ) );
+    gtk_window_set_position( GTK_WINDOW( main_dialog ), GTK_WIN_POS_CENTER_ON_PARENT );
+    gtk_window_set_resizable( GTK_WINDOW( main_dialog ), FALSE );
 
-   attacks_vbox = gtk_vbox_new (FALSE, 0);
-   gtk_widget_show (attacks_vbox);
-   gtk_container_add (GTK_CONTAINER (attacksdialog), attacks_vbox);
+    attacks_vbox = gtk_vbox_new (FALSE, 0);
+    gtk_widget_show (attacks_vbox);
+    gtk_container_add( GTK_CONTAINER( main_dialog ), attacks_vbox );
 
-   attacks_notebook = gtk_notebook_new ();
-   gtk_widget_show(attacks_notebook);
+    attacks_notebook = gtk_notebook_new ();
+    gtk_widget_show(attacks_notebook);
 
-   g_signal_connect_after(G_OBJECT(attacks_notebook), "switch-page",
-         G_CALLBACK(gtk_c_attacks_synchro), (gpointer)notebook);
+    g_signal_connect_after( G_OBJECT(attacks_notebook), "switch-page", G_CALLBACK( gtk_c_attacks_synchro ), (gpointer)notebook );
 
-   gtk_box_pack_start (GTK_BOX (attacks_vbox), attacks_notebook, TRUE, TRUE, 0);
+    gtk_box_pack_start( GTK_BOX( attacks_vbox ), attacks_notebook, TRUE, TRUE, 0 );
 
-   for (i=0; i < MAX_PROTOCOLS; i++)
-   {   
+    for (i=0; i < MAX_PROTOCOLS; i++)
+    {   
       if ( protocols[i].attack_def_list ) 
       {
          attack_def = protocols[i].attack_def_list;
 
-         attacks_frame = gtk_frame_new(_("Choose attack"));
-         if (protocols[i].visible)
-            gtk_widget_show(attacks_frame);
-         gtk_container_add (GTK_CONTAINER (attacks_notebook), attacks_frame);
-
+         attacks_frame = gtk_frame_new( " Choose attack ");
+         gtk_container_add( GTK_CONTAINER( attacks_notebook ), attacks_frame );
+         if ( protocols[i].visible )
+            gtk_widget_show( attacks_frame );
+    
          attacks_n_labels[i] = gtk_label_new (_(protocols[i].namep));
 
          if (protocols[i].visible)
             gtk_widget_show (attacks_n_labels[i]);
-
+    
          gtk_notebook_set_tab_label (GTK_NOTEBOOK (attacks_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (attacks_notebook), i), attacks_n_labels[i]);
-
+    
          attacks_v_table = gtk_table_new (SIZE_ARRAY(attack_def), 3, FALSE);
          gtk_widget_show (attacks_v_table);
          gtk_container_add(GTK_CONTAINER(attacks_frame), attacks_v_table);
          gtk_container_set_border_width (GTK_CONTAINER (attacks_v_table), 10);
-
+    
          attacks_vt_label_attack = gtk_label_new (_("Description"));
          gtk_widget_show (attacks_vt_label_attack);
          gtk_table_attach (GTK_TABLE (attacks_v_table), attacks_vt_label_attack, 0, 1, 0, 1,
                (GtkAttachOptions) (GTK_FILL),
                (GtkAttachOptions) (0), 0, 0);
          gtk_misc_set_alignment (GTK_MISC (attacks_vt_label_attack), 0, 0.5);
-
+    
          attacks_vt_label_dos = gtk_label_new (_("DoS"));
          gtk_widget_show (attacks_vt_label_dos);
          gtk_table_attach (GTK_TABLE (attacks_v_table), attacks_vt_label_dos, 1, 2, 0, 1,
                (GtkAttachOptions) (GTK_FILL),
                (GtkAttachOptions) (0), 0, 0);
          gtk_misc_set_alignment (GTK_MISC (attacks_vt_label_dos), 0, 0.5);
-
+    
          num_attacks = 0;
-
+    
          while ( attack_def[num_attacks].desc )
             num_attacks++;
-
+    
          for(j = 0; j < num_attacks; j++) 
          {
             if (j == 0)
                attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label( NULL, attack_def[j].desc );
             else
                attacks_vt_radio_attack[i] = gtk_radio_button_new_with_label_from_widget( GTK_RADIO_BUTTON( attacks_vt_radio_attack[i] ), ( attack_def[j].desc ) );
-
+    
             gtk_widget_show (attacks_vt_radio_attack[i]);
-
+    
             g_signal_connect(attacks_vt_radio_attack[i], "toggled", (GCallback) gtk_c_attacks_radio_changed, helper);
-
+    
             gtk_table_attach (GTK_TABLE (attacks_v_table), attacks_vt_radio_attack[i], 0, 1, j+1, j+2,
                   (GtkAttachOptions) (GTK_FILL),
                   (GtkAttachOptions) (0), 0, 0);
-
+    
             attacks_vt_check_attack1 = gtk_check_button_new();
             gtk_widget_set_sensitive(GTK_WIDGET(attacks_vt_check_attack1), FALSE);
-
+    
             if ( attack_def[j].type == DOS )
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(attacks_vt_check_attack1), TRUE);
             else
                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(attacks_vt_check_attack1), FALSE);
-
+    
             gtk_widget_show (attacks_vt_check_attack1);
             gtk_table_attach (GTK_TABLE (attacks_v_table), attacks_vt_check_attack1, 1, 2, j+1, j+2,
                   (GtkAttachOptions) (GTK_FILL),
                   (GtkAttachOptions) (0), 0, 0);
          }
       }
-   }
+    }
 
-   /* Start in the same label than the main window */
-   gtk_notebook_set_current_page(GTK_NOTEBOOK(attacks_notebook), mode);
+    /* Start in the same label than the main window */
+    gtk_notebook_set_current_page( GTK_NOTEBOOK( attacks_notebook ), mode );
+    
+    attacks_v_hbox = gtk_hbox_new( TRUE, 0 );
+    gtk_widget_show(attacks_v_hbox);
+    gtk_container_add( GTK_CONTAINER( attacks_vbox ), attacks_v_hbox );
 
-   attacks_v_hbox = gtk_hbox_new (TRUE, 0);
-   gtk_widget_show (attacks_v_hbox);
-   gtk_container_add (GTK_CONTAINER (attacks_vbox), attacks_v_hbox);
+    attacks_vh_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+    gtk_widget_show (attacks_vh_cancel_button);
+    gtk_box_pack_start (GTK_BOX (attacks_v_hbox), attacks_vh_cancel_button, FALSE, TRUE, 0);
+    
+    g_signal_connect_swapped((gpointer) attacks_vh_cancel_button, "clicked", G_CALLBACK( gtk_widget_destroy ), GTK_OBJECT( main_dialog ) );
 
-   attacks_vh_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
-   gtk_widget_show (attacks_vh_cancel_button);
-   gtk_box_pack_start (GTK_BOX (attacks_v_hbox), attacks_vh_cancel_button, FALSE, TRUE, 0);
+    attacks_vh_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+    gtk_widget_show (attacks_vh_ok_button);
+    gtk_box_pack_start( GTK_BOX( attacks_v_hbox ), attacks_vh_ok_button, FALSE, TRUE, 0 );
 
-   g_signal_connect_swapped ((gpointer) attacks_vh_cancel_button, "clicked",
-         G_CALLBACK (gtk_widget_destroy),
-         GTK_OBJECT (attacksdialog));
+    g_signal_connect((gpointer) attacks_vh_ok_button, "clicked", G_CALLBACK( gtk_c_attacks_launch ), helper );
 
-   attacks_vh_ok_button = gtk_button_new_with_mnemonic (_("OK"));
-   gtk_widget_show (attacks_vh_ok_button);
-   gtk_box_pack_start (GTK_BOX (attacks_v_hbox), attacks_vh_ok_button, FALSE, TRUE, 0);
+    /* Store pointers to all widgets, for use by lookup_widget(). */
+    GLADE_HOOKUP_OBJECT_NO_REF( main_dialog, main_dialog, "attacksdialog");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vbox, "attacks_vbox");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_v_table, "attacks_v_table");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vt_label_attack, "attacks_vt_label_attack");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vt_label_dos, "attacks_vt_label_dos");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vt_check_attack1, "attacks_vt_check_attack1");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_v_hbox, "attacks_v_hbox");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_notebook, "attacks_notebook");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vh_cancel_button, "attacks_vh_cancel_button");
+    GLADE_HOOKUP_OBJECT( main_dialog, attacks_vh_ok_button, "attacks_vh_ok_button");
 
-   g_signal_connect((gpointer) attacks_vh_ok_button, "clicked",
-         G_CALLBACK (gtk_c_attacks_launch),
-         helper);
-
-   /* Store pointers to all widgets, for use by lookup_widget(). */
-   GLADE_HOOKUP_OBJECT_NO_REF (attacksdialog, attacksdialog, "attacksdialog");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vbox, "attacks_vbox");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_v_table, "attacks_v_table");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vt_label_attack, "attacks_vt_label_attack");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vt_label_dos, "attacks_vt_label_dos");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vt_check_attack1, "attacks_vt_check_attack1");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_v_hbox, "attacks_v_hbox");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_notebook, "attacks_notebook");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vh_cancel_button, "attacks_vh_cancel_button");
-   GLADE_HOOKUP_OBJECT (attacksdialog, attacks_vh_ok_button, "attacks_vh_ok_button");
-
-   return attacksdialog;
+    return main_dialog;
 }
 
 
