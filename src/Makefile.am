@@ -1,4 +1,3 @@
-# $Id: Makefile.am 43 2007-04-27 11:07:17Z slay $
 
 AUTOMAKE_OPTIONS = no-dependencies
 
