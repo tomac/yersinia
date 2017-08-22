@@ -3,7 +3,7 @@
  * taken from http://www.vorlesungen.uos.de/informatik/cc02/src/dlist/dlist.h
  *
  * Yersinia
- * By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>
+ * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
  * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso
  *
  * This program is free software; you can redistribute it and/or

@@ -2,7 +2,7 @@
  * Definitions for lot of things. It must be changed!! :(
  *
  * Yersinia
- * By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>
+ * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
  * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 #define SIZE_ARRAY(x)   ( (sizeof(x))/(sizeof(x[0])) )
 
 #define LICENSE "Yersinia\
-   \nBy David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>\
+   \nBy David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>\
    \nCopyright 2005, 2006, 2007 Alfredo Andres and David Barroso \
    \n\nThis program is free software; you can redistribute it and/or \
    \nmodify it under the terms of the GNU General Public License \

@@ -2,7 +2,7 @@
  * Definitions for network terminal management
  *
  * Yersinia
- * By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>
+ * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
  * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso
  *
  * This program is free software; you can redistribute it and/or
@@ -84,7 +84,7 @@ char *vty_motd[]={
   "\r\n\r\nMOTD: Do you have any Alcatel or Juniper switch? Share it!! ;)\r\n",    
   "\r\n\r\nMOTD: Do you have the new Denon AV amplifier with HDMI 1.3 support? Share it!! ;)\r\n",    
   "\r\n\r\nMOTD: Zaragoza, Palencia, Soria... Nice spanish cities to live in, give them a try!\r\n",
-  "\r\n\r\nMOTD: I would like to see romanian wild boars, could you invite me? :)\r\n\tMail me at slay _at_ yersinia.net\r\n",   
+  "\r\n\r\nMOTD: I would like to see romanian wild boars, could you invite me? :)\r\n\tMail me at aandreswork _at_ hotmail.com\r\n",   
   "\r\n\r\nMOTD: The world is waiting for... M-A-T-E-O!!!\r\n",
   "\r\n\r\nMOTD: Who dares wins\r\n",
   "\r\n\r\nMOTD: It's the voodoo who do what you don't dare to people!\r\n",
