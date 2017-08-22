@@ -1,4 +1,3 @@
-$Id: TODO 2 2006-04-03 21:04:25Z tomac $
 
 - Verify that when deleting a node, the field user is decremented if the
   interface was used by that node.

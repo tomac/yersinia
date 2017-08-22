@@ -914,7 +914,6 @@ parser_write_config_file(struct term_tty *tty)
       return -1;
    }
 
-   fputs("# $Id: parser.c 46 2007-05-08 09:13:30Z slay $\n", file);
    fputs("#\n", file);
    fputs("# Yersinia configuration file example\n", file);
    fputs("#\n", file);

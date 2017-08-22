@@ -1,4 +1,3 @@
-# $Id: Makefile.am 2 2006-04-03 21:04:25Z tomac $
 
 SUBDIRS = src
 

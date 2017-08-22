@@ -1,6 +1,5 @@
 /* cdp.h
  * Definitions for Cisco Discovery Protocol
- * $Id: cdp.h 46 2007-05-08 09:13:30Z slay $ 
  *
  * Yersinia
  * By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>
