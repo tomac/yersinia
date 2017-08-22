@@ -479,7 +479,7 @@ doloop(struct term_node *node, int mode)
         {
             printf("<*> Starting %s attack %s...\n", 
                 (theattack[term_tty->attack].type)?"DOS":"NONDOS",
-                theattack[term_tty->attack].s); 
+                theattack[term_tty->attack].desc); 
 
             if (attack_launch(node, mode, term_tty->attack, NULL, 0) < 0)
                 write_log(1, "Error launching attack %d (mode %d)!!\n", 

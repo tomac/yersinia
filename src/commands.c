@@ -1540,7 +1540,7 @@ command_proto_attacks(struct term_node *node, u_int16_t proto)
                {
                    snprintf(msg,sizeof(msg), "\r\n    %-1d      %-8s   %s", i,
                             node->protocol[j].name,
-                            theattack[node->protocol[j].attacks[i].attack].s);
+                            theattack[node->protocol[j].attacks[i].attack].desc);
                    if (term_vty_write(node,msg,strlen(msg)) < 0)
                       return -1;
                }
@@ -1746,11 +1746,11 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
    {
       theattack = protocols[proto].attacks;
       i=0;
-      while(theattack[i].s != NULL)
+      while(theattack[i].desc != NULL)
       {
           snprintf(msg,sizeof(msg),"  <%d>   %s attack %s\r\n", i, 
                     (theattack[i].type == DOS) ? "DOS" : "NONDOS",
-                       theattack[i].s);
+                       theattack[i].desc);
           fail = term_vty_write(node,msg,strlen(msg));
           if (fail == -1)
              return -1;
@@ -1776,7 +1776,7 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
       return fail;
    }
 
-   if (!protocols[proto].attacks[0].s)
+   if (!protocols[proto].attacks[0].desc)
    {
       snprintf(msg,sizeof(msg),"\r\n%% Protocol %s has no attacks defined", protocols[proto].description);
       fail = term_vty_write(node,msg,strlen(msg));
@@ -1791,7 +1791,7 @@ command_run_proto(struct term_node *node, struct words_array *warray, int16_t x,
      * Ramon so don't be cruel! */
     theattack = protocols[proto].attacks;
     i=0;
-    while(theattack[i].s != NULL)
+    while(theattack[i].desc != NULL)
         i++;
    
    if ( (aux < 0) || (aux > (i-1)) )

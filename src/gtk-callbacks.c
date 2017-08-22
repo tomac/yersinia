@@ -361,9 +361,9 @@ void gtk_c_attacks_radio_changed( GtkWidget *radio, gpointer userdata )
         {
             i = 0;
 
-            while( protocols[ helper->mode ].attacks[i].s )
+            while( protocols[ helper->mode ].attacks[i].desc )
             {
-                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attacks[i].s ) == 0 )
+                if ( strcmp( gtk_button_get_label( GTK_BUTTON( radio ) ), protocols[ helper->mode ].attacks[i].desc ) == 0 )
                 {
                     helper->attack = (struct attack *) &protocols[ helper->mode ].attacks[i];
                     helper->row    = i;

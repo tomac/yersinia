@@ -233,7 +233,7 @@ struct attack_param {
 
 struct attack {
        int16_t v;        /* value       */
-       char *s;          /* descr       */
+       char *desc;       /* descr       */
        int8_t type;      /* DoS attack? */
        int8_t single;    /* Is only one packet or is a continous attack? */
        void (*attack_th_launch)(void *);

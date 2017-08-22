@@ -399,11 +399,11 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
    mvwprintw(attack_screen, 1, 2, "No   DoS   Description");
    wattroff(attack_screen, COLOR_PAIR(1));
 
-   while(theattack[i].s != NULL) 
+   while(theattack[i].desc != NULL) 
    {
       mvwprintw(attack_screen, i+2, 2, "%d", i);
       mvwprintw(attack_screen, i+2, 7, "%c", (theattack[i].type == DOS) ? 'X' : ' ');
-      mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].s);
+      mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].desc);
       i++;
    }
 
@@ -484,11 +484,11 @@ ncurses_i_attack_screen(struct term_node *node, u_int8_t mode,
                      mvwprintw(attack_screen, 1, 2, "No   DoS   Description");
                      wattroff(attack_screen, COLOR_PAIR(1));
 
-                     while(theattack[i].s != NULL) 
+                     while(theattack[i].desc != NULL) 
                      {
                         mvwprintw(attack_screen, i+2, 2, "%d", i);
                         mvwprintw(attack_screen, i+2, 7, "%c", (theattack[i].type == DOS) ? 'X' : ' ');
-                        mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].s);
+                        mvwprintw(attack_screen, i+2, 13, "%s", theattack[i].desc);
                         i++;
                      }
 
@@ -938,7 +938,7 @@ ncurses_i_list_attacks(WINDOW *list_window, struct term_node *node)
             mvwprintw(list_window, i+4, 2, "%8s   %-2d      %s", 
                   protocols[files[i][0]].namep, 
                   node->protocol[files[i][0]].attacks[files[i][1]].attack, 
-                  theattack[node->protocol[files[i][0]].attacks[files[i][1]].attack].s);
+                  theattack[node->protocol[files[i][0]].attacks[files[i][1]].attack].desc);
          }
          i++;
       }
