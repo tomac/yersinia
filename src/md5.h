@@ -1,4 +1,3 @@
-/* $Id: md5.h 2 2006-04-03 21:04:25Z tomac $ */
 
 #ifndef MD5_H
 #define MD5_H
@@ -33,4 +32,3 @@ typedef struct MD5Context MD5_CTX;
 #endif /* REMARK */
 
 #endif /* !MD5_H */
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */

@@ -1,8 +1,6 @@
 /* interfaces.h
  * Definitions for network interfaces and capturing packets
  *
- * $Id: interfaces.h 46 2007-05-08 09:13:30Z slay $ 
- *
  * Yersinia
  * By David Barroso <tomac@yersinia.net> and Alfredo Andres <slay@yersinia.net>
  * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso

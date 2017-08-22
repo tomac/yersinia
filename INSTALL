@@ -1,4 +1,3 @@
-$Id: INSTALL 43 2007-04-27 11:07:17Z slay $
 
 Last release and CVS/SVN repository can be always accessed at
     
@@ -13,7 +12,7 @@ Requirements
 - Libnet library at least 1.1.2, you can get it at:
      http://www.packetfactory.net/libnet
 
-- If you want to compile the GTK2 interface you'll need the GTK libraries.
+- If you want to compile the GTK2 interface you'll need the GTK libraries with GTK >= v2.6.0
 
 
 
