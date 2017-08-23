@@ -3,7 +3,7 @@
  *
  * Yersinia
  * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
- * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso
+ * Copyright 2005-2017 Alfredo Andres and David Barroso
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@
 
 #define LICENSE "Yersinia\
    \nBy David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>\
-   \nCopyright 2005, 2006, 2007 Alfredo Andres and David Barroso \
+   \nCopyright 2005-2017 Alfredo Andres and David Barroso \
    \n\nThis program is free software; you can redistribute it and/or \
    \nmodify it under the terms of the GNU General Public License \
    \nas published by the Free Software Foundation; either version 2 \
