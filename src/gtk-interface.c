@@ -4,7 +4,7 @@
  *
  * Yersinia
  * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
- * Copyright 2005, 2006, 2007 Alfredo Andres and David Barroso
+ * Copyright 2005-2017 Alfredo Andres and David Barroso
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -888,7 +888,7 @@ void gtk_i_create_aboutdialog( GtkMenuItem *menuitem, gpointer user_data )
 
     gtk_about_dialog_set_version( GTK_ABOUT_DIALOG( aboutdialog ), VERSION );
     gtk_about_dialog_set_name( GTK_ABOUT_DIALOG( aboutdialog ), _( "Yersinia" ) );
-    gtk_about_dialog_set_copyright( GTK_ABOUT_DIALOG( aboutdialog ), _( " Yersinia\n By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>\nCopyright 2005, 2006, 2007 Alfredo Andres and David Barroso" ) );
+    gtk_about_dialog_set_copyright( GTK_ABOUT_DIALOG( aboutdialog ), _( " Yersinia\n By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>\nCopyright 2005-2017 Alfredo Andres and David Barroso" ) );
 
     j = term_motd();
 
