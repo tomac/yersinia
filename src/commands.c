@@ -1908,5 +1908,5 @@ command_bad_input(struct term_node *node, int8_t badindex)
    return fail;         
 }
 
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */
 

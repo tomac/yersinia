@@ -151,4 +151,4 @@ extern int8_t  thread_destroy(THREAD *);
 extern struct term_tty *tty_tmp;
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

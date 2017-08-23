@@ -1764,4 +1764,4 @@ gtk_i_view_menu(GtkWidget *treeview, GtkWidget *wmain, GdkEventButton *event, st
    GLADE_HOOKUP_OBJECT (wmain, menuitem, "menuitem");
 }
 
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

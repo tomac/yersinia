@@ -82,4 +82,4 @@ extern void term_destroy(void);
 extern void term_delete_all_tty(void);
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

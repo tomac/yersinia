@@ -1384,4 +1384,4 @@ cdp_end(struct term_node *node)
 
    return 0;
 }
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

@@ -336,4 +336,4 @@ void MD5Transform(u_int32_t buf[4], u_int32_t const in[16])
 }
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */
