@@ -84,4 +84,4 @@ extern void   thread_free_r(void *);
 extern int8_t init_attribs(struct term_node *);
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

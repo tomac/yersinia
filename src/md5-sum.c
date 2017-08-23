@@ -46,4 +46,4 @@ md5_sum(const u_int8_t *stuff, size_t len, u_char *digest)
    MD5Update(&context, stuff, (unsigned) len);
    MD5Final(digest, &context);
 }
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

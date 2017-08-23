@@ -48,4 +48,4 @@ extern int8_t parser_get_inet_aton(char *, struct in_addr *);
 extern int8_t parser_filter_param(u_int8_t, void *, char *, u_int16_t, u_int16_t);
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

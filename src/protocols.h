@@ -230,4 +230,4 @@ void   protocol_sort_params(u_int8_t, u_int8_t *, u_int8_t);
 extern void write_log( u_int16_t mode, char *msg, ... );
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

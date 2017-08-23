@@ -29,4 +29,4 @@ void md5_sum(const u_int8_t *, size_t, u_char *);
 
 #endif
 
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

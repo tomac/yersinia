@@ -88,4 +88,4 @@ arp_register(void)
                       arp_features, NULL, 0, NULL, 0, NULL, NULL, PROTO_NOVISIBLE, NULL);
 }
 
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

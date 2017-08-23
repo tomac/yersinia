@@ -225,4 +225,4 @@ int8_t bin_data[] = /* 2696 */
 
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

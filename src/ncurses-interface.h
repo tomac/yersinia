@@ -129,4 +129,4 @@ extern int8_t attack_filter_all_params(struct attack_param *, u_int8_t, u_int8_t
 extern void   attack_free_params(struct attack_param *, u_int8_t);
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

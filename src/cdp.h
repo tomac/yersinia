@@ -236,4 +236,4 @@ extern int8_t  parser_command2index(register const struct _attack_definition *, 
 
 extern int8_t bin_data[];
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */

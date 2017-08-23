@@ -1915,4 +1915,4 @@ parser_get_max_field_length(const struct tuple_type_desc *tuple)
    return max;
 }
 
-/* vim:set tabstop=3:set expandtab:set shiftwidth=3:set textwidth=78: */
+/* vim:set tabstop=3:set expandtab:set shiftwidth=3:set textwidth=120: */

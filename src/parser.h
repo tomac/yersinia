@@ -83,4 +83,4 @@ extern int8_t bin_data[];
 extern int8_t protocol_proto2index(char *);
 
 #endif
-/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=78: */
+/* vim:set tabstop=4:set expandtab:set shiftwidth=4:set textwidth=120: */
