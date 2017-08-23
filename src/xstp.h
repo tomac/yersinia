@@ -219,8 +219,8 @@ void xstp_pcap_callback(struct pcap_pkthdr *, const u_char *, int);*/
 #define XSTP_MITM_IFACE2 1
 
 static struct attack_param xstp_mitm_params[] = {
-    { NULL, "Interface 1", 1, FIELD_IFACE, IFNAMSIZ, NULL },
-    { NULL, "Interface 2", 1, FIELD_IFACE, IFNAMSIZ, NULL }
+    { NULL, "Interface 1", 1, FIELD_ENABLED_IFACE, IFNAMSIZ, NULL },
+    { NULL, "Interface 2", 1, FIELD_ENABLED_IFACE, IFNAMSIZ, NULL }
 };
 
 #define STP_ATTACK_SEND_CONF  0

@@ -851,8 +851,15 @@ xstp_th_dos_mitm(void *arg)
     param = attacks->params;
     p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, param[XSTP_MITM_IFACE1].value);
     iface1 = (struct interface_data *) dlist_data(p);
+
     p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, param[XSTP_MITM_IFACE2].value);
     iface2 = (struct interface_data *) dlist_data(p);
+
+    if ( !iface1 || !iface2 )
+    {
+        write_log(0, "Nonexistant or not enabled interfaces!!\n");
+        xstp_th_dos_mitm_exit(attacks);
+    }
 
     if (xstp_learn_packet(attacks, iface1->ifname, &attacks->attack_th.stop, stp_data, &header) < 0)
         xstp_th_dos_mitm_exit(attacks);

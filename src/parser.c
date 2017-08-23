@@ -1369,12 +1369,11 @@ parser_filter_param(u_int8_t type, void *value, char *printable,
    u_int8_t i, *bytes, j;
    char tmp[3];
    char *temp;
-//   int8_t iface;
+   int16_t iface;
    u_int16_t end, len, len2;
    u_int32_t aux_ip;
    struct in_addr addr;
 
-//write_log(0, "tipe es %d, value %s, printable %s, size %d\n", type, value, printable, size_print);
    if (type == FIELD_TLV)
       return 0;
 
@@ -1465,17 +1464,34 @@ parser_filter_param(u_int8_t type, void *value, char *printable,
          break;
 
       case FIELD_IFACE:
+         end = strlen( printable );
+         for( i=0 ; i < end ; i++ )
+         {
+            if ( ! isascii( printable[i] ) )
+               return -1;
+         }
+         iface = interfaces_get( printable );
+
+         if ( iface < 0 )
+            return -1;
+
+         memset((void *)value, 0, strlen(value));
+         memcpy((void *)value, (void *)printable, end);
+         break;
+
+      case FIELD_ENABLED_IFACE:
          end = strlen(printable);
          for(i=0; i<end; i++)
          {
             if ( !isascii(printable[i]) )
                return -1;
          }
-/*         iface = interfaces_get(printable);
-         if (iface < 0)
+
+         iface = interfaces_get_enabled( printable );
+
+         if ( iface < 0 )
             return -1;
-         memcpy((void *)value, (void *)&iface, 1);
-*/
+
          memset((void *)value, 0, strlen(value));
          memcpy((void *)value, (void *)printable, end);
          break;
