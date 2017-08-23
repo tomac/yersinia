@@ -1925,8 +1925,9 @@ ncurses_i_attack_get_params(struct attack_param *param, u_int8_t nparams)
             getyx(my_window, y, x);
 
             if ((key_pressed == 'Q' || key_pressed == 'q') && 
-                  (param[y-offset_y].type != FIELD_STR) &&
-                  (param[y-offset_y].type != FIELD_IFACE) )
+                  ( param[y-offset_y].type != FIELD_STR ) &&
+                  ( param[y-offset_y].type != FIELD_IFACE ) &&
+                  ( param[y-offset_y].type != FIELD_ENABLED_IFACE ) )
             {
                end_edit = 1;
                ret = -1;
@@ -1940,20 +1941,21 @@ ncurses_i_attack_get_params(struct attack_param *param, u_int8_t nparams)
                   /* only hexadecimal characters are allowed */
                   break;
             } 
-            else 
-               if ((param[y-offset_y].type == FIELD_DEC) || 
-                     (param[y-offset_y].type == FIELD_IP)) 
+            else
+               if ((param[y-offset_y].type == FIELD_DEC) ||
+                     (param[y-offset_y].type == FIELD_IP))
                {
                   if (!isdigit(key_pressed))
                      break;
-               } 
-               else 
-                  if ( (param[y-offset_y].type == FIELD_STR) ||
-                        (param[y-offset_y].type == FIELD_IFACE) ) 
+               }
+               else
+                  if ( ( param[y-offset_y].type == FIELD_STR ) ||
+                       ( param[y-offset_y].type == FIELD_IFACE ) ||
+                       ( param[y-offset_y].type == FIELD_ENABLED_IFACE ) )
                   {
                      if (!isascii(key_pressed))
                         break;
-                  } 
+                  }
                   else /* FIELD_NONE */
                      break;
 
