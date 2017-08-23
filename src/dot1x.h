@@ -158,8 +158,8 @@ struct dot1x_mitm_ifaces {
 #define DOT1X_MITM_IFACE_AUTH 1
 
 static struct attack_param dot1x_mitm_params[] = {
-    { NULL, "Supplicant interface",    1, FIELD_IFACE, IFNAMSIZ, NULL },
-    { NULL, "Authenticator interface", 1, FIELD_IFACE, IFNAMSIZ, NULL },
+    { NULL, "Supplicant interface",    1, FIELD_ENABLED_IFACE, IFNAMSIZ, NULL },
+    { NULL, "Authenticator interface", 1, FIELD_ENABLED_IFACE, IFNAMSIZ, NULL },
 };
 
 

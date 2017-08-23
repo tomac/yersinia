@@ -106,6 +106,7 @@ struct proto_features {
 #define FIELD_TLV       7
 #define FIELD_IFACE     8
 #define FIELD_BYTES     9
+#define FIELD_ENABLED_IFACE 10
 #define FIELD_DEFAULT   99
 #define FIELD_EXTRA     100
 

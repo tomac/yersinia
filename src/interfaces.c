@@ -433,36 +433,79 @@ interfaces_enable(char *iface)
  * Return interface index on success.
  * Return -1 on error.
  */
-int16_t 
-interfaces_get(char *iface)
+int16_t interfaces_get( char *iface )
 {
     dlist_t *p;
     u_int16_t i;
     struct interface_data *iface_data;
 
-    if (pthread_mutex_lock(&interfaces->mutex) != 0)
+    if ( pthread_mutex_lock( &interfaces->mutex ) != 0 )
     {
-       thread_error("interfaces_get pthread_mutex_lock",errno);
-       return -1;
+        thread_error( "interfaces_get pthread_mutex_lock", errno );
+        return -1;
     }
 
-    for (i = 0, p = interfaces->list; p ; i++, p = dlist_next(interfaces->list, p))
+    for ( i = 0, p = interfaces->list; p ; i++, p = dlist_next( interfaces->list, p ) )
     {
         iface_data = (struct interface_data *) dlist_data(p);
-        if ((strncmp(iface_data->ifname, iface, strlen(iface))) == 0) 
+
+        if ( strncmp( iface_data->ifname, iface, strlen( iface ) ) == 0 )
         {
-            if (pthread_mutex_unlock(&interfaces->mutex) != 0)
+            if ( pthread_mutex_unlock( &interfaces->mutex ) != 0 )
             {
-               thread_error("interfaces_get pthread_mutex_unlock",errno);
+               thread_error( "interfaces_get pthread_mutex_unlock", errno );
+
                return -1;
             }
+
             return i;
         }
-    }                
+    }
 
-   if (pthread_mutex_unlock(&interfaces->mutex) != 0)
-      thread_error("interfaces_get pthread_mutex_unlock",errno);
-                
+    if (pthread_mutex_unlock(&interfaces->mutex) != 0)
+        thread_error("interfaces_get pthread_mutex_unlock",errno);
+
+    return -1;
+}
+
+
+/*
+ * Search for enabled interface by name
+ * Return interface index on success.
+ * Return -1 on error.
+ */
+int16_t interfaces_get_enabled( char *iface )
+{
+    dlist_t *p;
+    u_int16_t i;
+    struct interface_data *iface_data;
+
+    if ( pthread_mutex_lock( &interfaces->mutex ) != 0 )
+    {
+        thread_error( "interfaces_get pthread_mutex_lock", errno );
+        return -1;
+    }
+
+    for ( i = 0, p = interfaces->list; p ; i++, p = dlist_next( interfaces->list, p ) )
+    {
+        iface_data = (struct interface_data *) dlist_data(p);
+
+        if ( iface_data->up && ( strncmp( iface_data->ifname, iface, strlen( iface ) ) == 0 ) )
+        {
+            if ( pthread_mutex_unlock( &interfaces->mutex ) != 0 )
+            {
+               thread_error( "interfaces_get pthread_mutex_unlock", errno );
+
+               return -1;
+            }
+
+            return i;
+        }
+    }
+
+    if ( pthread_mutex_unlock(&interfaces->mutex) != 0 )
+        thread_error("interfaces_get pthread_mutex_unlock", errno );
+
     return -1;
 }
 
