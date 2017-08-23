@@ -1,6 +1,19 @@
 CHANGES for Yersinia
 ====================
 
+2017/08/23
+----------
+- Version 0.8.0
+- Changed email addresses
+- More code cleaning (renamed internal attack structures, removed cvs variable, ...)
+- GTK: Reworked attack dialogs
+- FIX: DHCP: Fixed "rogue server" attack, issue #12
+- FIX: GTK: Memory leak using attack parameters, issue #38
+- FIX: GTK: Attack parameters dialog was unable to close when launching an attack, issue #39
+- FIX: GTK: Closing main window with the close button doesn't work, #36
+- FIX: GTK: Out of bounds access refreshing main window, issue #35
+
+
 2017/08/11
 ----------
 - Version 0.8.0beta1
