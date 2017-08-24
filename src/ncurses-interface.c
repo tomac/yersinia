@@ -1761,7 +1761,7 @@ ncurses_i_attack_get_params(struct attack_param *param, u_int8_t nparams)
    u_int8_t i, end_edit=0, offset_x=0, offset_y, origin_x, origin_y, max_print=0;
    int8_t ret=0;
    int32_t key_pressed;
-   char *bottom = "ESC/Q to abort - ENTER to continue";
+   char *bottom = "ESC to abort - ENTER to continue";
    WINDOW *my_window;
    PANEL *my_panel;
 
