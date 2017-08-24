@@ -472,7 +472,11 @@ void gtk_c_attackparams_ok_click( GtkWidget *button, gpointer userdata )
 
     if ( attack_filter_all_params( params_ctx->params_list, params_ctx->nparams, &field ) < 0 )
     {
-        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Bad data on field '%s'!!", params_ctx->helper->attack_def->param[field].desc );
+        if ( params_ctx->helper->attack_def->param[field].type == FIELD_ENABLED_IFACE )
+            gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Nonexistant or disabled network interface on field '%s'!!\n\nHave you enabled that interface?",
+                               params_ctx->helper->attack_def->param[field].desc );
+        else
+            gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Attack parameters", "Bad data on field '%s'!!", params_ctx->helper->attack_def->param[field].desc );
     }
     else
     {

@@ -465,9 +465,10 @@ void ncurses_i_attack_screen( struct term_node *node, u_int8_t mode, WINDOW *att
                      ret = attack_filter_all_params( attack_param, attack_def[j].nparams, &field );
                      if ( ret == -1) /* Error on data...*/
                      {
-                        ncurses_i_error_window(1,
-                              "Bad data on field '%s'!!",
-                              attack_param[field].desc);
+                        if ( attack_param[field].type == FIELD_ENABLED_IFACE )
+                            ncurses_i_error_window( 1, "Nonexistant or disabled network interface on field '%s'!!", attack_param[field].desc );
+                        else
+                            ncurses_i_error_window( 1, "Bad data on field '%s'!!", attack_param[field].desc );
                      }
                   } while(ret==-1);
 
