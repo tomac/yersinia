@@ -1557,7 +1557,6 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
 {
     int8_t aux, tmp, ifaces, i, j, has_help, has_arg, fail, gotit;
     char *param;
-    u_int32_t aux_long;
     struct term_tty *term_tty=NULL;
     struct _attack_definition *first_attack;
     struct commands_param *comm_par;
@@ -1725,14 +1724,6 @@ parser_cl_proto( struct term_node *node, int8_t argc, char **args, u_int8_t prot
                      return -1;
                   }
 
-                  if (comm_par[j].type == FIELD_IP)
-                  {
-                     memcpy((void *)&aux_long, (void *)node->protocol[proto].commands_param[j], 4);
-                     aux_long = ntohl(aux_long);
-                     memcpy((void *)node->protocol[proto].commands_param[j], (void *)&aux_long, 4);
-                  }
-
-                 
                  if (comm_par[j].filter) /* Use specific filter for this param */
                  {
 
