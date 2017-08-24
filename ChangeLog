@@ -3,6 +3,12 @@ CHANGES for Yersinia
 
 2017/08/24
 ----------
+- Version 0.8.2
+- FIX: CL: Fix reversed use of IP addresses parameters on command line, issue #44
+
+
+2017/08/24
+----------
 - Version 0.8.1
 - Fixed critical bug using invalid network interfaces (appeared initially with STP MiTM attack), issue #41
 
