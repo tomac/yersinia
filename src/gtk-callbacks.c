@@ -238,53 +238,57 @@ gtk_c_on_menu_actions_list_attacks_activate (GtkMenuItem *menuitem, gpointer use
 }
 
 
-void
-gtk_c_on_actions_clear_activate(GtkMenuItem *menuitem, gpointer user_data)
+void gtk_c_on_actions_clear_activate( GtkMenuItem *menuitem, gpointer user_data )
 {
-   struct gtk_s_helper *helper;
-   u_int8_t i;
-   char buffer[64];
-   helper = (struct gtk_s_helper *)user_data;
-   if (strcmp("ALL", gtk_widget_get_name(GTK_WIDGET(menuitem))) == 0)
-       helper->extra = PROTO_ALL;
-   else {
-      i = 0;
-      while(protocols[i].namep) {
-         if(strcmp(protocols[i].namep, gtk_widget_get_name(GTK_WIDGET(menuitem))) == 0) {
-            helper->extra = i;
-            break;
-         }
-         i++;
-      }
-   }
-   interfaces_clear_stats(helper->extra);
-   snprintf(buffer, 64, "Cleared stats for mode %s", gtk_widget_get_name(GTK_WIDGET(menuitem)));
-   gtk_statusbar_push(GTK_STATUSBAR(helper->statusbar), 0, buffer);
+    u_int8_t i;
+    char buffer[64];
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data;
+
+    if ( strcmp( "ALL", gtk_widget_get_name( GTK_WIDGET( menuitem ) ) ) == 0 )
+        helper->extra = PROTO_ALL;
+    else
+    {
+        for( i = 0; i < MAX_PROTOCOLS; i++ )
+        {
+            if ( strcmp( protocols[i].namep, gtk_widget_get_name( GTK_WIDGET( menuitem ) ) ) == 0 )
+            {
+                helper->extra = i;
+                break;
+            }
+        }
+    }
+
+    interfaces_clear_stats( helper->extra );
+
+    snprintf(buffer, 64, "Cleared stats for mode %s", gtk_widget_get_name( GTK_WIDGET( menuitem ) ) );
+
+    gtk_statusbar_push( GTK_STATUSBAR( helper->statusbar ), 0, buffer );
 }
 
 
-void
-gtk_c_on_capture_activate(GtkMenuItem *menuitem, gpointer user_data)
+void gtk_c_on_capture_activate( GtkMenuItem *menuitem, gpointer user_data )
 {
-   GtkWidget *dialog;
-   struct gtk_s_helper *helper;
-   u_int8_t i;
+    u_int8_t i;
+    GtkWidget *dialog;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *)user_data;
 
-   helper = (struct gtk_s_helper *)user_data;
-   if (strcmp("ALL", gtk_widget_get_name(GTK_WIDGET(menuitem))) == 0)
-       helper->extra = PROTO_ALL;
-   else {
-      i = 0;
-      while(protocols[i].namep) {
-         if(strcmp(protocols[i].namep, gtk_widget_get_name(GTK_WIDGET(menuitem))) == 0) {
-            helper->extra = i;
-            break;
-         }
-         i++;
-      }
-   }
-   dialog = gtk_i_create_capturedialog(helper);
-   gtk_widget_show(dialog);
+    if ( strcmp( "ALL", gtk_widget_get_name( GTK_WIDGET( menuitem ) ) ) == 0 )
+        helper->extra = PROTO_ALL;
+    else
+    {
+        for( i = 0; i < MAX_PROTOCOLS; i++ )
+        {
+            if ( strcmp( protocols[i].namep, gtk_widget_get_name( GTK_WIDGET( menuitem ) ) ) == 0 )
+            {
+                helper->extra = i;
+                break;
+            }
+        }
+    }
+
+    dialog = gtk_i_create_capturedialog( helper );
+
+    gtk_widget_show( dialog );
 }
 
 
