@@ -290,7 +290,7 @@ mpls_send(struct attacks *attacks)
        return;
     }
     
-    if (mpls_data->ip_payload && mpls_data->ip_payload[0])
+    if ( mpls_data->ip_payload[0] )
     {
        payload_size = strlen((const char *)mpls_data->ip_payload);
        payload = mpls_data->ip_payload;
