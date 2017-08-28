@@ -151,57 +151,59 @@ gtk_gui (void *args)
    }
 
 #ifdef ENABLE_NLS
-   bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-   textdomain (GETTEXT_PACKAGE);
+    bindtextdomain( GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR );
+    bind_textdomain_codeset( GETTEXT_PACKAGE, "UTF-8" );
+    textdomain( GETTEXT_PACKAGE );
 #endif
 
-   gtk_set_locale ();
-   gtk_init (NULL, NULL);
+    gtk_set_locale();
+    gtk_init( NULL, NULL );
 
-   add_pixmap_directory (PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
+    add_pixmap_directory( PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps" );
 
-   if (interfaces && interfaces->list)
-      iface_data = dlist_data(interfaces->list);
-   else {
-      gtk_i_create_warningdialog("Hmm... you don't have any valid interface. \
-            %s is useless. Go and get a life!", PACKAGE);
-      gtk_gui_th_exit(term_node);
-   }
+    if ( interfaces && interfaces->list )
+        iface_data = dlist_data( interfaces->list );
+    else
+    {
+        gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Interface not found", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE);
+        gtk_gui_th_exit( term_node );
+    }
 
-   /* take the first valid interface */
-   if (strlen(iface_data->ifname)) {
-      if (gtk_i_create_warningdialog(0,
-               "Warning: interface %s selected as the default one", 
-               iface_data->ifname) < 0)
-         gtk_gui_th_exit(term_node);
-      if ((tmp = interfaces_enable(iface_data->ifname)) == -1) {
-         if (gtk_i_create_warningdialog("Unable to use interface %s!! (Maybe nonexistent?)\n\n", 
-                  iface_data->ifname) < 0)
-            gtk_gui_th_exit(term_node);
-      } else {
-         iface = (struct interface_data *) calloc(1, sizeof(struct interface_data));
-         memcpy((void *)iface, (void *)iface_data, sizeof(struct interface_data));
-         term_node->used_ints->list = dlist_append(term_node->used_ints->list, iface);
-      }
-   } else {
-      if (gtk_i_create_warningdialog("Hmm... you don't have any valid interface. \
-               %s is useless. Go and get a life!", PACKAGE) < 0)
-         gtk_gui_th_exit(term_node);
-   }
+    /* take the first valid interface */
+    if ( strlen( iface_data->ifname ) )
+    {
+        if ( ( tmp = interfaces_enable( iface_data->ifname ) ) == -1 )
+        {
+            gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Invalid interface", "Unable to use interface %s!! (Maybe nonexistent?)\n\n", iface_data->ifname );
+        }
+        else
+        {
+            iface = (struct interface_data *) calloc(1, sizeof( struct interface_data ) );
+            memcpy( (void *)iface, (void *)iface_data, sizeof( struct interface_data ) );
+            term_node->used_ints->list = dlist_append( term_node->used_ints->list, iface );
+        }
+    }
+    else
+    {
+        gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Invalid interfaces", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE );
+        gtk_gui_th_exit( term_node );
+    }
 
-   helper.node = (struct term_node *)term_node;
-   helper.edit_mode = 0;
-   Main = gtk_i_create_Main (&helper);
-   gtk_widget_show (Main);
+    helper.node = (struct term_node *)term_node;
+    helper.edit_mode = 0;
+    Main = gtk_i_create_Main( &helper );
 
-   gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Alpha version!", "%s", "This is an alpha version of the GTK GUI. Not all the options are implemented in this GUI, but if you are brave enough, you are allowed to test it and tell us all the bugs you could find (if you are able to survive!)");
- 
-   gtk_main ();
+    gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Alpha version!", "%s", "This is an alpha version of the GTK GUI. Not all the options are implemented but if you're brave enough, you're allowed to test it and tell us all the bugs you could find");
 
-   write_log(0, "Exiting GTK mode...\n");
+    gtk_widget_show( Main );
 
-   gtk_gui_th_exit(term_node);
+    gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Default interface", "Network interface %s selected as the default one", iface_data->ifname );
+
+    gtk_main();
+
+    write_log( 0, "Exiting GTK mode...\n" );
+
+    gtk_gui_th_exit( term_node );
 }
 
 
