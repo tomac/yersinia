@@ -937,7 +937,7 @@ cdp_get_printable_store(struct term_node *node)
 #endif
     u_int8_t *ptr, i;
     char **field_values;
-    char buffer[4096], *buf_ptr;
+    char *buffer, *buf_ptr;
     u_int16_t total;
 
     /* smac + dmac + version + ttl + checksum + tlv + null = 7 */
@@ -945,6 +945,13 @@ cdp_get_printable_store(struct term_node *node)
         write_log(0, "Error in calloc\n");
         return NULL;
     }
+
+   buffer = (char *)calloc( 1, 4096 );
+   if ( ! buffer )
+   {
+       write_log(0, "Error in calloc\n");
+       return NULL;
+   }
 
     if (node == NULL)
        cdp = protocols[PROTO_CDP].default_values;
@@ -1071,7 +1078,6 @@ cdp_get_printable_store(struct term_node *node)
        }
     }
 
-    buf_ptr = '\0';
     total++;
 
    if (total > 0)
@@ -1081,6 +1087,8 @@ cdp_get_printable_store(struct term_node *node)
       
       memcpy((void *)field_values[CDP_TLV], (void *)buffer, total);
    }
+
+   free( buffer );
 
     return (char **)field_values;
 }
