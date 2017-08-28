@@ -158,38 +158,33 @@ attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack,
  * If "pid" == 0 then kill *ALL* node attack threads.
  * Return -1 on error. Return 0 if Ok.
  */
-int8_t
-attack_kill_th(struct term_node *node, pthread_t pid)
+int8_t attack_kill_th( struct term_node *node, pthread_t pid )
 {
     u_int16_t i, j;
 
-    i = 0;
-
-    while (i < MAX_PROTOCOLS) 
+    for( i=0; i < MAX_PROTOCOLS; i++ )
     {
-        if (protocols[i].visible && node->protocol[i].attacks)
-        {   
-            j=0;
-            while (j < MAX_THREAD_ATTACK) 
+        if ( protocols[i].visible )
+        {
+            for( j=0; j < MAX_THREAD_ATTACK; j++ )
             {
-                if (node->protocol[i].attacks[j].up == 1) 
+                if ( node->protocol[i].attacks[j].up == 1 )
                 {
-                    if (!pid || (node->protocol[i].attacks[j].attack_th.id == pid) ) 
+                    if ( !pid || ( node->protocol[i].attacks[j].attack_th.id == pid ) )
                     {
-                       thread_destroy(&node->protocol[i].attacks[j].attack_th);
-                       pthread_mutex_destroy(&node->protocol[i].attacks[j].attack_th.finished);
-                       if (pid)
+                       thread_destroy( &node->protocol[i].attacks[j].attack_th );
+                       pthread_mutex_destroy( &node->protocol[i].attacks[j].attack_th.finished );
+                       if ( pid )
                            return 0;
                     }
                 }
-                j++;
             }
         }
-        i++;
-    } /* while protocols...*/
-    
+    }
+
     return 0;
 }
+
 
 /* Kill attack by index... */
 int8_t attack_kill_index( struct term_node *node, uint8_t proto_arg, uint8_t attack_arg )
