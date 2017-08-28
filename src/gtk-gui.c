@@ -165,7 +165,7 @@ gtk_gui (void *args)
         iface_data = dlist_data( interfaces->list );
     else
     {
-        gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Interface not found", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE);
+        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Interface not found", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE);
         gtk_gui_th_exit( term_node );
     }
 
@@ -185,7 +185,7 @@ gtk_gui (void *args)
     }
     else
     {
-        gtk_i_modaldialog( GTK_MESSAGE_WARNING, "Invalid interfaces", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE );
+        gtk_i_modaldialog( GTK_MESSAGE_ERROR, "Invalid interfaces", "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE );
         gtk_gui_th_exit( term_node );
     }
 
