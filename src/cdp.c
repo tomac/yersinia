@@ -926,8 +926,7 @@ cdp_get_printable_packet(struct pcap_data *data)
 }
 
 
-char **
-cdp_get_printable_store(struct term_node *node)
+char **cdp_get_printable_store( struct term_node *node )
 {
     struct cdp_data *cdp;
     struct commands_param_extra_item *item;
@@ -941,41 +940,35 @@ cdp_get_printable_store(struct term_node *node)
     u_int16_t total;
 
     /* smac + dmac + version + ttl + checksum + tlv + null = 7 */
-   if ((field_values = (char **) protocol_create_printable(protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters)) == NULL) {
-        write_log(0, "Error in calloc\n");
+    field_values = (char **)protocol_create_printable( protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters );
+    if ( field_values == NULL )
+    {
+        write_log( 0, "Error in calloc\n" );
         return NULL;
     }
 
-   buffer = (char *)calloc( 1, 4096 );
-   if ( ! buffer )
-   {
-       write_log(0, "Error in calloc\n");
-       return NULL;
-   }
+    buffer = (char *)calloc( 1, 4096 );
+    if ( ! buffer )
+    {
+        write_log( 0, "Error in calloc\n" );
+        free( field_values );
+        return NULL;
+    }
 
     if (node == NULL)
-       cdp = protocols[PROTO_CDP].default_values;
+        cdp = protocols[PROTO_CDP].default_values;
     else
-       cdp = (struct cdp_data *) node->protocol[PROTO_CDP].tmp_data;
+        cdp = (struct cdp_data *) node->protocol[PROTO_CDP].tmp_data;
 
-    /* Source MAC */
-    snprintf(field_values[CDP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-            cdp->mac_source[0], cdp->mac_source[1],
-            cdp->mac_source[2], cdp->mac_source[3],
-            cdp->mac_source[4], cdp->mac_source[5]);
-    /* Destination MAC */
-    snprintf(field_values[CDP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-            cdp->mac_dest[0], cdp->mac_dest[1],
-            cdp->mac_dest[2], cdp->mac_dest[3],
-            cdp->mac_dest[4], cdp->mac_dest[5]);
+    snprintf( field_values[CDP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X", cdp->mac_source[0], cdp->mac_source[1],
+                                                                           cdp->mac_source[2], cdp->mac_source[3],
+                                                                           cdp->mac_source[4], cdp->mac_source[5] );
+    snprintf( field_values[CDP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X", cdp->mac_dest[0], cdp->mac_dest[1],
+                                                                           cdp->mac_dest[2], cdp->mac_dest[3],
+                                                                           cdp->mac_dest[4], cdp->mac_dest[5] );
+    snprintf( field_values[CDP_VER], 3, "%02X", cdp->version );
+    snprintf( field_values[CDP_TTL], 3, "%02X", cdp->ttl );
 
-    /* Version */
-    snprintf(field_values[CDP_VER], 3, "%02X", cdp->version);
-
-    /* TTL */
-    snprintf(field_values[CDP_TTL], 3, "%02X", cdp->ttl);
-
-    /* Checksum */
 #ifdef LBL_ALIGN
     memcpy((void *)&aux_short, (void *)&cdp->checksum, 2);
     snprintf(field_values[CDP_CHECKSUM], 5, "%04X", aux_short);
@@ -983,112 +976,47 @@ cdp_get_printable_store(struct term_node *node)
     snprintf(field_values[CDP_CHECKSUM], 5, "%04X", cdp->checksum);
 #endif
 
-    memset((void *)buffer, 0, 4096);
     buf_ptr = buffer;
-    total = 0;
+    total   = 0;
+
     /* TLV */
     /* Take care: options in the store are stored in network byte order */
-    for (p=cdp->extra;p;p=dlist_next(cdp->extra, p))
+    for ( p=cdp->extra ; p ; p = dlist_next( cdp->extra, p ) )
     {
-       item = (struct commands_param_extra_item *) dlist_data(p);
-       ptr = item->value;
+        item = (struct commands_param_extra_item *) dlist_data(p);
+        ptr = item->value;
 
-       i = 0;
-       while(i < protocols[PROTO_CDP].extra_nparams)
-       {
-          if (protocols[PROTO_CDP].extra_parameters[i].id == item->id)
-          {
-             strncpy(buf_ptr, protocols[PROTO_CDP].extra_parameters[i].ldesc, strlen((char *)protocols[PROTO_CDP].extra_parameters[i].ldesc));
-             buf_ptr += strlen(protocols[PROTO_CDP].extra_parameters[i].ldesc) + 1;
-             total += strlen(protocols[PROTO_CDP].extra_parameters[i].ldesc) + 1;
+        i = 0;
+        while( i < protocols[PROTO_CDP].extra_nparams )
+        {
+            if ( protocols[PROTO_CDP].extra_parameters[i].id == item->id )
+            {
+                strncpy(buf_ptr, protocols[PROTO_CDP].extra_parameters[i].ldesc, strlen((char *)protocols[PROTO_CDP].extra_parameters[i].ldesc));
+                buf_ptr += strlen(protocols[PROTO_CDP].extra_parameters[i].ldesc) + 1;
+                total += strlen(protocols[PROTO_CDP].extra_parameters[i].ldesc) + 1;
 
-             /* Now copy the value */
-             strncpy(buf_ptr, (char *)ptr, protocols[PROTO_CDP].extra_parameters[i].size_print);
-             total += strlen(buf_ptr) + 1;
-             buf_ptr += strlen(buf_ptr) + 1;
-
-#ifdef KK
-             switch(protocols[PROTO_CDP].extra_parameters[i].type) 
-             {
-                case FIELD_HEX:
-                case FIELD_STR:
-                   strncpy(buf_ptr, (char *)ptr, protocols[PROTO_CDP].extra_parameters[i].size_print);
-                   total += strlen(buf_ptr) + 1;
-                   buf_ptr += strlen(buf_ptr) + 1;
-                   break;
-
-                case FIELD_HEX:
-                   for (j = 0; j < protocols[PROTO_CDP].extra_parameters[i].size_print;j++)
-                   {
-                      snprintf(buf_ptr, 3, "%02X", *(ptr));
-                      ptr++;
-                      buf_ptr++;
-                      total++;
-                   }
-                   break;
-                            
-                        case CDP_TYPE_ADDRESS:
-                        case CDP_TYPE_MANAGEMENT_ADDR:
-                        /* Only get the 1st IP address */
-                            if ((*(ptr+8) == 0x01) && (*(ptr+9) == 0x01) && (*(ptr+10) == 0xcc)) {
-                                parser_get_formated_inet_address(ntohl((*(u_int32_t *)(ptr + 13))), tlv, 16);
-                                tlv += 16;
-                                total += 16;
-                            } else {
-                                *tlv = '\0';
-                                tlv++;
-                            }
-                        break;
-                        case CDP_TYPE_CAPABILITY: /* 4 byte field */
-                            if (len == 8) {
-                                snprintf(tlv, 9, "%02X%02X%02X%02X", *(ptr+4), *(ptr+5), *(ptr+6), *(ptr+7));
-                                tlv += 9;
-                                total += 9;
-                            }
-                        break;
-                /*      case CDP_TYPE_IPPREFIX:
-                        case CDP_TYPE_PROTOCOL_HELLO:*/
-                        case CDP_TYPE_NATIVE_VLAN:
-                            snprintf(tlv, 5, "%04X", ntohs(*((u_int16_t *)(ptr+4))));
-                            tlv += 5;
-                            total += 5;
-                        break;
-                        case CDP_TYPE_DUPLEX:
-                        case CDP_TYPE_TRUST_BITMAP:
-                        case CDP_TYPE_UNTRUSTED_COS:
-                            snprintf(tlv, 3, "%02X", *((u_int8_t *)(ptr+4)));
-                            tlv += 3;
-                            total += 3;
-                        break;
-                    /*  case CDP_TYPE_VOIP_VLAN_REPLY:
-                        case CDP_TYPE_VOIP_VLAN_QUERY:
-                        case CDP_TYPE_MTU:
-                        case CDP_TYPE_SYSTEM_OID:*/
-                        default:
-                            buf_ptr = '\0';
-                            buf_ptr++;
-                            total++;
-                        break;
-                    
-             }
-
-#endif
-          }
-          i++;
-       }
+                /* Now copy the value */
+                strncpy(buf_ptr, (char *)ptr, protocols[PROTO_CDP].extra_parameters[i].size_print);
+                total += strlen(buf_ptr) + 1;
+                buf_ptr += strlen(buf_ptr) + 1;
+            }
+            i++;
+        }
     }
 
     total++;
 
-   if (total > 0)
-   {
-      if ((field_values[CDP_TLV] = (char *) calloc(1, total)) == NULL)
-         write_log(0, "error in calloc\n");
-      
-      memcpy((void *)field_values[CDP_TLV], (void *)buffer, total);
-   }
+    if ( total > 0 )
+    {
+        field_values[CDP_TLV] = (char *)calloc( 1, total );
 
-   free( buffer );
+        if ( field_values[CDP_TLV] )
+            memcpy( (void *)field_values[CDP_TLV], (void *)buffer, total );
+        else
+            write_log( 0, "error in calloc\n" );
+    }
+
+    free( buffer );
 
     return (char **)field_values;
 }
