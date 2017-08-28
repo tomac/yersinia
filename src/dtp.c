@@ -678,9 +678,9 @@ dtp_get_printable_store(struct term_node *node)
     
     memcpy(field_values[DTP_DOMAIN], dtp_tmp->domain, DTP_DOMAIN_SIZE);
     
-    snprintf(field_values[DTP_STATUS], 5, "%02hX", dtp_tmp->status);
+    snprintf(field_values[DTP_STATUS], 5, "%02hhX", dtp_tmp->status);
 
-    snprintf(field_values[DTP_TYPE], 5, "%02hX", dtp_tmp->type);
+    snprintf(field_values[DTP_TYPE], 5, "%02hhX", dtp_tmp->type);
 
     snprintf(field_values[DTP_NEIGH], 13, "%02X%02X%02X%02X%02X%02X", 
              dtp_tmp->neighbor[0], dtp_tmp->neighbor[1], dtp_tmp->neighbor[2],
