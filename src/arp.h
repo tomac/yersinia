@@ -49,7 +49,8 @@ struct arp_data { /* ARP and Ethernet fields*/
 };
 
 static struct proto_features arp_features[] = {
-    { F_ETHERTYPE, ETHERTYPE_ARP || ETHERTYPE_REVARP},
+    { F_ETHERTYPE, ETHERTYPE_ARP },
+    { F_ETHERTYPE, ETHERTYPE_REVARP },
     { -1, 0}
 };
 
