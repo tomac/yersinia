@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __DOT_1Q_H
+#ifndef __DOT_1Q_H__
 #define __DOT_1Q_H__
 
 #include <libnet.h>
