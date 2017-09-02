@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = no-dependencies
 
 DEFS = `$(LIBNET_CONFIG) --defines` @DEFS@
 
-INCLUDES =
+AM_CPPFLAGS =
 
 LIBS = @LIBS@ -lpcap -lnet
 
@@ -18,7 +18,7 @@ attack.h attack.c yersinia.h yersinia.c md5.c md5.h md5-sum.c\
 md5-sum.h protocols.h protocols.c dlist.h dlist.c 
 
 if HAS_CURSES
-  INCLUDES += $(CURSES_INCLUDEDIR)
+  AM_CPPFLAGS += $(CURSES_INCLUDEDIR)
   LIBS += -lpanel $(CURSES_LIBS)
   yersinia_SOURCES +=\
   ncurses-gui.c ncurses-gui.h\
@@ -27,7 +27,7 @@ if HAS_CURSES
 endif
 
 if HAVE_GTK
-  INCLUDES += @PACKAGE_CFLAGS@
+  AM_CPPFLAGS += @PACKAGE_CFLAGS@
   DEFS += -DPACKAGE_DATA_DIR=\""$(datadir)"\" -DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\"
   yersinia_SOURCES += \
    gtk-gui.c gtk-gui.h\
