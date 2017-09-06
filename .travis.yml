@@ -21,7 +21,9 @@ addons:
     project:
       name: "tomac/yersinia"
       description: "Build submitted via Travis CI"
-    notification_email: tomac@yersinia.net
+    notification_email:
+      - tomac@yersinia.net
+      - aandreswork@hotmail.com
     build_command_prepend: "./configure"
     build_command:   "make"
     branch_pattern: coverity_scan
