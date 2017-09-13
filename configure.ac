@@ -13,10 +13,25 @@ AC_CANONICAL_TARGET([])
 AM_INIT_AUTOMAKE
 
 AC_PROG_CC
+
 if test -n "$GCC"; then
-     CFLAGS="-O3 -Wall -g -D_DEFAULT_SOURCE"
+    CFLAGS="-Werror -Wall -Wno-conversion -Winvalid-source-encoding"
+    supports_invalid_encoding=no
+
+    AC_LANG_PUSH([C])
+    AC_SUBST(CFLAGS)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[int i=0;]])],
+                                       [supports_invalid_encoding=yes],
+                                       [supports_invalid_encoding=no] )
+    AC_LANG_POP([C])
+
+    if test $supports_invalid_encoding = yes; then
+        CFLAGS="-O3 -Wall -g -D_DEFAULT_SOURCE -Wno-conversion -Wno-invalid-source-encoding"
+    else
+        CFLAGS="-O3 -Wall -g -D_DEFAULT_SOURCE"
+    fi
 else
-     AC_MSG_WARN(Ouch!! Only gcc is supported...)
+     AC_MSG_WARN(Ouch!! Only gcc variants are supported...)
      AC_MSG_ERROR(...you're on your own.)
 fi
 
