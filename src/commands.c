@@ -90,21 +90,19 @@
 
 #include "commands.h"
 
-int8_t
-command_entry_point(struct term_node *node, struct words_array *warray, int8_t help, int8_t as_param, int8_t tab)
+
+int8_t command_entry_point( struct term_node *node, struct words_array *warray, int8_t help, int8_t as_param, int8_t tab )
 {
    int8_t fail;
    
-   fail = command_main(node,warray,0,help,as_param,ANY_PROTO,comm_common,tab);
+   fail = command_main( node, warray, 0, help, as_param, ANY_PROTO, comm_common, tab );
    
    return fail;
 }
 
 
-int8_t
-command_main(struct term_node *node, struct words_array *warray, int16_t x,
-             int8_t help, int8_t as_param, u_int8_t prot, 
-             struct commands *aux_comm, int8_t tab)
+int8_t command_main( struct term_node *node, struct words_array *warray, int16_t x, int8_t help, int8_t as_param,
+                     u_int8_t prot, struct commands *aux_comm, int8_t tab )
 {
    int8_t fail, last;
    char msg[128];
@@ -146,8 +144,7 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
             proto = ANY_PROTO;
         par_comm = 255;
 
-        fail =  command_list_help2(node, warray->word[warray->indx],
-                               aux_comm, &j, &gotit, &proto, &par_comm, 0);
+        fail = command_list_help2( node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm, 0);
         if (fail < 0)
            return -1;
            
@@ -161,15 +158,13 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
         {
             vty->repeat_command = 1;
             if (gotit>1)
-                fail =  command_list_help2(node, warray->word[warray->indx],
-                                       aux_comm, &j, &gotit, &proto, &par_comm, 1);
+                fail = command_list_help2( node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm, 1 );
             else
             {
                if (gotit == 1)
                {
                   if (help)
-                     fail =  command_list_help2(node, warray->word[warray->indx],
-                                         aux_comm, &j, &gotit, &proto, &par_comm, 1);
+                     fail = command_list_help2( node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm, 1 );
                   else /* TAB */
                   {
                      if (aux_comm[j].proto == LIST_PARAM)
@@ -206,7 +201,7 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
       proto = ANY_PROTO;
    par_comm = 255;
    
-   fail =  command_list_help2(node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm,0);
+   fail = command_list_help2( node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm,0 );
    
    if (fail < 0)
       return fail;
@@ -248,7 +243,7 @@ command_main(struct term_node *node, struct words_array *warray, int16_t x,
             vty->repeat_command= 0;
             if (help || tab)
             {
-               fail =  command_list_help2(node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm, 1);
+               fail = command_list_help2(node, warray->word[warray->indx], aux_comm, &j, &gotit, &proto, &par_comm, 1);
                if (fail<0)
                   return -1;
                vty->repeat_command= 1;
@@ -332,10 +327,8 @@ command_list_help(struct term_node *node, struct commands *aux_comm, u_int8_t pr
 }
 
 
-int8_t
-command_list_help2(struct term_node *node, char *word, 
-                   struct commands *aux_comm, u_int8_t *j, u_int8_t *gotit,
-                   u_int8_t *proto, u_int8_t *param, int8_t print)
+int8_t command_list_help2( struct term_node *node, char *word, struct commands *aux_comm, u_int8_t *j, u_int8_t *gotit,
+                           u_int8_t *proto, u_int8_t *param, int8_t print )
 {
    char msg[128];
    u_int8_t i, k, go_out;
@@ -343,7 +336,7 @@ command_list_help2(struct term_node *node, char *word,
 
    i = 0;
 
-   while(aux_comm[i].help != NULL)
+   while( aux_comm[i].help != NULL )
    {
       if (aux_comm[i].states[node->state])
       {   
@@ -374,14 +367,12 @@ command_list_help2(struct term_node *node, char *word,
               go_out=0;
               for(k=0; k<MAX_PROTOCOLS; k++)
               {
-                 if (protocols[k].visible && 
-                       !strncmp(protocols[k].name_comm, word, strlen(word)))
+                 if ( protocols[k].visible && !strncmp( protocols[k].name_comm, word, strlen( word ) ) )
                  {
                       *proto=k;
                       if (print)
                       {
-                         snprintf(msg,sizeof(msg),"  %-10s %s %s\r\n", protocols[k].name_comm,aux_comm[i].help,
-                                                                       protocols[k].description);
+                         snprintf(msg,sizeof(msg),"  %-10s %s %s\r\n", protocols[k].name_comm,aux_comm[i].help, protocols[k].description );
                          if ( term_vty_write(node,msg,strlen(msg)) < 0)
                             return -1;
                       }
@@ -403,19 +394,20 @@ command_list_help2(struct term_node *node, char *word,
           else /* Verify the word against the protocol params list */
           {
              go_out = 0;
+
              prot_comms = protocols[*proto].parameters;
+
              for(k=0; k<protocols[*proto].nparams;k++)
              {
-
-                 if (!strncmp(prot_comms[protocols[*proto].params_sort[k]].desc, word, strlen(word)))
+                 if ( !strncmp( prot_comms[ protocols[ *proto ].params_sort[ k ] ].desc, word, strlen( word ) ) )
                  {
                     *param = protocols[*proto].params_sort[k];                 
                     if (print)
                     { 
-                       snprintf(msg,sizeof(msg),"  %-10s %-30s\r\n",
-                                  prot_comms[protocols[*proto].params_sort[k]].desc,
-                                  prot_comms[protocols[*proto].params_sort[k]].help);
-                       if (term_vty_write(node,msg,strlen(msg))<0)
+                       snprintf( msg, sizeof (msg ), "  %-10s %-30s\r\n",
+                                                     prot_comms[protocols[*proto].params_sort[k]].desc,
+                                                     prot_comms[protocols[*proto].params_sort[k]].help );
+                       if ( term_vty_write( node, msg, strlen( msg ) ) < 0 )
                           return -1;
                     }
                     if (strlen(word) == strlen(prot_comms[protocols[*proto].params_sort[k]].desc))
@@ -651,108 +643,116 @@ command_enable(struct term_node *node, struct words_array *warray, int16_t j,
 
 
 
-int8_t
-command_cancel_proto(struct term_node *node, struct words_array *warray, 
-                     int16_t x, int8_t help, int8_t as_param,
-                     u_int8_t proto, struct commands *aux_comm, int8_t tab)
+int8_t command_cancel_proto( struct term_node *node, struct words_array *warray, int16_t x, int8_t help, int8_t as_param,
+                             u_int8_t proto, struct commands *aux_comm, int8_t tab)
 {
-   char msg[128];
-   int8_t fail=0, params, aux, j;
+    char msg[128];
+    int8_t fail=0, params, aux, j;
 
-   if (warray->word[warray->indx])
-   {
-       if (!(warray->word[warray->indx+1]))
-          params=0;
-       else
-          params=1;
-   }
-   else
-      params=0;
+    if (warray->word[warray->indx])
+    {
+        if (!(warray->word[warray->indx+1]))
+            params=0;
+        else
+            params=1;
+    }
+    else
+        params=0;
 
-   if (!warray->word[warray->indx] && (help || tab) )
-   {
-      snprintf(msg,sizeof(msg)," all       All %s running attacks\r\n", protocols[proto].name_comm);
-      fail = term_vty_write(node,msg,strlen(msg));
-      if (fail == -1)
-         return -1;
-      snprintf(msg,sizeof(msg)," <0-%d>     %s attack id\r\n", (MAX_THREAD_ATTACK-1),protocols[proto].name_comm);
-      fail = term_vty_write(node,msg,strlen(msg));
-      if (fail==-1)
-         return -1;
-      snprintf(msg,sizeof(msg)," <cr>\r\n");
-      fail = term_vty_write(node,msg,strlen(msg));
-      return fail;
-   }
+    if ( !warray->word[ warray->indx ] && ( help || tab ) )
+    {
+        if ( proto < MAX_PROTOCOLS )
+        {
+            snprintf(msg,sizeof(msg)," all       All %s running attacks\r\n", protocols[proto].name_comm);
+            fail = term_vty_write(node,msg,strlen(msg));
+            if (fail == -1)
+                return -1;
+            snprintf(msg,sizeof(msg)," <0-%d>     %s attack id\r\n", (MAX_THREAD_ATTACK-1),protocols[proto].name_comm);
+            fail = term_vty_write(node,msg,strlen(msg));
+            if (fail==-1)
+                return -1;
+        }
+        snprintf(msg,sizeof(msg)," <cr>\r\n");
+        fail = term_vty_write(node,msg,strlen(msg));
+        return fail;
+    }
 
-   if (proto == ANY_PROTO) /* 'all' attacks */
-   {
-       if (params)
-       {
-           if (help || tab)
-              snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
-           else
-              fail = command_bad_input(node,warray->indx);
-           fail = term_vty_write(node,msg, strlen(msg));
-           return fail;
-       }   
-      fail = attack_kill_th(node, ALL_ATTACK_THREADS);
-   }
-   else
-   {
-       if (!warray->word[warray->indx])
-       {  
-          snprintf(msg,sizeof(msg),"\r\n%% Incomplete command.");
-          fail = term_vty_write(node,msg, strlen(msg));
-          return fail;
-       }
+    if (proto == ANY_PROTO) /* 'all' attacks */
+    {
+        if (params)
+        {
+            if (help || tab)
+            {
+                snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
+                fail = term_vty_write(node,msg, strlen(msg));
+            }
+            else
+                fail = command_bad_input(node,warray->indx);
+            return fail;
+        }   
+        fail = attack_kill_th(node, ALL_ATTACK_THREADS);
+    }
+    else
+    {
+        if (!warray->word[warray->indx])
+        {  
+            snprintf(msg,sizeof(msg),"\r\n%% Incomplete command.");
+            fail = term_vty_write(node,msg, strlen(msg));
+            return fail;
+        }
 
-       if (warray->nwords > (warray->indx+1))
-       {
-           if (help || tab)
-              snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
-           else
-              fail = command_bad_input(node,warray->indx);
-           fail = term_vty_write(node,msg, strlen(msg));
-           return fail;
-       }   
-       if (help || tab)
-       {
-          snprintf(msg,sizeof(msg),"   <cr>\r\n");
-          fail = term_vty_write(node,msg,strlen(msg));
-          return fail;
-       }
-       /* Ok, now we have just 1 arg, begin parsing...*/
-       aux = atoi(warray->word[warray->indx]);
-       
-       if (!strcmp(warray->word[warray->indx], "all"))
-       {
-          for(j=0; j<MAX_THREAD_ATTACK; j++)
-          {
-              if (node->protocol[proto].attacks[j].up)
-              {
-                 fail = attack_kill_th(node, node->protocol[proto].attacks[j].attack_th.id);
-                 if (fail==-1)
-                    return -1;
-              }
-          }
-       }
-       else
-       {
-           if ( (aux < 0) || (aux >= MAX_THREAD_ATTACK) )
-              return (command_bad_input(node,warray->indx));
+        if (warray->nwords > (warray->indx+1))
+        {
+            if (help || tab)
+            {
+                snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
+                fail = term_vty_write(node,msg, strlen(msg));
+            }
+            else
+                fail = command_bad_input(node,warray->indx);
+            return fail;
+        }
 
-           /* Is running the attack?...*/
-           if (!node->protocol[proto].attacks[aux].up)
-           {
-               snprintf(msg,sizeof(msg),"\r\n%% %s attack id \"%d\" not used",protocols[proto].namep,aux);
-               fail = term_vty_write(node,msg, strlen(msg));
-               return fail;
-           }
-           fail = attack_kill_th(node, node->protocol[proto].attacks[aux].attack_th.id);
-       }
-   }
+        if (help || tab)
+        {
+            snprintf(msg,sizeof(msg),"   <cr>\r\n");
+            fail = term_vty_write(node,msg,strlen(msg));
+            return fail;
+        }
 
-   return fail;
+        /* Ok, now we have just 1 arg, begin parsing...*/
+        aux = atoi(warray->word[warray->indx]);
+
+        if (!strcmp(warray->word[warray->indx], "all"))
+        {
+            for(j=0; j<MAX_THREAD_ATTACK; j++)
+            {
+                if (node->protocol[proto].attacks[j].up)
+                {
+                    fail = attack_kill_th(node, node->protocol[proto].attacks[j].attack_th.id);
+                    if (fail==-1)
+                        return -1;
+                }
+            }
+        }
+        else
+        {
+            if ( (aux < 0) || (aux >= MAX_THREAD_ATTACK) )
+                return( command_bad_input( node, warray->indx ) );
+
+            /* Is running the attack?...*/
+            if (!node->protocol[proto].attacks[aux].up)
+            {
+                snprintf(msg,sizeof(msg),"\r\n%% %s attack id \"%d\" not used",protocols[proto].namep,aux);
+                fail = term_vty_write(node,msg, strlen(msg));
+                return fail;
+            }
+
+            fail = attack_kill_th(node, node->protocol[proto].attacks[aux].attack_th.id);
+        }
+    }
+
+    return fail;
 }
 
 
@@ -1596,14 +1596,12 @@ command_clear_proto(struct term_node *node, struct words_array *warray,
 /*
  * Entry point for command 'set protocol' 
  */
-int8_t
-command_set_proto(struct term_node *node, struct words_array *warray, 
-                  int16_t x, int8_t help, int8_t as_param, u_int8_t proto,
-                  struct commands *aux_comm, int8_t tab)
+int8_t command_set_proto( struct term_node *node, struct words_array *warray, 
+                          int16_t x, int8_t help, int8_t as_param, u_int8_t proto,
+                          struct commands *aux_comm, int8_t tab )
 {
     char msg[128];
     int8_t fail;
-/*    u_int32_t aux_long;*/
     struct term_vty *vty = node->specific;
     struct commands_param *prot_comms;
     dlist_t *p;
@@ -1655,10 +1653,13 @@ command_set_proto(struct term_node *node, struct words_array *warray,
          if (warray->nwords > (warray->indx+1))
          {
              if (help || tab)
-                snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
+             {
+                snprintf( msg, sizeof( msg ), "%% Too many arguments\r\n" );
+                fail = term_vty_write( node, msg, strlen( msg ) );
+             }
              else
-                fail = command_bad_input(node,warray->indx);
-             fail = term_vty_write(node,msg, strlen(msg));
+                fail = command_bad_input( node,warray->indx );
+
              return fail;
          }   
 
@@ -1698,14 +1699,6 @@ command_set_proto(struct term_node *node, struct words_array *warray,
          if (fail == -1)
              return (command_bad_input(node,warray->indx));
 
-         /*
-         if ( prot_comms[x].type == FIELD_IP)
-         {
-            memcpy((void *)&aux_long, node->protocol[proto].commands_param[x], 4);
-            aux_long = ntohl(aux_long);
-            memcpy((void *)node->protocol[proto].commands_param[x], (void *)&aux_long, 4);
-         }*/
-         
          if (prot_comms[x].filter) /* Use specific filter for this param */
          {
             fail = (prot_comms[x].filter((void *)node,node->protocol[proto].commands_param[x],warray->word[warray->indx]));
