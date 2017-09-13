@@ -15,7 +15,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 
 if test -n "$GCC"; then
-    CFLAGS="-Werror -Wall -Wno-conversion -Winvalid-source-encoding"
+    CFLAGS="-Wall -Winvalid-source-encoding"
     supports_invalid_encoding=no
 
     AC_LANG_PUSH([C])
