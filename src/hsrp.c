@@ -449,33 +449,35 @@ hsrp_send_packet(struct attacks *attacks)
 /*
  *
  */
-int8_t
-hsrp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header, struct pcap_data *pcap_aux)
+int8_t hsrp_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header, 
+                          struct pcap_data *pcap_aux)
 {
-    struct hsrp_data *hsrp_data;
+    struct hsrp_data *hsrp_data = (struct hsrp_data *)data;
+    struct interface_data *iface_data = NULL ;
     u_int8_t got_hsrp_packet = 0;
     u_int8_t *packet;
     dlist_t *p;
-    struct interface_data *iface_data;
-    
-    hsrp_data = data;
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
+    packet = calloc( 1, SNAPLEN );
+
+    if ( ! packet )
         return -1;
 
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-
-       iface_data = (struct interface_data *) dlist_data(p);
-    } else {
-       iface_data = NULL;
-    }
-
-    while (!got_hsrp_packet && !(*stop))
+    if (iface)
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_HSRP, NO_TIMEOUT);
+        p = dlist_search( attacks->used_ints->list, attacks->used_ints->cmp, iface );
+        if ( !p )
+        {
+            free( packet );
+            return -1;
+        }
+
+        iface_data = (struct interface_data *) dlist_data(p);
+    } 
+
+    while ( !got_hsrp_packet && !(*stop) )
+    {
+        interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_HSRP, NO_TIMEOUT );
 
         if (*stop)
         {
@@ -486,10 +488,10 @@ hsrp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *da
         pcap_aux->header = header;
         pcap_aux->packet = packet;
 
-        if (!hsrp_load_values((struct pcap_data *)pcap_aux, hsrp_data))
+        if ( !hsrp_load_values( pcap_aux, hsrp_data ) )
             got_hsrp_packet = 1;
 
-    } /* While got */
+    }
 
     free(packet);
 
@@ -843,7 +845,7 @@ hsrp_update_field(int8_t state, struct term_node *node, void *value)
         /* Authdata */
            case HSRP_AUTHDATA:
                len = strlen(value);
-               strncpy(hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA : len);
+               strncpy( hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA_LENGTH : len);
            break;
            /* Virtual IP */
            case HSRP_VIRTUALIP:
