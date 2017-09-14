@@ -172,12 +172,12 @@ typedef void    *(*get_extra_field_t)(struct term_node *, void *, u_int8_t);
 
 
 struct protocol_def {
-       u_int8_t proto;              /* Proto id      */
-       char namep[MAX_PROTO_NAME];   /* Proto name    */
-       char description[MAX_PROTO_DESCRIPTION];   /* Proto description    */
-       char name_comm[MAX_PROTO_NAME];  /* Protocol name for CLI interface */
-       u_int8_t active;                 /* Active or not */
-       u_int16_t size;                  /* Struct size   */
+       u_int8_t proto;                              /* Proto id      */
+       char namep[MAX_PROTO_NAME + 1];              /* Proto name    */
+       char description[MAX_PROTO_DESCRIPTION + 1]; /* Proto description    */
+       char name_comm[MAX_PROTO_NAME + 1];          /* Protocol name for CLI interface */
+       u_int8_t active;                             /* Active or not */
+       u_int16_t size;                              /* Struct size   */
        init_attribs_t init_attribs;
        learn_packet_t learn_packet;
        get_printable_packet_t get_printable_packet;
@@ -203,7 +203,7 @@ struct protocol_def {
        struct commands_param_extra *extra_parameters;
        u_int8_t extra_nparams;
        get_extra_field_t get_extra_field;
-       u_int8_t visible; /* Visible */
+       u_int8_t visible; 
        end_t end;
 };
 
@@ -223,7 +223,6 @@ int8_t protocol_register_tlv(u_int8_t, edit_tlv_t, const struct tuple_type_desc 
 void   protocol_register_all(void);
 void   protocol_destroy(void);
 char **protocol_create_printable(u_int8_t, struct commands_param *);
-int8_t protocol_extra_compare(void *, void *);
 #ifdef HAVE_REMOTE_ADMIN
 char  *protocol_sort_str(char *, char *);
 void   protocol_sort_params(u_int8_t, u_int8_t *, u_int8_t);

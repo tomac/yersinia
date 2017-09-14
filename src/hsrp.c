@@ -178,24 +178,23 @@ hsrp_th_send_raw(void *arg)
     hsrp_th_send_raw_exit(attacks);
 }
 
-void
-hsrp_th_send_raw_exit(struct attacks *attacks)
+void hsrp_th_send_raw_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    if ( attacks )
+    {
+        attack_th_exit( attacks );
 
-    pthread_mutex_unlock(&attacks->attack_th.finished);
-     
-    pthread_exit(NULL);
+        pthread_mutex_unlock( &attacks->attack_th.finished );
+    }
+    pthread_exit( NULL );
 }
 
 
-void
-hsrp_th_become_active(void *arg)
+void hsrp_th_become_active(void *arg)
 {
    struct pcap_pkthdr header;
    struct pcap_data pcap_aux;
-   struct attacks *attacks=NULL;
+   struct attacks *attacks = (struct attacks *)arg;
    struct hsrp_data *hsrp_data;
    struct timeval now;
    sigset_t mask;
@@ -203,8 +202,6 @@ hsrp_th_become_active(void *arg)
    u_int32_t lbl32;
    dlist_t *p;
    struct interface_data *iface_data;
-
-   attacks = arg;
 
    pthread_mutex_lock(&attacks->attack_th.finished);
 
@@ -268,14 +265,15 @@ hsrp_th_become_active(void *arg)
 }
 
 
-void
-hsrp_th_become_active_exit(struct attacks *attacks)
+void hsrp_th_become_active_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    if ( attacks )
+    {
+        attack_th_exit( attacks );
 
-    pthread_mutex_unlock(&attacks->attack_th.finished);
-     
+        pthread_mutex_unlock( &attacks->attack_th.finished );
+    }
+
     pthread_exit(NULL);
 }
 
@@ -582,8 +580,7 @@ hsrp_load_values(struct pcap_data *data, void *values)
     return 0;
 }
 
-int8_t
-hsrp_init_attribs(struct term_node *node)
+int8_t hsrp_init_attribs( struct term_node *node )
 {
     struct hsrp_data *hsrp_data;
     u_int32_t lbl32;
@@ -600,7 +597,12 @@ hsrp_init_attribs(struct term_node *node)
     hsrp_data->group    = HSRP_DFL_GROUP;
     hsrp_data->reserved = HSRP_DFL_RESERVED;
 
-    memcpy((void *)hsrp_data->authdata, (void *) HSRP_DFL_AUTHDATA, HSRP_AUTHDATA_LENGTH);
+    memset( (void *)hsrp_data->authdata, 0, HSRP_AUTHDATA_LENGTH );
+
+    if ( strlen( HSRP_DFL_AUTHDATA ) < HSRP_AUTHDATA_LENGTH )
+        memcpy( (void *)hsrp_data->authdata, (void *)HSRP_DFL_AUTHDATA, strlen( HSRP_DFL_AUTHDATA ) );
+    else
+        memcpy( (void *)hsrp_data->authdata, (void *)HSRP_DFL_AUTHDATA, HSRP_AUTHDATA_LENGTH );
 
     lbl32 = libnet_get_prand(LIBNET_PRu32);
 
@@ -845,7 +847,7 @@ hsrp_update_field(int8_t state, struct term_node *node, void *value)
         /* Authdata */
            case HSRP_AUTHDATA:
                len = strlen(value);
-               strncpy( hsrp_data->authdata, value, (len > HSRP_AUTHDATA_LENGTH) ? HSRP_AUTHDATA_LENGTH : len);
+               strncpy( hsrp_data->authdata, value, (len > (HSRP_AUTHDATA_LENGTH-1)) ? (HSRP_AUTHDATA_LENGTH - 1) : len);
            break;
            /* Virtual IP */
            case HSRP_VIRTUALIP:

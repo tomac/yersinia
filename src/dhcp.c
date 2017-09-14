@@ -150,16 +150,13 @@ dhcp_init_comms_struct(struct term_node *node)
 }
 
 
-void
-dhcp_th_send_raw(void *arg)
+void dhcp_th_send_raw( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct dhcp_data *dhcp_data;
     sigset_t mask;
     u_int32_t aux_long;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -186,11 +183,9 @@ dhcp_th_send_raw(void *arg)
 }
 
 
-void
-dhcp_th_send_raw_exit(struct attacks *attacks)
+void dhcp_th_send_raw_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
 
@@ -198,14 +193,11 @@ dhcp_th_send_raw_exit(struct attacks *attacks)
 }
 
 
-void
-dhcp_th_send_discover(void *arg)
+void dhcp_th_send_discover( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -223,16 +215,16 @@ dhcp_th_send_discover(void *arg)
     dhcp_th_send_discover_exit(attacks);
 }
 
-void
-dhcp_th_send_discover_exit(struct attacks *attacks)
+
+void dhcp_th_send_discover_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
     pthread_exit(NULL);
 }
+
 
 int8_t
 dhcp_send_discover(struct attacks *attacks)
@@ -258,14 +250,11 @@ dhcp_send_discover(struct attacks *attacks)
 }
 
 
-void
-dhcp_th_send_inform(void *arg)
+void dhcp_th_send_inform( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -283,11 +272,10 @@ dhcp_th_send_inform(void *arg)
     dhcp_th_send_inform_exit(attacks);
 }
 
-void
-dhcp_th_send_inform_exit(struct attacks *attacks)
+
+void dhcp_th_send_inform_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -321,14 +309,11 @@ dhcp_send_inform(struct attacks *attacks)
     return 0;
 }
 
-void
-dhcp_th_send_offer(void *arg)
+void dhcp_th_send_offer( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg ;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -346,16 +331,16 @@ dhcp_th_send_offer(void *arg)
     dhcp_th_send_offer_exit(attacks);
 }
 
-void
-dhcp_th_send_offer_exit(struct attacks *attacks)
+
+void dhcp_th_send_offer_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
     pthread_exit(NULL);
 }
+
 
 int8_t
 dhcp_send_offer(struct attacks *attacks)
@@ -397,14 +382,12 @@ dhcp_send_offer(struct attacks *attacks)
     return 0;
 }
 
-void
-dhcp_th_send_request(void *arg)
+
+void dhcp_th_send_request( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -422,11 +405,10 @@ dhcp_th_send_request(void *arg)
     dhcp_th_send_request_exit(attacks);
 }
 
-void
-dhcp_th_send_request_exit(struct attacks *attacks)
+
+void dhcp_th_send_request_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -513,14 +495,11 @@ dhcp_send_release(struct attacks *attacks, u_int32_t server, u_int32_t ip, u_int
 }
 
 
-void
-dhcp_th_send_decline(void *arg)
+void dhcp_th_send_decline( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -533,23 +512,21 @@ dhcp_th_send_decline(void *arg)
        dhcp_th_send_decline_exit(attacks);    
     }
 
-    attacks = arg;
-
     dhcp_send_decline(attacks);
 
     dhcp_th_send_decline_exit(attacks);
 }
 
-void
-dhcp_th_send_decline_exit(struct attacks *attacks)
+
+void dhcp_th_send_decline_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
     pthread_exit(NULL);
 }
+
 
 int8_t
 dhcp_send_decline(struct attacks *attacks)
@@ -588,18 +565,16 @@ dhcp_send_decline(struct attacks *attacks)
     return 0;
 }
 
+
 /*********************************/
 /* DoS attack sending DHCPDISCOVER */
 /*********************************/
-void
-dhcp_th_dos_send_discover(void *arg)
+void dhcp_th_dos_send_discover( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct dhcp_data *dhcp_data;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -629,54 +604,45 @@ dhcp_th_dos_send_discover(void *arg)
 }
 
 
-void
-dhcp_th_dos_send_discover_exit(struct attacks *attacks)
+void dhcp_th_dos_send_discover_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
     pthread_exit(NULL);
 }
 
-void
-dhcp_th_rogue_server(void *arg)
+
+void dhcp_th_rogue_server( void *arg )
 {
-    struct attacks *attacks=NULL;
-    struct dhcp_data *dhcp_data;
-    struct attack_param *param = NULL;
+    struct attacks *attacks = (struct attacks *) arg ;
+    struct dhcp_data *dhcp_data = (struct dhcp_data *)attacks->data;
+    struct attack_param *param = attacks->params;
     struct timeval now;
     sigset_t mask;
-    u_int8_t slen;
+    u_int8_t slen = 0;
     char *ptr, **values, *top;
     int8_t got_discover, got_request;
     struct pcap_data p_data;
     u_int32_t lbl32;
 
-    attacks = arg;
-    
-    pthread_mutex_lock(&attacks->attack_th.finished);
+    pthread_mutex_lock( &attacks->attack_th.finished );
 
-    pthread_detach(pthread_self());
+    pthread_detach( pthread_self() );
 
-    slen = 0;
     sigfillset(&mask);
-    values = NULL;
 
-    if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
+    if ( pthread_sigmask(SIG_BLOCK, &mask, NULL))
     {
-       thread_error("dhcp_th_rogue_server_thread_sigmask()",errno);
-       dhcp_th_rogue_server_exit(attacks);    
+        thread_error("dhcp_th_rogue_server_thread_sigmask()",errno);
+        dhcp_th_rogue_server_exit(attacks);    
     }
 
-    dhcp_data = attacks->data;
-    param = attacks->params;
-    
-    /* til we exhaust the ip addresses pool!! */
-    while (((*(u_int32_t *)param[DHCP_ROGUE_START_IP].value) <= 
-              (*(u_int32_t *)param[DHCP_ROGUE_END_IP].value)) 
-              && !attacks->attack_th.stop) 
+    /* TODO: Rework caching data! */
+
+    /* Until we exhaust the ip addresses pool!! */
+    while ( ( (*(u_int32_t *)param[DHCP_ROGUE_START_IP].value) <= ( *(u_int32_t *)param[DHCP_ROGUE_END_IP].value ) ) && !attacks->attack_th.stop )
     {
         /* Ok, let's wait for a DISCOVER guy! */
         if ((p_data.packet = calloc(1, SNAPLEN)) == NULL)
@@ -687,49 +653,77 @@ dhcp_th_rogue_server(void *arg)
             break;
         }
 
-        gettimeofday(&now,NULL);
+        gettimeofday( &now, NULL );
             
-        p_data.header->ts.tv_sec = now.tv_sec;
+        p_data.header->ts.tv_sec  = now.tv_sec;
         p_data.header->ts.tv_usec = now.tv_usec;
                      
         got_discover = 0;
-        got_request = 0;
+        got_request  = 0;
+        values       = NULL ;
 
-        while (!got_discover && !got_request && !attacks->attack_th.stop)
+        while ( !got_discover && !got_request && !attacks->attack_th.stop )
         {
-            interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, p_data.header, p_data.packet, PROTO_DHCP, NO_TIMEOUT);
+            if ( values )
+            {
+                if ( values[DHCP_TLV] )
+                    free( values[DHCP_TLV] );
+                free( values );
+            }
+
+            interfaces_get_packet( attacks->used_ints, NULL, &attacks->attack_th.stop, p_data.header, p_data.packet, PROTO_DHCP, NO_TIMEOUT);
+
             if (attacks->attack_th.stop)
             {
                 free(p_data.packet);
                 free(p_data.header);
                 dhcp_th_rogue_server_exit(attacks);
             }
-            if ((values = dhcp_get_printable_packet(&p_data)) == NULL) 
+
+            values = dhcp_get_printable_packet( &p_data ); 
+
+            if ( values )
+            {
+                if ( values[DHCP_TLV] )
+                {
+                    ptr = values[DHCP_TLV];
+
+                    top = ptr + ( 2 * MAX_TLV * MAX_VALUE_LENGTH );
+
+                    while( ( ptr < top ) && ( strncmp( ptr, "MessageType", 11 ) != 0 ) )
+                        ptr += strlen( ptr ) + 1;
+
+                    /* DISCOVER or REQUEST */
+                    if ( strncmp( ptr + 12, "01", 2 ) == 0 )
+                        got_discover = 1;
+
+                    if ( strncmp( ptr + 12, "03", 2 ) == 0 )
+                        got_request = 1;
+                }
+            }
+            else
             {
                 write_log(0, "Error in dhcp_get_printable_packet\n");
                 free(p_data.packet);
                 free(p_data.header);
                 dhcp_th_rogue_server_exit(attacks);
             }
-            ptr = values[DHCP_TLV];
-            top = ptr + (2*MAX_TLV*MAX_VALUE_LENGTH);
-
-            while((ptr < top) && (strncmp(ptr, "MessageType", 11) != 0)) 
-                    ptr += strlen(ptr) + 1;
-
-            /* DISCOVER or REQUEST */
-            if (strncmp(ptr+12, "01", 2) == 0)
-                 got_discover = 1;
-            if (strncmp(ptr+12, "03", 2) == 0)
-                 got_request = 1;
         }
 
-        free(p_data.packet);
-        free(p_data.header);
+        free( p_data.packet );
+        free( p_data.header );
 
         if (attacks->attack_th.stop)
+        {
+            if ( values )
+            {
+                if ( values[DHCP_TLV] )
+                    free( values[DHCP_TLV] );
+                free( values );
+            }
             dhcp_th_rogue_server_exit(attacks);
-           
+        }
+
         dhcp_data->sport = DHCP_SERVER_PORT;
         dhcp_data->dport = DHCP_CLIENT_PORT;
 
@@ -794,36 +788,36 @@ dhcp_th_rogue_server(void *arg)
         /* Next IP Address */
         if (got_request)
             (*(u_int32_t *)param[DHCP_ROGUE_START_IP].value) += htonl(0x01);
-    }
+
+        if ( values[DHCP_TLV] )
+            free( values[DHCP_TLV] );
+
+        free( values );
+    } /* While pool isn't exhausted... */
 
     dhcp_th_rogue_server_exit(attacks);
 }
 
 
-void
-dhcp_th_rogue_server_exit(struct attacks *attacks)
+void dhcp_th_rogue_server_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit( attacks );
 
-    pthread_mutex_unlock(&attacks->attack_th.finished);
+    pthread_mutex_unlock( &attacks->attack_th.finished );
      
     pthread_exit(NULL);
 }
 
 
-void
-dhcp_th_dos_send_release(void *arg)
+void dhcp_th_dos_send_release( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct attack_param *param = NULL;
     sigset_t mask;
     u_int8_t arp_mac[ETHER_ADDR_LEN];
     u_int8_t arp_server[ETHER_ADDR_LEN];
     u_int32_t aux_long, aux_long1;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -886,13 +880,11 @@ dhcp_th_dos_send_release(void *arg)
 }
 
 
-void
-dhcp_th_dos_send_release_exit(struct attacks *attacks)
+void dhcp_th_dos_send_release_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
  
-     pthread_mutex_unlock(&attacks->attack_th.finished);
+    pthread_mutex_unlock(&attacks->attack_th.finished);
       
     pthread_exit(NULL);
 }
@@ -996,6 +988,7 @@ dhcp_learn_mac(struct attacks *attacks, u_int32_t ip_dest, u_int8_t *arp_mac)
 
     if ((p_data.packet = calloc(1, SNAPLEN)) == NULL)
             return -1;
+
     if ((p_data.header = calloc(1, sizeof(struct pcap_pkthdr))) == NULL)
     {
         free(p_data.packet);
@@ -1004,60 +997,56 @@ dhcp_learn_mac(struct attacks *attacks, u_int32_t ip_dest, u_int8_t *arp_mac)
 
     gettimeofday(&now, NULL);
         
-    p_data.header->ts.tv_sec = now.tv_sec;
+    p_data.header->ts.tv_sec  = now.tv_sec;
     p_data.header->ts.tv_usec = now.tv_usec;
                  
     /* Ok, we are waiting for an ARP packet for 5 seconds, and we'll wait
      * forever (50 ARP packets) for the real packet... */
-    while (!attacks->attack_th.stop && !gotit & (rec_packets < 50))
+    while ( !attacks->attack_th.stop && !gotit & ( rec_packets < 50 ) )
     {
-       
-          rec_packets++;
+        rec_packets++;
+
         thread_usleep(800000);
-        if (interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, p_data.header, p_data.packet,
-                               PROTO_ARP, 5) < 0) {
+
+        if ( interfaces_get_packet( attacks->used_ints, NULL, &attacks->attack_th.stop, p_data.header, p_data.packet, PROTO_ARP, 5 ) == NULL ) 
+        {
             write_log(0, "Timeout waiting for an ARP Reply...\n");
             break;
-    }
+        }
 
-    if (attacks->attack_th.stop)
-       break;   
+        if ( ! attacks->attack_th.stop )
+        {
+            ether = (struct libnet_ethernet_hdr *) p_data.packet;
 
-     ether = (struct libnet_ethernet_hdr *) p_data.packet;
+            iface_data = (struct interface_data *) dlist_data(attacks->used_ints->list);
 
-    iface_data = (struct interface_data *) dlist_data(attacks->used_ints->list);
-    if ( !memcmp((attacks->mac_spoofing)?dhcp_data->mac_source:iface_data->etheraddr, 
-                    ether->ether_shost, 6) )
-       continue; /* Oops!! Its our packet... */
-        
-/*        if ( memcmp((attacks->mac_spoofing)?dhcp_data->mac_source:interfaces[0].etheraddr,
-                     ether->_802_3_dhost,6))
-           continue;  Not a response... */
-        
-        cursor = (u_int8_t *) (p_data.packet + LIBNET_ETH_H);
+            if ( !memcmp((attacks->mac_spoofing)?dhcp_data->mac_source:iface_data->etheraddr, ether->ether_shost, 6) )
+                continue; /* Oops!! Its our packet... */
+                
+            cursor = (u_int8_t *) (p_data.packet + LIBNET_ETH_H);
 
-        cursor+=14;
+            cursor+=14;
 
-        if (memcmp((void *)cursor,(void *)&ip_dest,4))
-           continue;
+            if ( memcmp( (void *)cursor, (void *)&ip_dest, 4 ) )
+                continue;
 
-        memcpy((void *)arp_mac,(void *)ether->ether_shost,6);
- 
-        write_log(0, " ARP Pillada MAC = %02X:%02X:%02X:%02X:%02X:%02X\n",
-              ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2],
-              ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
-         
-        gotit = 1;
+            memcpy( (void *)arp_mac, (void *)ether->ether_shost, 6 );
+
+            write_log(0, " ARP Pillada MAC = %02X:%02X:%02X:%02X:%02X:%02X\n", ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2],
+                                                                               ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
+             
+            gotit = 1;
+        }
              
     } /* !stop */
 
     free(p_data.packet);
     free(p_data.header);
 
-    if (!gotit)
+    if ( ! gotit )
         return -1;   
-    else
-        return 0;
+    
+    return 0;
 }
 
 
@@ -1254,248 +1243,267 @@ dhcp_learn_offer(struct attacks *attacks)
 /* 
  * Return formated strings of each DHCP field
  */
-char **
-dhcp_get_printable_packet(struct pcap_data *data)
+char **dhcp_get_printable_packet( struct pcap_data *data )
 {
-   struct libnet_ethernet_hdr *ether;
-   u_int8_t *dhcp_data, *udp_data, *ip_data, *ptr;
-   u_int8_t len, i, k, type, end, desc_len;
+    struct libnet_ethernet_hdr *ether;
+    u_int8_t *dhcp_data, *udp_data, *ip_data, *ptr;
+    u_int8_t len, i, k, type, end, desc_len;
 #ifdef LBL_ALIGN
-   u_int16_t aux_short;
-   u_int32_t aux_long;
+    u_int16_t aux_short;
+    u_int32_t aux_long;
 #endif
-   char buffer[4096], *buf_ptr;
-   u_int32_t total_len;
-   char **field_values;
+    char *buffer, *buf_ptr;
+    u_int32_t total_len;
+    char **field_values;
 
-   if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DHCP].nparams, protocols[PROTO_DHCP].parameters)) == NULL) {
-      write_log(0, "Error in calloc\n");
-      return NULL;
-   }
+    buffer = (char *)calloc( 1, 4096 );
 
-   ether = (struct libnet_ethernet_hdr *) data->packet;
-   ip_data = (u_char *) (data->packet + LIBNET_ETH_H);
-   udp_data = (data->packet + LIBNET_ETH_H + (((*(data->packet + LIBNET_ETH_H))&0x0F)*4));
-   dhcp_data = udp_data + LIBNET_UDP_H;
+    if ( ! buffer )
+    {
+        write_log(0, "Error in calloc\n");
+        free( buffer );
+        return NULL;
+    }
 
-   /* Source MAC */
-   snprintf(field_values[DHCP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-         ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2],
-         ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
-   /* Destination MAC */
-   snprintf(field_values[DHCP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-         ether->ether_dhost[0], ether->ether_dhost[1], ether->ether_dhost[2],
-         ether->ether_dhost[3], ether->ether_dhost[4], ether->ether_dhost[5]);
+    field_values = (char **)protocol_create_printable(protocols[PROTO_DHCP].nparams, protocols[PROTO_DHCP].parameters);
 
-   /* Source IP */
+    if ( ! field_values ) 
+    {
+        write_log(0, "Error in calloc\n");
+        free( buffer );
+        return NULL;
+    }
+
+    /* TODO: Check packet length!! */
+    ether     = (struct libnet_ethernet_hdr *) data->packet;
+    ip_data   = (u_char *) (data->packet + LIBNET_ETH_H);
+    udp_data  = (data->packet + LIBNET_ETH_H + ( ( ( *(data->packet + LIBNET_ETH_H) ) & 0x0F ) * 4 ) );
+    dhcp_data = udp_data + LIBNET_UDP_H;
+
+    /* Source MAC */
+    snprintf(field_values[DHCP_SMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X", ether->ether_shost[0], ether->ether_shost[1], 
+                                                                           ether->ether_shost[2], ether->ether_shost[3], 
+                                                                           ether->ether_shost[4], ether->ether_shost[5]);
+    /* Destination MAC */
+    snprintf(field_values[DHCP_DMAC], 18, "%02X:%02X:%02X:%02X:%02X:%02X", ether->ether_dhost[0], ether->ether_dhost[1], 
+                                                                           ether->ether_dhost[2], ether->ether_dhost[3], 
+                                                                           ether->ether_dhost[4], ether->ether_dhost[5]);
+
+    /* Source IP */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (ip_data+12), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_SIP], 16, 0);
+    memcpy((void *)&aux_long, (ip_data+12), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_SIP], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(ip_data+12)), field_values[DHCP_SIP], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(ip_data+12)), field_values[DHCP_SIP], 16, 0);
 #endif
 
-   /* Destination IP */
+    /* Destination IP */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (ip_data+16), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_DIP], 16, 0);
+    memcpy((void *)&aux_long, (ip_data+16), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_DIP], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(ip_data+16)), field_values[DHCP_DIP], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(ip_data+16)), field_values[DHCP_DIP], 16, 0);
 #endif
 
-   /* Source port */
+    /* Source port */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_short, udp_data, 2);
-   snprintf(field_values[DHCP_SPORT], 5, "%hd", ntohs(aux_short));
+    memcpy((void *)&aux_short, udp_data, 2);
+    snprintf(field_values[DHCP_SPORT], 5, "%hd", ntohs(aux_short));
 #else
-   snprintf(field_values[DHCP_SPORT], 5, "%hd", ntohs(*(u_int16_t *)udp_data));
+    snprintf(field_values[DHCP_SPORT], 5, "%hd", ntohs(*(u_int16_t *)udp_data));
 #endif
-   /* Destination port */
+    /* Destination port */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_short, udp_data+2, 2);
-   snprintf(field_values[DHCP_DPORT], 5, "%hd", ntohs(aux_short));
+    memcpy((void *)&aux_short, udp_data+2, 2);
+    snprintf(field_values[DHCP_DPORT], 5, "%hd", ntohs(aux_short));
 #else
-   snprintf(field_values[DHCP_DPORT], 5, "%hd", ntohs(*(u_int16_t *)(udp_data+2)));
+    snprintf(field_values[DHCP_DPORT], 5, "%hd", ntohs(*(u_int16_t *)(udp_data+2)));
 #endif
 
-   /* Op */
-   snprintf(field_values[DHCP_OP], 3, "%02X", *((u_char *)dhcp_data));
-   /* htype */
-   snprintf(field_values[DHCP_HTYPE], 3, "%02X", *((u_char *)dhcp_data+1));
-   /* hlen */
-   snprintf(field_values[DHCP_HLEN], 3, "%02X", *((u_char *)dhcp_data+2));
-   /* hops */
-   snprintf(field_values[DHCP_HOPS], 3, "%02X", *((u_char *)dhcp_data+3));
+    /* Op */
+    snprintf(field_values[DHCP_OP], 3, "%02X", *((u_char *)dhcp_data));
+    /* htype */
+    snprintf(field_values[DHCP_HTYPE], 3, "%02X", *((u_char *)dhcp_data+1));
+    /* hlen */
+    snprintf(field_values[DHCP_HLEN], 3, "%02X", *((u_char *)dhcp_data+2));
+    /* hops */
+    snprintf(field_values[DHCP_HOPS], 3, "%02X", *((u_char *)dhcp_data+3));
 
-   /* xid */
+    /* xid */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long,(dhcp_data+4),4);
-   snprintf(field_values[DHCP_XID], 9, "%08lX", ntohl(aux_long));
+    memcpy((void *)&aux_long,(dhcp_data+4),4);
+    snprintf(field_values[DHCP_XID], 9, "%08lX", ntohl(aux_long));
 #else
-   snprintf(field_values[DHCP_XID], 9, "%08lX", (u_long) ntohl(*(u_int32_t *)(dhcp_data+4)));
+    snprintf(field_values[DHCP_XID], 9, "%08lX", (u_long) ntohl(*(u_int32_t *)(dhcp_data+4)));
 #endif
 
-   /* secs */
+    /* secs */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_short, dhcp_data+8, 2);
-   snprintf(field_values[DHCP_SECS], 5, "%04hX", ntohs(aux_short));
+    memcpy((void *)&aux_short, dhcp_data+8, 2);
+    snprintf(field_values[DHCP_SECS], 5, "%04hX", ntohs(aux_short));
 #else
-   snprintf(field_values[DHCP_SECS], 5, "%04hX", ntohs(*(u_int16_t *)(dhcp_data+8)));
+    snprintf(field_values[DHCP_SECS], 5, "%04hX", ntohs(*(u_int16_t *)(dhcp_data+8)));
 #endif
-   /* flags */
+    /* flags */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_short, dhcp_data+10, 2);
-   snprintf(field_values[DHCP_FLAGS], 5, "%04hX", ntohs(aux_short));
+    memcpy((void *)&aux_short, dhcp_data+10, 2);
+    snprintf(field_values[DHCP_FLAGS], 5, "%04hX", ntohs(aux_short));
 #else
-   snprintf(field_values[DHCP_FLAGS], 5, "%04hX", ntohs(*(u_int16_t *)(dhcp_data+10)));
+    snprintf(field_values[DHCP_FLAGS], 5, "%04hX", ntohs(*(u_int16_t *)(dhcp_data+10)));
 #endif
 
-   /* ciaddr */
+    /* ciaddr */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (dhcp_data+12), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_CIADDR], 16, 0);
+    memcpy((void *)&aux_long, (dhcp_data+12), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_CIADDR], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+12)), field_values[DHCP_CIADDR], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+12)), field_values[DHCP_CIADDR], 16, 0);
 #endif
-   /* yiaddr */
+    /* yiaddr */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (dhcp_data+16), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_YIADDR], 16, 0);
+    memcpy((void *)&aux_long, (dhcp_data+16), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_YIADDR], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+16)), field_values[DHCP_YIADDR], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+16)), field_values[DHCP_YIADDR], 16, 0);
 #endif
-   /* siaddr */
+    /* siaddr */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (dhcp_data+20), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_SIADDR], 16, 0);
+    memcpy((void *)&aux_long, (dhcp_data+20), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_SIADDR], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+20)), field_values[DHCP_SIADDR], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+20)), field_values[DHCP_SIADDR], 16, 0);
 #endif
-   /* giaddr */
+    /* giaddr */
 #ifdef LBL_ALIGN
-   memcpy((void *)&aux_long, (dhcp_data+24), 4);
-   parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_GIADDR], 16, 0);
+    memcpy((void *)&aux_long, (dhcp_data+24), 4);
+    parser_get_formated_inet_address_fill(ntohl(aux_long), field_values[DHCP_GIADDR], 16, 0);
 #else
-   parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+24)), field_values[DHCP_GIADDR], 16, 0);
+    parser_get_formated_inet_address_fill(ntohl(*(u_int32_t *)(dhcp_data+24)), field_values[DHCP_GIADDR], 16, 0);
 #endif
-   /* chaddr */
-   snprintf(field_values[DHCP_CHADDR], 18, "%02X:%02X:%02X:%02X:%02X:%02X",
-         *(dhcp_data+28)&0xFF, *(dhcp_data+29)&0xFF, *(dhcp_data+30)&0xFF,
-         *(dhcp_data+31)&0xFF, *(dhcp_data+32)&0xFF, *(dhcp_data+33)&0xFF);
+    /* chaddr */
+    snprintf(field_values[DHCP_CHADDR], 18, "%02X:%02X:%02X:%02X:%02X:%02X", *(dhcp_data+28)&0xFF, *(dhcp_data+29)&0xFF, 
+                                                                             *(dhcp_data+30)&0xFF, *(dhcp_data+31)&0xFF, 
+                                                                             *(dhcp_data+32)&0xFF, *(dhcp_data+33)&0xFF);
 
-   /* options */
-   memset((void *)&buffer, 0, 4096);
-   ptr = dhcp_data + 240;
-   buf_ptr = buffer;
-   total_len = 0;
-   i = 0;
-   end = 0;
-   while((!end) && (ptr < data->packet + data->header->caplen) && (i < MAX_TLV)) {
-      if ((ptr+1) > (data->packet + data->header->caplen)) /* Undersized packet !! */ {
-         write_log(0, "Undersized packet!!\n");
-         return NULL;
-      }
+    /* options */
+    ptr = dhcp_data + 240;
+    buf_ptr = buffer;
+    total_len = 0;
+    i = 0;
+    end = 0;
+    while( ( !end ) && ( ptr < data->packet + data->header->caplen ) && ( i < MAX_TLV ) ) 
+    {
+        if ((ptr+1) > (data->packet + data->header->caplen)) /* Undersized packet !! */ 
+        {
+            write_log(0, "Undersized packet!!\n");
+            free( buffer );
+            return field_values;
+        }
 
-      type = (*(u_int8_t *)ptr);
-      len = (*(u_int8_t *)(ptr + 1));
+        type = (*(u_int8_t *)ptr);
+        len  = (*(u_int8_t *)(ptr + 1));
 
-      /* My crappy ADSL router always sends oversized packets with
-       * padding with __important__ data in!! */
-      /*            if ((ptr + len) > data->packet + data->header->caplen) {
-                    write_log(0, "Oversized packet!!\n");
-                    return NULL; 
-                    }*/
+        if ( !len && type != LIBNET_DHCP_END )
+        {
+            write_log(0, "Error in dhcp_get_printable: len is %d and type is %d\n", len, type);
+            free( buffer );
+            return field_values;
+        }
 
-      if (!len && type != LIBNET_DHCP_END) 
-      {
-         write_log(0, "Error in dhcp_get_printable: len is %d and type is %d\n", len, type);
-         return (char **)field_values;
-      }
-
-      if (len || ((type == LIBNET_DHCP_END) && (len == 0)))
-      {
-         for (k=0; k < protocols[PROTO_DHCP].extra_nparams; k++)
-         {
-            if (protocols[PROTO_DHCP].extra_parameters[k].id == type) {
-               desc_len = strlen(protocols[PROTO_DHCP].extra_parameters[k].ldesc);
-               strncpy(buf_ptr, protocols[PROTO_DHCP].extra_parameters[k].ldesc, desc_len);
-               buf_ptr += desc_len + 1;
-               total_len += desc_len + 1;
-               switch(type) {
-                  case LIBNET_DHCP_END:
-                     *buf_ptr = '\0';
-                     buf_ptr++;
-                     /* end */
-                     *buf_ptr = '\0';
-                     total_len += 2;
-                     end = 1;
-                     break;
-                  case LIBNET_DHCP_MESSAGETYPE:
-                     snprintf(buf_ptr, 3, "%02X", *((u_char *)(ptr+2)));
-                     buf_ptr += 3;
-                     total_len += 3;
-                     break;
-                  case LIBNET_DHCP_LEASETIME:
-                  case LIBNET_DHCP_RENEWTIME:
-                  case LIBNET_DHCP_REBINDTIME:
+        if ( len || ( ( type == LIBNET_DHCP_END ) && ( len == 0 ) ) )
+        {
+            for ( k=0; k < protocols[PROTO_DHCP].extra_nparams; k++ )
+            {
+                if ( protocols[PROTO_DHCP].extra_parameters[k].id == type )
+                {
+                    desc_len = strlen(protocols[PROTO_DHCP].extra_parameters[k].ldesc);
+                    strncpy( buf_ptr, protocols[PROTO_DHCP].extra_parameters[k].ldesc, desc_len );
+                    buf_ptr += desc_len + 1;
+                    total_len += desc_len + 1;
+                    switch( type )
+                    {
+                        case LIBNET_DHCP_END:
+                           *buf_ptr = '\0';
+                           buf_ptr++;
+                           /* end */
+                           *buf_ptr = '\0';
+                           total_len += 2;
+                           end = 1;
+                           break;
+                        case LIBNET_DHCP_MESSAGETYPE:
+                           snprintf(buf_ptr, 3, "%02X", *((u_char *)(ptr+2)));
+                           buf_ptr += 3;
+                           total_len += 3;
+                           break;
+                        case LIBNET_DHCP_LEASETIME:
+                        case LIBNET_DHCP_RENEWTIME:
+                        case LIBNET_DHCP_REBINDTIME:
 #ifdef LBL_ALIGN
-                     memcpy((void *)&aux_long, ptr, 4);
-                     snprintf(buf_ptr, 9, "%08lX", ntohl(aux_long));
+                           memcpy((void *)&aux_long, ptr, 4);
+                           snprintf(buf_ptr, 9, "%08lX", ntohl(aux_long));
 #else
-                     snprintf(buf_ptr, 9, "%08lX", (u_long) ntohl(*(u_int32_t *)(ptr+2)));
+                           snprintf(buf_ptr, 9, "%08lX", (u_long) ntohl(*(u_int32_t *)(ptr+2)));
 #endif
-                     buf_ptr += 9;
-                     total_len += 9;
-                     break;
-                  case LIBNET_DHCP_SUBNETMASK:
-                  case LIBNET_DHCP_SERVIDENT:
-                  case LIBNET_DHCP_ROUTER:
-                  case LIBNET_DHCP_DNS:
-                  case LIBNET_DHCP_DISCOVERADDR:
-                     if (parser_get_formated_inet_address(ntohl(*(u_int32_t *)(ptr+2)), buf_ptr, 16) < 0)
-                     {
-                        *buf_ptr = '\0';
-                        total_len += 1;
-                     } else {
-                        buf_ptr += 16;
-                        total_len += 16;
-                     }
-                     break;
-                  case LIBNET_DHCP_DOMAINNAME:
-                  case LIBNET_DHCP_CLASSSID:
-                  case LIBNET_DHCP_HOSTNAME:
-                  case LIBNET_DHCP_MESSAGE:
-                     if (len < MAX_VALUE_LENGTH) {
-                        memcpy(buf_ptr, ptr+2, len);
-                        buf_ptr += len + 1;
-                        total_len += len + 1;
-                     } else {
-                        memcpy(buf_ptr, ptr+2, MAX_VALUE_LENGTH);
-                        buf_ptr += MAX_VALUE_LENGTH + 1;
-                        total_len += MAX_VALUE_LENGTH + 1;
-                     }
-                     break;
-                  default:
-                     *buf_ptr = '\0';
-                     buf_ptr++;
-                     total_len++;
-                     break;
-               }
-               break;
-            }
-         }
-      }
-      i++;
-      ptr +=len + 2;
-   }
+                           buf_ptr += 9;
+                           total_len += 9;
+                           break;
+                        case LIBNET_DHCP_SUBNETMASK:
+                        case LIBNET_DHCP_SERVIDENT:
+                        case LIBNET_DHCP_ROUTER:
+                        case LIBNET_DHCP_DNS:
+                        case LIBNET_DHCP_DISCOVERADDR:
+                           if (parser_get_formated_inet_address(ntohl(*(u_int32_t *)(ptr+2)), buf_ptr, 16) < 0)
+                           {
+                              *buf_ptr = '\0';
+                              total_len += 1;
+                           } 
+                           else {
+                              buf_ptr += 16;
+                              total_len += 16;
+                           }
+                           break;
+                        case LIBNET_DHCP_DOMAINNAME:
+                        case LIBNET_DHCP_CLASSSID:
+                        case LIBNET_DHCP_HOSTNAME:
+                        case LIBNET_DHCP_MESSAGE:
+                           if (len < MAX_VALUE_LENGTH) {
+                              memcpy(buf_ptr, ptr+2, len);
+                              buf_ptr += len + 1;
+                              total_len += len + 1;
+                           } 
+                           else {
+                              memcpy(buf_ptr, ptr+2, MAX_VALUE_LENGTH);
+                              buf_ptr += MAX_VALUE_LENGTH + 1;
+                              total_len += MAX_VALUE_LENGTH + 1;
+                           }
+                           break;
+                        default:
+                           *buf_ptr = '\0';
+                           buf_ptr++;
+                           total_len++;
+                           break;
+                    }
+                    break;
+                } /* if... */
+            } /* for... */
+        }
+        i++;
+        ptr +=len + 2;
+    }
 
-   if ((field_values[DHCP_TLV] = (char *) calloc(1, total_len)) == NULL)
-      write_log(0, "error in calloc\n");
+    if ( total_len > 0 )
+    {
+        field_values[DHCP_TLV] = (char *)calloc( 1, total_len );
 
-   memset((void *)field_values[DHCP_TLV], 0, total_len);
-   memcpy((void *)field_values[DHCP_TLV], (void *)buffer, total_len);
+        if ( field_values[DHCP_TLV] )
+           memcpy((void *)field_values[DHCP_TLV], (void *)buffer, total_len);
+        else
+            write_log(0, "error in calloc\n");
+    }
 
-   return (char **)field_values;
+    free( buffer );
+
+    return field_values;
 }
 
 
@@ -1666,15 +1674,20 @@ dhcp_get_printable_store(struct term_node *node)
 #endif
    u_int8_t *ptr;
    u_int8_t len, i, k, type, end;
-   char buffer[4096], *buf_ptr;
+   char *buffer, *buf_ptr;
    u_int32_t total_len;
 
+   buffer = (char *)calloc( 1, 4096 );
 
    /* smac + dmac + sip + dip + sport + dport + op + htype + hlen + hops +
     * + xid + secs + flags + ciaddr + yiaddr + siaddr + giaddr + chaddr +
     * null = 19 */
-   if ((field_values = (char **) protocol_create_printable(protocols[PROTO_DHCP].nparams, protocols[PROTO_DHCP].parameters)) == NULL) {
+   field_values = (char **)protocol_create_printable( protocols[PROTO_DHCP].nparams, protocols[PROTO_DHCP].parameters );
+
+   if ( field_values == NULL ) 
+   {
       write_log(0, "Error in calloc\n");
+      free( buffer );
       return NULL;
    }
 
@@ -1761,16 +1774,6 @@ dhcp_get_printable_store(struct term_node *node)
       type = (*(u_int8_t *)ptr);
       len = (*(u_int8_t *)(ptr + 1));
 
-      /* My crappy ADSL router always sends oversized packets with
-       * padding with __important__ data in!! */
-      /*            if ((ptr + len) > data->packet + data->header->caplen) {
-                    write_log(0, "Oversized packet!!\n");
-                    return NULL; 
-                    }*/
-
-      /*        if (!len && type != LIBNET_DHCP_END)
-            return NULL;*/
-
       if (len || ((type == LIBNET_DHCP_END) && (len == 0)))
       {
          k = 0;
@@ -1837,13 +1840,20 @@ dhcp_get_printable_store(struct term_node *node)
          }
       }
       i++;
-      ptr +=len + 2;
+      ptr += len + 2;
    }
 
-   if ((field_values[DHCP_TLV] = (char *) calloc(1, total_len)) == NULL)
-      write_log(0, "error in calloc\n");
+   if ( total_len > 0 )
+   {
+       field_values[DHCP_TLV] = (char *)calloc( 1, total_len );
 
-   memcpy((void *)field_values[DHCP_TLV], (void *)buffer, total_len);
+       if ( field_values[DHCP_TLV] )
+            memcpy( (void *)field_values[DHCP_TLV], (void *)buffer, total_len );
+       else
+          write_log(0, "error in calloc\n");
+   }
+
+   free( buffer );
 
    return (char **)field_values;
 }

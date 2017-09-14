@@ -862,7 +862,12 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
    int8_t end_edit;
    u_int32_t y, x, col, row, offset, initial, start;
    struct commands_param *params;
-   char buffer[1024], old_value;
+   char *buffer, old_value;
+
+   buffer = (char *)malloc( 1024 );
+
+   if ( ! buffer )
+       return ;
 
    initial = 0;
    state = 0;
@@ -975,7 +980,7 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
 
             old_value = mvwinch(bwindow, y, x);
             mvwaddch(bwindow, y, x, toupper(key_pressed) | A_BOLD);
-            memset((void *)&buffer, 0, 1024);
+            memset((void *)buffer, 0, 1024 );
             mvwinnstr(bwindow, y, start, buffer, params[state].size_print);
             if (parser_filter_param(params[state].type, node->protocol[mode].commands_param[state],
                      buffer, params[state].size_print, params[state].size) < 0) {
@@ -996,6 +1001,8 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
       }  else
          ncurses_c_set_status_line("");
    }
+
+   free( buffer );
 
    keypad(bwindow, FALSE);
 

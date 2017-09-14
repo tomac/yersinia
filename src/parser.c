@@ -156,7 +156,7 @@ parser_initial(struct term_tty *tty, struct cl_args *cl_args, int argc, char **a
        if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "--conffile"))
        {
            i++;
-           strncpy(tty->config_file, argv[i], sizeof(tty->config_file));
+           strncpy(tty->config_file, argv[i], sizeof(tty->config_file) - 1 );
        }
        else
        if (!strcmp(argv[i],"-l") || !strcmp(argv[i],"--logfile")) 
@@ -981,6 +981,7 @@ parser_write_config_file(struct term_tty *tty)
       if (protocols[i].get_printable_store) {
          if ((values = (*protocols[i].get_printable_store)(NULL)) == NULL) {
             write_log(0, "Error in get_printable_store\n");
+            fclose( file );
             return -1;
          }
 
@@ -1813,7 +1814,7 @@ parser_binary2printable(u_int8_t proto, u_int8_t elem, void *value, char *msg)
          if (params[elem].size_print == 2)
          {
             aux8 = (u_int8_t *) value;
-            snprintf(msg, 3,"%02hX",*aux8);
+            snprintf(msg, 3,"%02hhX",*aux8);
          }
          else
             if (params[elem].size_print == 4)
@@ -1824,7 +1825,7 @@ parser_binary2printable(u_int8_t proto, u_int8_t elem, void *value, char *msg)
             else
             {
                aux32 = (u_int32_t *) value;
-               snprintf(msg, 9,"%08hX",*aux32);
+               snprintf(msg, 9,"%08X",*aux32);
             }
          break;
 

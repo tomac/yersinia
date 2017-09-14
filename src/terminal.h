@@ -133,7 +133,7 @@ int rand_r(unsigned int *);
 
 int8_t term_init(void);
 void   term_destroy(void);
-int8_t term_add_node(struct term_node **, int8_t, int32_t, pthread_t);
+int8_t term_add_node(struct term_node **, int8_t, int, pthread_t);
 void   term_delete_node(struct term_node *, int8_t);
 void   term_delete_all(void);
 void   term_delete_all_console(void);
@@ -187,12 +187,13 @@ extern void   thread_free_r(void *);
 extern int8_t command_cls(struct term_node *, struct words_array *, int16_t, int8_t, int8_t);
 extern int8_t command_entry_point(struct term_node *, struct words_array *, int8_t, int8_t, int8_t);
 #endif
-extern int8_t interfaces_pcap_file_open(struct term_node *, u_int8_t, u_int8_t *, u_int16_t);
-extern int8_t interfaces_pcap_file_close(struct term_node *, u_int8_t);
+
 extern void   attack_free_params(struct attack_param *, u_int8_t);
 extern int8_t attack_launch(struct term_node *, u_int16_t, u_int16_t, struct attack_param *, u_int8_t );
 extern int8_t parser_filter_param(u_int8_t, void *, char *, u_int16_t, int16_t);
-extern int8_t interfaces_compare(void *, void *);
+extern int8_t interfaces_pcap_file_open(struct term_node *, u_int8_t, u_int8_t *, u_int16_t);
+extern int8_t interfaces_pcap_file_close(struct term_node *, u_int8_t);
+extern int interfaces_compare(void *, void *);
 
 extern struct term_tty *tty_tmp;
 

@@ -1528,19 +1528,16 @@ int8_t
 ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mode)
 {
    int32_t i, pointer, end, key_pressed;
-   struct attack_param *attack_param;
-   struct commands_param_extra_item *newitem;
+   struct attack_param *attack_param = NULL ;
+   struct commands_param_extra_item *newitem = NULL ;
    u_int8_t field;
    int8_t ret;
-   void *extra;
+   void *extra = NULL ;
 
    pointer = 0;
    end = 0;
    i = 0;
    key_pressed = 0;
-   attack_param = NULL;
-   newitem = NULL;
-   extra = NULL;
 
    while (!terms->gui_th.stop && !end) {
       werase(win);
@@ -1578,6 +1575,7 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
             }
             if ((newitem->value = (u_int8_t *) calloc(1, protocols[mode].extra_parameters[pointer].size)) == NULL)
             {
+                free( newitem );
                write_log(0, "Error in calloc\n");
                return -1;
             }
@@ -1592,10 +1590,13 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
    }
 
    /* Set up the param... */
-   if (newitem) {
+   if (newitem) 
+   {
       if ((attack_param = (struct attack_param *) calloc(1, (sizeof(struct attack_param)))) == NULL)
       {
          thread_error(" ncurses_i_attack_screen attack_param calloc",errno);
+         free( newitem->value );
+         free( newitem );
          key_pressed='Q';
          return -1;
       }
@@ -1608,7 +1609,10 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
 
       if (attack_init_params(node, attack_param, 1) < 0)
       {
-         free(attack_param);
+         free( newitem->value );
+         free( newitem );
+         free( attack_param->desc );
+         free( attack_param );
          key_pressed='Q';
          return -1;
       }
@@ -1621,6 +1625,8 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
          {
             attack_free_params(attack_param, 1);
             free(attack_param);
+            free( newitem->value );
+            free( newitem );
             key_pressed='Q';
             return -1;
          }
@@ -1628,8 +1634,7 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
          ret = attack_filter_all_params(attack_param, 1, &field);
          if ( ret == -1) /* Error on data...*/
          {
-            ncurses_i_error_window(1, "Bad data on field '%s'!!",
-                  attack_param[field].desc);
+            ncurses_i_error_window(1, "Bad data on field '%s'!!", attack_param[field].desc);
          }
       } while(ret==-1);
 
@@ -1641,18 +1646,20 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
          box(win, 0, 0);
          key_pressed = 0;
       }
+
+       strncpy((char *)newitem->value, attack_param->print, attack_param->size_print);
+
+       if (protocols[mode].get_extra_field)
+       {
+          extra = (*protocols[mode].get_extra_field)(node, NULL, 0);
+          extra = dlist_append(extra, (void *)newitem);
+          (*protocols[mode].get_extra_field)(node, extra, 1);
+       }
+
+       return 0;
    }
 
-   strncpy((char *)newitem->value, attack_param->print, attack_param->size_print);
-
-   if (protocols[mode].get_extra_field)
-   {
-      extra = (*protocols[mode].get_extra_field)(node, NULL, 0);
-      extra = dlist_append(extra, (void *)newitem);
-      (*protocols[mode].get_extra_field)(node, extra, 1);
-   }
-
-   return 0;
+   return -1;
 }
 
 

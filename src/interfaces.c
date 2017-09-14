@@ -1387,11 +1387,13 @@ interfaces_get_last_int(u_int8_t mode)
 }
 
 
-int8_t
-interfaces_compare(void *data, void *pattern)
+int interfaces_compare( void *data, void *pattern )
 {
    struct interface_data *iface_data;
 
    iface_data = (struct interface_data *) data;
-   return(strncmp((char *)iface_data->ifname, (char *)pattern, strlen((char *)iface_data->ifname)));
+
+   return( strncmp( (char *)iface_data->ifname, (char *)pattern, strlen( (char *)iface_data->ifname ) ) );
 }
+
+

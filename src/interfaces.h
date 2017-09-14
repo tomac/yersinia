@@ -95,13 +95,6 @@ struct counter_stats {
 };
 
 
-/*struct pcap_data {
-                  struct pcap_pkthdr *header;
-                  u_int8_t *packet;
-                  u_int16_t iface;
-};*/
-
-
 struct packet_stats {
        struct counter_stats global_counter;
 };
@@ -127,12 +120,12 @@ struct  interface_data *interfaces_get_packet(list_t *, struct interface_data *,
 int8_t  interfaces_clear_stats(int8_t);
 int8_t  interfaces_destroy(THREAD *);
 u_int16_t interfaces_update_stats(struct pcap_data *);
-int8_t   interfaces_recognize_packet(u_int8_t *, struct pcap_pkthdr *);
-int8_t   interfaces_pcap_file_open(struct term_node *, u_int8_t, char *, char *);
-int8_t   interfaces_pcap_file_close(struct term_node *, u_int8_t);
-u_int8_t interfaces_get_last_int(u_int8_t);
-int8_t   interfaces_compare(void *, void *);
-int16_t interfaces_get_enabled( char *);
+int8_t    interfaces_recognize_packet(u_int8_t *, struct pcap_pkthdr *);
+int8_t    interfaces_pcap_file_open(struct term_node *, u_int8_t, char *, char *);
+int8_t    interfaces_pcap_file_close(struct term_node *, u_int8_t);
+u_int8_t  interfaces_get_last_int(u_int8_t);
+int       interfaces_compare(void *, void *);
+int16_t   interfaces_get_enabled( char *);
 
 #ifndef HAVE_PCAP_DUMP_FLUSH
 int8_t  pcap_dump_flush(pcap_dumper_t *);

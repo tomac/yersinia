@@ -44,7 +44,7 @@ typedef struct dlist dlist_t;
 
 struct list {
    dlist_t *list;
-   int8_t (*cmp)(void *, void *);
+   int (*cmp)(void *, void *);
    pthread_mutex_t mutex;
 };
 
@@ -84,9 +84,7 @@ dlist_foreach(dlist_t *list,
 dlist_t*
 dlist_find(dlist_t *list, const void *data);
 
-dlist_t*
-dlist_search(dlist_t *list,
-             int8_t (*cmp) (void *data, void *pattern), void *pattern);
+dlist_t *dlist_search( dlist_t *list, int (*cmp) (void *data, void *pattern), void *pattern);
 
 extern void write_log( u_int16_t mode, char *msg, ... );
 #endif

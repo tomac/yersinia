@@ -31,10 +31,10 @@ int8_t admin_init(struct term_tty *);
 void   admin_exit(void);
 void  *admin_th_listen(void *);
 void   admin_th_listen_clean(void *);
-void   admin_th_listen_exit(struct sockaddr *, int32_t);
+void   admin_th_listen_exit(struct sockaddr *, int);
 void  *admin_th_network_peer(void *);
 void   admin_th_network_peer_clean(void *);
-void   admin_th_network_peer_exit(struct term_node *, int32_t);
+void   admin_th_network_peer_exit(struct term_node *, int);
 int8_t admin_filter_ip(u_int32_t *, struct filter *);
 
 /* Extern variables...*/

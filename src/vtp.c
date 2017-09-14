@@ -884,9 +884,10 @@ vtp_add_vlan(u_int16_t vlan, char *vlan_name, u_int8_t **vlans_ptr, u_int16_t *v
           }
           else /* Last VLAN... */
           {
-
+             free( aux );
              return 0;
           }
+
           break;
        } /* We got it */
 
@@ -1269,7 +1270,7 @@ vtp_get_printable_packet(struct pcap_data *data)
     switch(*code)
     {
        case VTP_SUMM_ADVERT:
-            snprintf(field_values[VTP_REVISION], 11, "%010hd", ntohl(*aux_long));
+            snprintf(field_values[VTP_REVISION], 11, "%010u", ntohl(*aux_long));
               aux_long++;
 
 #ifdef LBL_ALIGN 
@@ -1291,58 +1292,9 @@ vtp_get_printable_packet(struct pcap_data *data)
        break;
 
        case VTP_SUBSET_ADVERT:
-            snprintf(field_values[VTP_REVISION], 11, "%010hd", ntohl(*aux_long));
+            snprintf(field_values[VTP_REVISION], 11, "%010u", ntohl(*aux_long));
             field_values[VTP_MD5][0]=0;
             field_values[VTP_UPDATER][0] = 0;
-#ifdef KKKKKKKKKKK            
-            ptr+=4; /* Point to VLANs info */
-            
-            cursor = ptr;
-            i = 0;
-            vlans_len = (data->packet + data->header->caplen) - ptr;
-            tlv = field_values[VTP_VLAN];
-                
-            while( ((cursor+sizeof(struct vlan_info)) < (ptr+vlans_len)) && (i<MAX_TLV) )
-            {
-               vlan_info = (struct vlan_info *) cursor;
-               if ((cursor+vlan_info->len) > (ptr+vlans_len))
-                  break;
-               memset(aux,0,sizeof(aux));
-               snprintf(aux, MAX_VALUE_LENGTH, "VLAN %d", ntohs(vlan_info->id));
-
-               memset(aux5,0,sizeof(aux5));
-               snprintf(aux5, 20, "%s", (char *)(vlan_info+1));
-               write_log(0," tlv[%d]=%p    %s  '%s'  vlan_info->len=%d   vlan_info->name_len=%d\n",VTP_VLAN,tlv,aux,aux5,vlan_info->len,vlan_info->name_len);
-
-               memcpy(tlv,aux,strlen(aux));
-               tlv+=strlen(aux)+1;
-               if (vlan_info->len <= vlan_info->name_len)
-                  break;
-               if (vlan_info->name_len)
-               {
-                  if (vlan_info->name_len > MAX_VALUE_LENGTH)
-                  {
-                     memcpy(tlv,(void *)(vlan_info+1),MAX_VALUE_LENGTH);
-                     tlv+=MAX_VALUE_LENGTH+1;
-                  }
-                  else
-                  {
-                     memcpy(tlv,(void *)(vlan_info+1),vlan_info->name_len);
-                     tlv+=vlan_info->name_len+1;
-                  }
-               }
-               else
-               {
-                  *tlv=0;
-                  tlv++;
-               }
-               i++;
-               cursor+=vlan_info->len;
-                write_log(0,"pasa cursor+=vlan_info->len...\n");
-                thread_usleep(500000);
-            }
-#endif
-            
        break;
        
        case VTP_JOIN:
@@ -1410,7 +1362,7 @@ vtp_get_printable_store(struct term_node *node)
 
     parser_get_formated_inet_address(vtp_tmp->updater, field_values[VTP_UPDATER], 16);
 
-    snprintf(field_values[VTP_REVISION], 11, "%010hd", vtp_tmp->revision);
+    snprintf(field_values[VTP_REVISION], 11, "%010u", vtp_tmp->revision);
 
     memcpy(field_values[VTP_TIMESTAMP], vtp_tmp->timestamp, 12);
 
