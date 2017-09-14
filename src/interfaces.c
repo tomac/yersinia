@@ -556,39 +556,46 @@ interfaces_get_struct(char *iface)
  * Return -1 on error, 0 on success.
  * Use global interfaces list (interfaces).
  */
-int8_t 
-interfaces_disable(char *iface)
+int8_t interfaces_disable( char *iface )
 {
+    int8_t ret = -1 ;
     dlist_t *node;
     struct interface_data *iface_data;
 
-    if (pthread_mutex_lock(&interfaces->mutex) != 0)
+    if ( ! pthread_mutex_lock( &interfaces->mutex ) )
     {
-       thread_error("interfaces_disable pthread_mutex_lock",errno);
-       return -1;
-    }
+        node = dlist_search( interfaces->list, interfaces->cmp, (void *)iface );
 
-    if ((node = dlist_search(interfaces->list, interfaces->cmp, (void *)iface)) == NULL) {
-       write_log(0, "Ohh I haven't found the interface %s\n", iface);
-       return -1;
-    }
-    iface_data = (struct interface_data *) dlist_data(node);
+        if ( node ) 
+        {
+            iface_data = (struct interface_data *) dlist_data(node);
 
-    if (iface_data->users == 1) 
-    {
-       iface_data->up = 0;
-       iface_data->users = 0;
-    } 
+            if ( iface_data->users == 1 ) 
+            {
+                iface_data->up    = 0;
+                iface_data->users = 0;
+            } 
+            else
+                iface_data->users--;
+
+            ret = 0 ;
+        }
+        else
+        {
+            write_log(0, "Ohh I haven't found the interface %s\n", iface);
+            ret = -1;
+        }
+
+        if (pthread_mutex_unlock(&interfaces->mutex) != 0)
+        {
+            thread_error("interfaces_disable pthread_mutex_unlock",errno);
+            ret = -1;
+        }
+    }
     else
-       iface_data->users--;
+        thread_error("interfaces_disable pthread_mutex_lock",errno);
 
-    if (pthread_mutex_unlock(&interfaces->mutex) != 0)
-    {
-       thread_error("interfaces_disable pthread_mutex_unlock",errno);
-       return -1;
-    }
-
-    return 0;
+    return ret ;
 }
 
 
