@@ -178,6 +178,7 @@ main( int argc, char **argv )
 
    if ( argc == 1 )                                                          
    {
+
       printf("GNU %s %s\n", PACKAGE, VERSION);
       printf("Try '%s -h' to display the help.\n",PACKAGE);
       clean_exit();
@@ -297,59 +298,58 @@ main( int argc, char **argv )
  * Thread for handling command line attacks (TERM_TTY)
  * Use global variable struct term_tty *tty_tmp
  */
-void *
-th_tty_peer(void *args)
+void *th_tty_peer( void *args )
 {
-   int fail;
-   time_t this_time;
-   struct cl_args *arguments;
-   struct term_tty *tty;
-   struct term_node *term_node=NULL;
-   sigset_t mask;
-   
-   terms->work_state = RUNNING;
-   
-write_log(0, "\n th_tty_peer thread = %d...\n",(int)pthread_self());
-   
-   sigfillset(&mask);
-   
-   if (pthread_sigmask(SIG_BLOCK, &mask,NULL))
-   {
-      thread_error("th_tty_peer pthread_sigmask()",errno);
-      th_tty_peer_exit(NULL);
-   }   
+    int fail;
+    time_t this_time;
+    struct cl_args *arguments = (struct cl_args *)args;
+    struct term_tty *tty;
+    struct term_node *term_node=NULL;
+    sigset_t mask;
 
-   if (pthread_mutex_lock(&terms->mutex) != 0)
-   {
-      thread_error("th_tty_peer pthread_mutex_lock",errno);
-      th_tty_peer_exit(NULL);
-   }
-   
-   fail = term_add_node(&term_node, TERM_TTY, 0, pthread_self());
+    terms->work_state = RUNNING;
 
-   if (fail == -1)
-   {
-      if (pthread_mutex_unlock(&terms->mutex) != 0)
-         thread_error("th_tty_peer pthread_mutex_unlock",errno);
-      th_tty_peer_exit(term_node);
-   }
+    write_log(0, "\n th_tty_peer thread = %X...\n",(int)pthread_self());
 
-   if (term_node == NULL)
-   {
-      write_log(1,"Ouch!! No more than %d %s accepted!!\n",
-                  term_type[TERM_TTY].max, term_type[TERM_TTY].name);
+    sigfillset(&mask);
+
+    if (pthread_sigmask(SIG_BLOCK, &mask,NULL))
+    {
+        thread_error("th_tty_peer pthread_sigmask()",errno);
+        th_tty_peer_exit(NULL);
+    }   
+
+    if (pthread_mutex_lock(&terms->mutex) != 0)
+    {
+        thread_error("th_tty_peer pthread_mutex_lock",errno);
+        th_tty_peer_exit(NULL);
+    }
+
+    fail = term_add_node(&term_node, TERM_TTY, 0, pthread_self());
+
+    if (fail == -1)
+    {
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("th_tty_peer pthread_mutex_unlock",errno);
+        th_tty_peer_exit(term_node);
+    }
+
+    if (term_node == NULL)
+    {
+        write_log(1,"Ouch!! No more than %d %s accepted!!\n", term_type[TERM_TTY].max, term_type[TERM_TTY].name);
       
-      if (pthread_mutex_unlock(&terms->mutex) != 0)
-         thread_error("th_tty_peer pthread_mutex_unlock",errno);
-      th_tty_peer_exit(term_node);
-   }
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("th_tty_peer pthread_mutex_unlock",errno);
 
-   tty = term_node->specific;
+        th_tty_peer_exit( term_node );
+    }
 
-   memcpy(tty,tty_tmp,sizeof(struct term_tty));    
+    tty = term_node->specific;
+
+    memcpy(tty,tty_tmp,sizeof(struct term_tty));    
 
     this_time = time(NULL);
-   
+
 #ifdef HAVE_CTIME_R
 #ifdef SOLARIS
     ctime_r(&this_time,term_node->since, sizeof(term_node->since));
@@ -358,7 +358,7 @@ write_log(0, "\n th_tty_peer thread = %d...\n",(int)pthread_self());
 #endif
 #else
     pthread_mutex_lock(&mutex_ctime);
-    strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since));   
+    strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since) - 1);   
     pthread_mutex_unlock(&mutex_ctime);
 #endif
 
@@ -366,51 +366,51 @@ write_log(0, "\n th_tty_peer thread = %d...\n",(int)pthread_self());
     term_node->since[sizeof(term_node->since)-2] = 0;
 
     /* This is a tty so, man... ;) */
-    strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip));
+    strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip) - 1);
 
-   /* Parse config file */
-   if (strlen(tty_tmp->config_file))
-      if (parser_read_config_file(tty_tmp, term_node) < 0)
-      {
-         write_log(0, "Error reading configuration file\n");
-         th_tty_peer_exit(term_node);
-      }
-   
-    if (init_attribs(term_node) < 0)        
+    /* Parse config file */
+    if ( strlen( tty_tmp->config_file ) )
     {
-       if (pthread_mutex_unlock(&terms->mutex) != 0)
-         thread_error("th_tty_peer pthread_mutex_unlock",errno);
-       th_tty_peer_exit(term_node);
+        if ( parser_read_config_file( tty_tmp, term_node ) < 0 )
+        {
+            write_log(0, "Error reading configuration file\n");
+            th_tty_peer_exit(term_node);
+        }
     }
 
-    arguments = args;
-    
-    /* In command line mode we initialize the values by default */
-    if (protocols[arguments->proto_index].init_attribs)
+    if (init_attribs(term_node) < 0)        
     {
-        fail = (*protocols[arguments->proto_index].init_attribs)
-            (term_node);
-    } else
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("th_tty_peer pthread_mutex_unlock",errno);
+        th_tty_peer_exit(term_node);
+    }
+
+    /* In command line mode we initialize the values by default */
+    if ( protocols[arguments->proto_index].init_attribs )
+        (*protocols[arguments->proto_index].init_attribs)( term_node );
+    else
         write_log(0, "Warning, proto %d has no init_attribs function!!\n", arguments->proto_index);
 
     /* Choose a parser */
-    fail = parser_cl_proto(term_node, arguments->count, arguments->argv_tmp, arguments->proto_index);
+    fail = parser_cl_proto( term_node, arguments->count, arguments->argv_tmp, arguments->proto_index );
 
-   if (pthread_mutex_unlock(&terms->mutex) != 0)
-      thread_error("th_tty_peer pthread_mutex_unlock",errno);
-   
-   if (fail < 0) {
-       write_log(0, "Error when parsing...\n");
-       th_tty_peer_exit(term_node);
-   }
+    if ( pthread_mutex_unlock(&terms->mutex) != 0 )
+        thread_error("th_tty_peer pthread_mutex_unlock",errno );
+
+    if ( fail < 0 )
+    {
+        write_log(0, "Error when parsing...\n");
+        th_tty_peer_exit(term_node);
+    }
       
-   write_log(0, "Entering command line mode...\n");
-   /* Execute attack... */
-   doloop(term_node, arguments->proto_index);
-   
-   th_tty_peer_exit(term_node);
-   
-   return(NULL);
+    write_log(0, "Entering command line mode...\n");
+
+    /* Execute attack... */
+    doloop( term_node, arguments->proto_index );
+
+    th_tty_peer_exit(term_node);
+
+    return NULL;
 }
 
 /*

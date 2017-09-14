@@ -207,8 +207,7 @@ int8_t attack_kill_index( struct term_node *node, uint8_t proto_arg, uint8_t att
 int8_t 
 attack_th_exit(struct attacks *attacks)
 {
-write_log(0," attack_th_exit -> attack_th.stop=%d   attack_th.id=%X....\n",attacks->attack_th.stop,
-attacks->attack_th.id);
+    write_log(0," attack_th_exit -> attack_th.stop=%d   attack_th.id=%X....\n",attacks->attack_th.stop, attacks->attack_th.id);
 
     if (attacks->attack_th.stop == 0)
        attacks->attack_th.id = 0;
@@ -217,8 +216,7 @@ attacks->attack_th.id);
 
     if (attacks->helper_th.id) 
     {
-       write_log(0," attack_th_exit: %X thread_destroy helper %X...\n",
-                 (int)pthread_self(), (int)attacks->helper_th.id);    
+       write_log(0," attack_th_exit: %X thread_destroy helper %X...\n", (int)pthread_self(), (int)attacks->helper_th.id);    
        thread_destroy(&attacks->helper_th);
     }    
 

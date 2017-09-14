@@ -205,8 +205,7 @@ term_destroy(void)
  * Use global array term_type[]
  */
 int8_t
-term_add_node(struct term_node **node,
-        int8_t type, int32_t sock, pthread_t tid)
+term_add_node(struct term_node **node, int8_t type, int sock, pthread_t tid)
 {
    int8_t i;
    struct term_vty *vty;
@@ -851,8 +850,7 @@ term_vty_do_command(struct term_node *node)
 
    switch(node->state)
    {
-      case LOGIN_STATE: strncpy(node->username,vty->buf_command,
-                                  sizeof(node->username));
+      case LOGIN_STATE: strncpy(node->username,vty->buf_command, sizeof(node->username) - 1);
                         node->state = PASSWORD_STATE;
                         vty->authing = 1;
       break;

@@ -73,82 +73,84 @@
 void
 gtk_gui (void *args)
 {
-   int tmp;
-   struct term_node *term_node = NULL;
-   time_t this_time;
-   sigset_t mask;
-   struct gtk_s_helper helper;
-   struct interface_data *iface_data, *iface;
-   GtkWidget *Main;
+    int tmp;
+    struct term_node *term_node = NULL;
+    time_t this_time;
+    sigset_t mask;
+    struct gtk_s_helper helper;
+    struct interface_data *iface_data, *iface;
+    GtkWidget *Main;
 
-   pthread_mutex_lock(&terms->gui_gtk_th.finished);
+    pthread_mutex_lock(&terms->gui_gtk_th.finished);
 
-   terms->work_state = RUNNING;
-   
-   write_log(0,"\n gtk_gui_th = %X\n",(int)pthread_self());
-   iface_data = NULL;
+    terms->work_state = RUNNING;
 
-   sigfillset(&mask);
+    write_log(0,"\n gtk_gui_th = %X\n",(int)pthread_self());
+    iface_data = NULL;
 
-   if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
-   {
-      thread_error("gtk_gui_th pthread_sigmask()",errno);
-      gtk_gui_th_exit(NULL);
-   }
+    sigfillset(&mask);
 
-   if (pthread_mutex_lock(&terms->mutex) != 0) {
-      thread_error("gtk_gui_th pthread_mutex_lock",errno);
-      gtk_gui_th_exit(NULL);
-   }
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
+    {
+        thread_error("gtk_gui_th pthread_sigmask()",errno);
+        gtk_gui_th_exit(NULL);
+    }
 
-   if (term_add_node(&term_node, TERM_CON, 0, pthread_self()) < 0)
-   {
-      if (pthread_mutex_unlock(&terms->mutex) != 0)
-         thread_error("gtk_gui_th pthread_mutex_unlock",errno);
-      gtk_gui_th_exit(NULL);
-   }
+    if (pthread_mutex_lock(&terms->mutex) != 0) 
+    {
+        thread_error("gtk_gui_th pthread_mutex_lock",errno);
+        gtk_gui_th_exit(NULL);
+    }
 
-   if (term_node == NULL)
-   {
-      write_log(0, "Ouch!! No more than %d %s accepted!!\n", 
-            term_type[TERM_CON].max, term_type[TERM_CON].name);
-      if (pthread_mutex_unlock(&terms->mutex) != 0)
-         thread_error("gtk_gui_th pthread_mutex_unlock",errno);
-      gtk_gui_th_exit(NULL);
-   }
+    if (term_add_node(&term_node, TERM_CON, 0, pthread_self()) < 0)
+    {
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("gtk_gui_th pthread_mutex_unlock",errno);
+        gtk_gui_th_exit(NULL);
+    }
 
-   this_time = time(NULL);
+    if (term_node == NULL)
+    {
+        write_log(0, "Ouch!! No more than %d %s accepted!!\n", term_type[TERM_CON].max, term_type[TERM_CON].name);
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("gtk_gui_th pthread_mutex_unlock",errno);
+        gtk_gui_th_exit(NULL);
+    }
+
+    this_time = time(NULL);
 
 #ifdef HAVE_CTIME_R
 #ifdef SOLARIS
-   ctime_r(&this_time,term_node->since, sizeof(term_node->since));
+    ctime_r(&this_time,term_node->since, sizeof(term_node->since));
 #else
-   ctime_r(&this_time,term_node->since);
+    ctime_r(&this_time,term_node->since);
 #endif
 #else
-   pthread_mutex_lock(&mutex_ctime);
-   strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since));
-   pthread_mutex_unlock(&mutex_ctime);
+    pthread_mutex_lock(&mutex_ctime);
+    strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since) - 1 );
+    pthread_mutex_unlock(&mutex_ctime);
 #endif
 
-   /* Just to remove the cr+lf...*/
-   term_node->since[sizeof(term_node->since)-2] = 0;
+    /* Just to remove the cr+lf...*/
+    term_node->since[sizeof(term_node->since)-2] = 0;
 
-   /* This is a console so, man... ;) */
-   strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip));
+    /* This is a console so, man... ;) */
+    strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip) - 1 );
 
-   /* Parse config file */
-   if (strlen(tty_tmp->config_file))
-      if (parser_read_config_file(tty_tmp, term_node) < 0)
-      {
-         write_log(0, "Error reading configuration file\n");
-         gtk_gui_th_exit(term_node);
-      }
+    /* Parse config file */
+    if (strlen(tty_tmp->config_file))
+    {
+        if (parser_read_config_file(tty_tmp, term_node) < 0)
+        {
+            write_log(0, "Error reading configuration file\n");
+            gtk_gui_th_exit(term_node);
+        }
+    }
 
-   if (pthread_mutex_unlock(&terms->mutex) != 0) {
+    if (pthread_mutex_unlock(&terms->mutex) != 0) {
       thread_error("gtk_gui_th pthread_mutex_unlock",errno);
       gtk_gui_th_exit(term_node);
-   }
+    }
 
 #ifdef ENABLE_NLS
     bindtextdomain( GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR );

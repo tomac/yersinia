@@ -166,7 +166,6 @@ cdp_send(struct attacks *attacks)
 
     memcpy((void *)fixpacket+1, &cdp_data->ttl, 1);
 
-/*    aux_short = htons(cdp_data->checksum);*/
     memcpy((void *)fixpacket+2, &checksum, 2);
 
     memcpy((void *)fixpacket+4, cdp_data->options, cdp_data->options_len);
@@ -176,24 +175,6 @@ cdp_send(struct attacks *attacks)
     for (p = attacks->used_ints->list; p; p = dlist_next(attacks->used_ints->list, p)) {
        iface_data = (struct interface_data *) dlist_data(p);
        lhandler = iface_data->libnet_handler;
-#ifdef KK
-            t = libnet_build_cdp(
-                    cdp_data->version,                      /* version */
-                    cdp_data->ttl,                          /* time to live */
-                    htons(cdp_data->checksum),              /* checksum */
-                    0,
-                    0,
-                    0,
-                    (cdp_data->options_len == 0) ? NULL : cdp_data->options,  /* payload */
-                    cdp_data->options_len,                  /* payload size */
-                    lhandler,                               /* libnet handle */
-                    0);                                     /* libnet id */
-
-            if (t == -1) {
-                thread_libnet_error("Can't build CDP header",lhandler);
-                return -1;
-            }
-#endif
        oui[0] = 0x00;
        oui[1] = 0x00;
        oui[2] = 0x0C;
@@ -754,8 +735,7 @@ cdp_edit_tlv(struct term_node *node, u_int8_t action, u_int8_t pointer, u_int16_
 /* 
  * Return formated strings of each CDP field
  */
-char **
-cdp_get_printable_packet(struct pcap_data *data)
+char **cdp_get_printable_packet( struct pcap_data *data )
 {
    struct libnet_802_3_hdr *ether;
    u_char *cdp_data, *ptr;
@@ -765,12 +745,24 @@ cdp_get_printable_packet(struct pcap_data *data)
    u_int16_t aux_short;
 #endif
    char **field_values;
-   char buffer[4096];
+   char *buffer;
    u_int16_t type, len;
    u_int32_t total_len;
 
-   if ((field_values = (char **) protocol_create_printable(protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters)) == NULL) {
+   buffer = (char *)calloc( 1, 4096 );
+
+   if ( ! buffer )
+   {
       write_log(0, "Error in calloc\n");
+      return NULL;
+   }
+
+   field_values = (char **)protocol_create_printable( protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters );
+
+   if ( ! field_values ) 
+   {
+      write_log(0, "Error in calloc\n");
+      free( buffer );
       return NULL;
    }
 
@@ -800,13 +792,11 @@ cdp_get_printable_packet(struct pcap_data *data)
    ptr = cdp_data + 4;
    buf_ptr = buffer;
    i = 0;
-   memset((void *)buffer, 0, 4096);
    total_len = 0;
 
    /* now the tlv section starts */
    while((ptr < data->packet + data->header->caplen) && (i < MAX_TLV)) {
       if ((ptr+4) > ( data->packet + data->header->caplen)) /* Undersized packet !! */
-         /*            return NULL;*/
          break;
 
 #ifdef LBL_ALIGN
@@ -820,16 +810,18 @@ cdp_get_printable_packet(struct pcap_data *data)
 #endif
 
       if ((ptr + len) > data->packet + data->header->caplen)
+      {
+          free( buffer );
+          free( field_values ) ;
          return NULL; /* Oversized packet!! */
+      }
 
       if (!len)
          break;
 
-      /*
-       * TLV len must be at least 5 bytes (header + data).  
+      /* TLV len must be at least 5 bytes (header + data).  
        * Anyway i think we can give a chance to the rest
-       * of TLVs... ;)
-       */
+       * of TLVs... ;) */
       if (len >= 4) 
       {   
          /* First we get the type */
@@ -914,15 +906,19 @@ cdp_get_printable_packet(struct pcap_data *data)
       ptr += len;
    }
 
-   if (total_len > 0)
+   if ( total_len > 0 )
    {
-      if ((field_values[CDP_TLV] = (char *) calloc(1, total_len)) == NULL)
+      field_values[CDP_TLV] = (char *)calloc(1, total_len);
+
+      if ( field_values[CDP_TLV] )
+         memcpy((void *)field_values[CDP_TLV], (void *)buffer, total_len);
+      else
          write_log(0, "error in calloc\n");
-      
-      memcpy((void *)field_values[CDP_TLV], (void *)buffer, total_len);
    }
 
-   return (char **)field_values;
+   free( buffer );
+
+   return field_values;
 }
 
 
@@ -941,7 +937,7 @@ char **cdp_get_printable_store( struct term_node *node )
 
     /* smac + dmac + version + ttl + checksum + tlv + null = 7 */
     field_values = (char **)protocol_create_printable( protocols[PROTO_CDP].nparams, protocols[PROTO_CDP].parameters );
-    if ( field_values == NULL )
+    if ( ! field_values )
     {
         write_log( 0, "Error in calloc\n" );
         return NULL;

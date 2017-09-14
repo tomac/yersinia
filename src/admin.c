@@ -119,13 +119,13 @@ admin_th_listen(void *arg)
    struct timeval timeout;
    struct filter *ip_filter;
    struct term_tty *node;
-   int32_t sock=0, sock2, on=1,n,ret;
+   int sock=0, sock2, on=1,n,ret;
    socklen_t clilen;
    pthread_t tid;
    sigset_t mask;
    fd_set read_set;
    
-write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
+   write_log(0,"\n admin_th_network_listen es %X\n",(int)pthread_self());
 
    pthread_mutex_lock(&terms->admin_listen_th.finished);
 
@@ -156,7 +156,7 @@ write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
 
 #ifdef SO_REUSEPORT
    on=1;
-   if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (char *) &on, sizeof (on)) 
+   if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (char *) &on, sizeof(on)) 
        < 0)
    {
       n=errno;   
@@ -166,7 +166,7 @@ write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
 #endif
 
    on=1;
-   if (setsockopt (sock, IPPROTO_TCP, TCP_NODELAY, (char *) &on, sizeof (on))
+   if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *) &on, sizeof(on))
          < 0)
    {
       n=errno;   
@@ -174,12 +174,13 @@ write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
       admin_th_listen_exit(NULL,sock);
    }
 
+   memset( (void *)&server_address, 0, sizeof( struct sockaddr_in ) );
+
    server_address.sin_family      = AF_INET;
    server_address.sin_port        = htons(node->port);
    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
           
-   if ( bind( sock, (struct sockaddr *)&server_address,
-              sizeof(server_address) ) == -1 )
+   if ( bind( sock, (struct sockaddr *)&server_address, sizeof(server_address) ) == -1 )
    {
       n=errno;   
       thread_error("Error on bind()",n);
@@ -236,8 +237,7 @@ write_log(0,"\n admin_th_network_listen es %d\n",(int)pthread_self());
           else
           {
               write_log(0,"\n Connection accepted for %s\n", inet_ntoa(*ip_addr));
-              if (pthread_create(&tid, NULL, &admin_th_network_peer, 
-                          (void *)sock2) < 0)
+              if ( pthread_create( &tid, NULL, &admin_th_network_peer, (void *)sock2 ) < 0)
               {
                  n=errno;   
                  thread_error("pthread_create admin_th_listen",n);
@@ -286,7 +286,7 @@ admin_filter_ip(u_int32_t *ip_addr, struct filter *ip_filter)
  * Release resources and delete all acquired network terminals...
  */
 void
-admin_th_listen_exit(struct sockaddr *cliaddr, int32_t sock)
+admin_th_listen_exit(struct sockaddr *cliaddr, int sock)
 {
    if (cliaddr)
       thread_free_r(cliaddr);
@@ -330,18 +330,18 @@ admin_th_network_peer(void *sock)
 
    memset(buf, 0, MAX_LINE+2);
 
-write_log(0,"vty peer %d mutex_lock terms \n",pthread_self());
+    write_log(0,"vty peer %X mutex_lock terms \n",pthread_self());
    
    if (pthread_mutex_lock(&terms->mutex) != 0)
       thread_error("th_network_peer pthread_mutex_lock",errno);
 
-   fail = term_add_node(&term_node, TERM_VTY, (int)sock, pthread_self());
+   fail = term_add_node(&term_node, TERM_VTY, sock, pthread_self());
 
    if (fail == -1)
    {
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_network_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, (int32_t)sock);
+      admin_th_network_peer_exit(term_node, sock);
    }
     
    if (term_node == NULL)
@@ -351,7 +351,7 @@ write_log(0,"vty peer %d mutex_lock terms \n",pthread_self());
       
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_network_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, (int32_t)sock);
+      admin_th_network_peer_exit(term_node, sock);
    }
 
    pthread_mutex_lock(&term_node->thread.finished);
@@ -368,7 +368,7 @@ write_log(0,"vty peer %d mutex_lock terms \n",pthread_self());
 #endif
 #else
    pthread_mutex_lock(&mutex_ctime);
-   strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since));
+   strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since)-1);
    pthread_mutex_unlock(&mutex_ctime);
 #endif
                     
@@ -382,24 +382,23 @@ write_log(0,"vty peer %d mutex_lock terms \n",pthread_self());
       thread_error("getpeername",errno);
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_vty_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, (int32_t)sock);
+      admin_th_network_peer_exit(term_node, sock);
    }
 
     if (init_attribs(term_node) < 0)
     {
        if (pthread_mutex_unlock(&terms->mutex) != 0)
            thread_error("th_vty_peer pthread_mutex_unlock",errno);
-       admin_th_network_peer_exit(term_node, (int32_t)sock);
+       admin_th_network_peer_exit(term_node, sock);
     }                               
    
    term_node->from_port = ntohs(name.sin_port);
-   strncpy(term_node->from_ip,inet_ntoa(name.sin_addr),
-            sizeof(term_node->from_ip));
+   strncpy(term_node->from_ip,inet_ntoa(name.sin_addr), sizeof(term_node->from_ip) - 1);
    
    if (pthread_mutex_unlock(&terms->mutex) != 0)
       thread_error("th_network_peer pthread_mutex_unlock",errno);
 
-write_log(0,"vty peer %d mutex_unlock terms \n",pthread_self());
+    write_log(0,"vty peer %X mutex_unlock terms \n",pthread_self());
    
    fail = 0;
    
@@ -818,7 +817,7 @@ write_log(0,"vty peer %d mutex_unlock terms \n",pthread_self());
                           auxstr = strdup(&vty->buf_command[vty->command_cursor]);
                           if (auxstr == NULL)
                           {
-                             write_log(0,"admin_th_netowrk_peer strdup == NULL");
+                             write_log(0,"admin_th_network_peer strdup == NULL");
                              fail = -1;
                              continue;
                           }
@@ -831,10 +830,8 @@ write_log(0,"vty peer %d mutex_unlock terms \n",pthread_self());
                           {
                               fail = term_vty_clear_line(term_node,len);
                               if (!fail)
-                                 fail = term_vty_write(term_node, (char *)&buf[i],1);
-                              fail = term_vty_write(term_node, 
-                                     &vty->buf_command[vty->command_cursor+1], 
-                                     len);
+                                 term_vty_write(term_node, (char *)&buf[i],1);
+                              term_vty_write(term_node, &vty->buf_command[vty->command_cursor+1],  len);
                               message = (char *)malloc(len);
                               if (message == NULL)
                               {
@@ -920,7 +917,7 @@ write_log(0,"vty peer %d mutex_unlock terms \n",pthread_self());
  * Release resources and delete acquired terminal...
  */
 void
-admin_th_network_peer_exit(struct term_node *term_node, int32_t sock)
+admin_th_network_peer_exit(struct term_node *term_node, int sock)
 {
    dlist_t *p;
    struct interface_data *iface_data;
@@ -944,7 +941,7 @@ admin_th_network_peer_exit(struct term_node *term_node, int32_t sock)
          thread_error("th_network_peer pthread_mutex_unlock",errno);
       
       if (pthread_mutex_unlock(&term_node->thread.finished) != 0)
-         thread_error("th_netowrk_peer pthread_mutex_unlock",errno);
+         thread_error("th_network_peer pthread_mutex_unlock",errno);
    }
    else
    {
@@ -952,7 +949,7 @@ admin_th_network_peer_exit(struct term_node *term_node, int32_t sock)
          close(sock);
    }
 
-   write_log(0," admin_peer_th %d finished...\n",(int)pthread_self());
+   write_log(0," admin_peer_th %X finished...\n",(int)pthread_self());
    
    pthread_exit(NULL); 
 }

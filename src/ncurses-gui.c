@@ -152,7 +152,7 @@ ncurses_gui(void *args)
 #endif
 #else
     pthread_mutex_lock(&mutex_ctime);
-    strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since));
+    strncpy(term_node->since, ctime(&this_time), sizeof(term_node->since) - 1);
     pthread_mutex_unlock(&mutex_ctime);
 #endif
 
@@ -160,7 +160,7 @@ ncurses_gui(void *args)
     term_node->since[sizeof(term_node->since)-2] = 0;
 
     /* This is a console so, man... ;) */
-    strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip));
+    strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip) - 1);
    
    /* Parse config file */
    if (strlen(tty_tmp->config_file))

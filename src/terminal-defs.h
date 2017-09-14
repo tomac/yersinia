@@ -251,7 +251,7 @@ struct pcap_file {
 
 struct protocol {
        u_int16_t proto;                   /* Proto id */
-       char      name[MAX_PROTO_NAME];    /* Proto name */
+       char      name[MAX_PROTO_NAME+1];    /* Proto name */
        struct    attacks attacks[MAX_THREAD_ATTACK]; /* Attacking threads */
        void     *tmp_data;                /* temporal packet struct */
        void     **commands_param;          /* struct for network interface and protocol fields */ 
@@ -267,7 +267,7 @@ struct telnet_option {
 
 
 struct term_vty {
-       int32_t   sock;       /* Socket in use (if VTY)           */
+       int       sock;       /* Socket in use (if VTY)           */
        char     *history[MAX_HISTORY]; /* Command history        */
        u_int16_t index_history;        /* Command history index  */
        void     *buffer_tx;            /* What to send to client */
@@ -314,12 +314,12 @@ struct term_tty {
       int8_t gtk;
       int16_t attack;
       FILE *log_file;
-      char config_file[FILENAME_MAX];
+      char config_file[FILENAME_MAX+1];
       int8_t mac_spoofing;
       int8_t splash;
-      char username[MAX_USERNAME];
-      char password[MAX_PASSWORD];
-      char e_password[MAX_PASSWORD];
+      char username[MAX_USERNAME+1];
+      char password[MAX_PASSWORD+1];
+      char e_password[MAX_PASSWORD+1];
       u_int16_t port;
       struct filter *ip_filter;
 #ifdef HAVE_GTK
@@ -341,9 +341,9 @@ struct term_node {
        u_int16_t number;   /* Terminal number                    */
        u_int8_t  state;    /* Terminal state                     */
        u_int32_t timeout;    /* Timeout                          */
-       char      username[MAX_USERNAME]; /* Username on terminal */
-       char      since[26];   /* User is logged in since...      */
-       char      from_ip[15]; /* IP user is connected from       */
+       char      username[MAX_USERNAME+1]; /* Username on terminal */
+       char      since[26+1];   /* User is logged in since...      */
+       char      from_ip[15+1]; /* IP user is connected from       */
        u_int16_t from_port;   /* Port user is connected from     */
        THREAD    thread;      /* Thread owner                    */
        struct    pcap_file pcap_file;  /* Pcap file for ALL protocols */

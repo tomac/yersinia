@@ -64,96 +64,141 @@
 void
 protocol_init(void)
 {
+    memset( (void *)protocols, 0, sizeof( protocols ) );
+
     protocol_register_all();
 }
 
 
-int8_t
-protocol_register(u_int8_t proto, const char *name, const char *desc,
-      const char *name_comm, u_int16_t size, init_attribs_t init,
-      learn_packet_t learn, get_printable_packet_t packet,
-      get_printable_store_t store, 
-      load_values_t load,
-      struct _attack_definition *attacks, 
-      update_field_t update_field, 
-      struct proto_features *features, 
-      struct commands_param *param, 
-      u_int8_t nparams, 
-      struct commands_param_extra *extra_parameters, 
-      u_int8_t extra_nparams, get_extra_field_t extra,
-      init_commands_struct_t init_commands, 
-      u_int8_t visible, 
-      end_t end)
+void protocol_free_stats( uint8_t proto )
 {
-   u_int8_t i;
+    u_int8_t i;
 
-   if (proto > MAX_PROTOCOLS)
-      return -1;
+    for ( i = 0; i < MAX_PACKET_STATS; i++ ) 
+    {
+        if ( protocols[ proto ].stats[ i ].header )
+        {
+            free( protocols[ proto ].stats[ i ].header );
+            protocols[ proto ].stats[ i ].header = NULL ;
+        }
 
-   protocols[proto].proto = proto;
-   strncpy(protocols[proto].namep, name, MAX_PROTO_NAME);
-   strncpy(protocols[proto].description, desc, MAX_PROTO_DESCRIPTION);
-   strncpy(protocols[proto].name_comm, name_comm, MAX_PROTO_NAME);
-   protocols[proto].size = size;
-   protocols[proto].active = 1;      /* default is active */
-   protocols[proto].visible = visible;  
-   protocols[proto].init_attribs = init;
-   protocols[proto].learn_packet = learn;
-   protocols[proto].get_printable_packet = packet;
-   protocols[proto].get_printable_store = store;
-   protocols[proto].load_values = load;
-   protocols[proto].attack_def_list = attacks;
-   protocols[proto].update_field = update_field;
-   protocols[proto].features = features;
-   protocols[proto].parameters = param;
-   protocols[proto].nparams = nparams;
-   protocols[proto].extra_parameters = extra_parameters;
-   protocols[proto].extra_nparams = extra_nparams;
-   protocols[proto].get_extra_field = extra;
-   protocols[proto].init_commands_struct = init_commands;
-   protocols[proto].end = end;
-
-   for (i = 0; i < MAX_PACKET_STATS; i++) {
-      if ((protocols[proto].stats[i].header = (struct pcap_pkthdr *) calloc(1, sizeof(struct pcap_pkthdr))) == NULL)
-         return -1;
-
-      if ((protocols[proto].stats[i].packet = (u_char *) calloc(1, SNAPLEN)) == NULL)
-         return -1;
-   }
-
-   protocols[proto].packets = 0;
-   protocols[proto].packets_out = 0;
-
-   /* Default values */
-   if ((protocols[proto].default_values = calloc(1, size)) == NULL)
-      return -1;
-      
-#ifdef HAVE_REMOTE_ADMIN
-   /* Sorted CLI parameters...*/
-   protocols[proto].params_sort = (u_int8_t *)calloc(1,nparams);
-
-   if (protocols[proto].params_sort == NULL)
-      return -1;
-
-   for(i=0; i < nparams; i++)
-     protocols[proto].params_sort[i] = i;
-      
-   protocol_sort_params(proto,protocols[proto].params_sort,nparams);
-#endif
-
-   return 0;
+        if ( protocols[ proto ].stats[ i ].packet )
+        {
+            free( protocols[ proto ].stats[ i ].packet );
+            protocols[ proto ].stats[ i ].packet = NULL ;
+        }
+    }
 }
 
 
+int8_t protocol_register( u_int8_t proto, const char *name, const char *desc,
+                          const char *name_comm, u_int16_t size, init_attribs_t init,
+                          learn_packet_t learn, get_printable_packet_t packet,
+                          get_printable_store_t store,
+                          load_values_t load,
+                          struct _attack_definition *attacks,
+                          update_field_t update_field,
+                          struct proto_features *features,
+                          struct commands_param *param,
+                          u_int8_t nparams,
+                          struct commands_param_extra *extra_parameters,
+                          u_int8_t extra_nparams, get_extra_field_t extra,
+                          init_commands_struct_t init_commands,
+                          u_int8_t visible,
+                          end_t end )
+{
+    u_int8_t i;
 
+    if ( proto >= MAX_PROTOCOLS )
+        return -1;
 
+    protocols[proto].proto = proto;
+
+    strncpy( protocols[proto].namep, name, MAX_PROTO_NAME );
+    protocols[proto].namep[ MAX_PROTO_NAME ] = 0 ;
+
+    strncpy( protocols[proto].description, desc, MAX_PROTO_DESCRIPTION );
+    protocols[proto].description[ MAX_PROTO_DESCRIPTION ] = 0 ;
+
+    strncpy( protocols[proto].name_comm, name_comm, MAX_PROTO_NAME );
+    protocols[proto].name_comm[ MAX_PROTO_NAME ] = 0 ;
+
+    protocols[proto].size         = size;
+    protocols[proto].active       = 1;      /* default is active */
+    protocols[proto].visible      = visible;
+    protocols[proto].init_attribs = init;
+    protocols[proto].learn_packet = learn;
+    protocols[proto].get_printable_packet = packet;
+    protocols[proto].get_printable_store  = store;
+    protocols[proto].load_values      = load;
+    protocols[proto].attack_def_list  = attacks;
+    protocols[proto].update_field     = update_field;
+    protocols[proto].features         = features;
+    protocols[proto].parameters       = param;
+    protocols[proto].nparams          = nparams;
+    protocols[proto].extra_parameters = extra_parameters;
+    protocols[proto].extra_nparams    = extra_nparams;
+    protocols[proto].get_extra_field  = extra;
+    protocols[proto].init_commands_struct = init_commands;
+    protocols[proto].end = end;
+
+    for ( i = 0; i < MAX_PACKET_STATS; i++ )
+    {
+        protocols[proto].stats[i].header = (struct pcap_pkthdr *)calloc( 1, sizeof( struct pcap_pkthdr ) );
+
+        if ( protocols[proto].stats[i].header == NULL )
+        {
+            protocol_free_stats( proto );
+            return -1 ;
+        }
+
+        protocols[proto].stats[i].packet = (u_char *)calloc( 1, SNAPLEN );
+
+        if ( protocols[proto].stats[i].packet == NULL )
+        {
+            protocol_free_stats( proto );
+            return -1;
+        }
+    }
+
+    protocols[proto].packets     = 0;
+    protocols[proto].packets_out = 0;
+
+    protocols[proto].default_values = calloc( 1, size );
+
+    if ( protocols[proto].default_values == NULL )
+    {
+        protocol_free_stats( proto );
+        return -1;
+    }
+      
+#ifdef HAVE_REMOTE_ADMIN
+    /* Sorted CLI parameters...*/
+    protocols[proto].params_sort = (u_int8_t *)calloc( 1,nparams );
+
+    if ( protocols[proto].params_sort == NULL )
+    {
+        free( protocols[proto].default_values );
+        protocols[proto].default_values = NULL ;
+        protocol_free_stats( proto );
+        return -1;
+    }
+
+    for( i=0; i < nparams; i++ )
+        protocols[proto].params_sort[i] = i;
+      
+    protocol_sort_params( proto, protocols[proto].params_sort, nparams );
+#endif
+
+    return 0;
+}
 
 
 int8_t
 protocol_register_tlv(u_int8_t proto, edit_tlv_t edit_tlv, const struct tuple_type_desc *ttd, 
       struct attack_param *tlv, u_int16_t params)
 {
-   if (proto > MAX_PROTOCOLS)
+   if (proto >= MAX_PROTOCOLS)
       return -1;
 
    protocols[proto].edit_tlv = edit_tlv;
@@ -182,28 +227,23 @@ protocol_register_all(void)
 }
 
 
-void
-protocol_destroy(void)
+void protocol_destroy( void )
 {
-   int8_t i, j;
+    int8_t i ;
 
-   for (i = 0; i < MAX_PROTOCOLS; i++)
-   {
-      for (j = 0; j < MAX_PACKET_STATS; j++) 
-      {
-         if (protocols[i].stats[j].header)
-            free(protocols[i].stats[j].header);
-         if (protocols[i].stats[j].packet)
-            free(protocols[i].stats[j].packet);
-      }
-      if (protocols[i].default_values)
-         free(protocols[i].default_values);
+    for ( i = 0; i < MAX_PROTOCOLS; i++ )
+    {
+        protocol_free_stats( i );
+
+        if ( protocols[i].default_values )
+            free( protocols[i].default_values );
+
 #ifdef HAVE_REMOTE_ADMIN
        /* Ordered CLI parameters...*/
-      if (protocols[i].params_sort)
-         free(protocols[i].params_sort);
+        if ( protocols[i].params_sort )
+            free( protocols[i].params_sort );
 #endif
-   }
+    }
 }
 
 
@@ -263,15 +303,6 @@ protocol_proto2index(char *name)
    return -1;
 }
 
-int8_t
-protocol_extra_compare(void *data, void *pattern)
-{
-   struct commands_param_extra *extra;
-
-   extra = (struct commands_param_extra *) data;
-   write_log(0, "comparando %ld con %ld\n", extra->id, (*(u_int32_t *)pattern));
-   return(memcmp(&extra->id, pattern, 4));
-}
 
 #ifdef HAVE_REMOTE_ADMIN
 /*
