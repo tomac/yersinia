@@ -45,7 +45,8 @@ typedef struct {
 
 #define PTHREAD_JOIN(x) (pthread_mutex_lock(&(x)->finished))
 
-int8_t  thread_create(pthread_t *, void *, void *);
+//int8_t  thread_create(pthread_t *, void *, void *);
+int8_t  thread_create( THREAD *, void *, void *);
 int8_t  thread_destroy_cancel(pthread_t);
 int8_t  thread_destroy(THREAD *);
 void    thread_error(char *, int8_t);

@@ -113,7 +113,7 @@ struct  interface_data *interfaces_get_struct(char *);
 int8_t  interfaces_disable(char *);
 int8_t  interfaces_init_pcap(char *);
 int8_t  interfaces_init_libnet(char *);
-void   *interfaces_th_pcap_listen(void *);
+void    interfaces_th_pcap_listen(void *);
 void    interfaces_th_pcap_listen_exit(THREAD *);
 void    interfaces_th_pcap_listen_clean(void *);
 struct  interface_data *interfaces_get_packet(list_t *, struct interface_data *, u_int8_t *stop, struct pcap_pkthdr *, u_int8_t *, u_int16_t, time_t);

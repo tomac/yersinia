@@ -79,9 +79,7 @@
 
 
 /* Launch choosed attack... */
-int8_t
-attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack, 
-              struct attack_param *attack_params, u_int8_t nparams)
+int8_t attack_launch( struct term_node *node, u_int16_t proto, u_int16_t attack, struct attack_param *attack_params, u_int8_t nparams )
 {
     u_int16_t i = 0;
     dlist_t *p;
@@ -91,6 +89,7 @@ attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack,
     {
         if (node->protocol[proto].attacks[i].up == 0) 
         {
+
             node->protocol[proto].attacks[i].up = 1;
             node->protocol[proto].attacks[i].mac_spoofing = node->mac_spoofing;
             node->protocol[proto].attacks[i].attack  = attack;
@@ -98,52 +97,51 @@ attack_launch(struct term_node *node, u_int16_t proto, u_int16_t attack,
             node->protocol[proto].attacks[i].nparams = nparams;
             /* FIXME: temporal hasta ponerlo bien, pillamos para el ataque las interfaces del usuario */
             node->protocol[proto].attacks[i].used_ints = (list_t *) calloc(1, sizeof(list_t));
-            for (p = node->used_ints->list; p; p = dlist_next(node->used_ints->list, p)) {
-               value1 = dlist_data(p);
-               value2 = (void *) calloc(1, sizeof(struct interface_data));
-               memcpy((void *)value2, (void *)value1, sizeof(struct interface_data));
-               node->protocol[proto].attacks[i].used_ints->list = 
-                        dlist_append(node->protocol[proto].attacks[i].used_ints->list, value2); 
+            for (p = node->used_ints->list; p; p = dlist_next(node->used_ints->list, p)) 
+            {
+
+                value1 = dlist_data(p);
+                value2 = (void *) calloc(1, sizeof(struct interface_data));
+                memcpy((void *)value2, (void *)value1, sizeof(struct interface_data));
+                node->protocol[proto].attacks[i].used_ints->list = dlist_append(node->protocol[proto].attacks[i].used_ints->list, value2);
             }
             node->protocol[proto].attacks[i].used_ints->cmp = interfaces_compare;
 
             if ((node->protocol[proto].attacks[i].data = calloc(1, protocols[proto].size )) == NULL)
             {
-                thread_error("attack_launch calloc",errno);
-                node->protocol[proto].attacks[i].params  = NULL;
-                node->protocol[proto].attacks[i].nparams = 0;
-                node->protocol[proto].attacks[i].up = 0;
-                return -1;
+                 thread_error("attack_launch calloc",errno);
+                 node->protocol[proto].attacks[i].params  = NULL;
+                 node->protocol[proto].attacks[i].nparams = 0;
+                 node->protocol[proto].attacks[i].up = 0;
+                 return -1;
             }
-            memcpy(node->protocol[proto].attacks[i].data, 
-                   node->protocol[proto].tmp_data, protocols[proto].size );
+            memcpy(node->protocol[proto].attacks[i].data, node->protocol[proto].tmp_data, protocols[proto].size );
 
-            if (pthread_mutex_init(&node->protocol[proto].attacks[i].attack_th.finished, NULL) != 0)
+            /* FRED if (pthread_mutex_init(&node->protocol[proto].attacks[i].attack_th.finished, NULL) != 0)
             {
-               thread_error("attack_launch pthread_mutex_init mutex", errno);
-               free(node->protocol[proto].attacks[i].data);
-               return -1;
+                 thread_error("attack_launch pthread_mutex_init mutex", errno);
+                 free(node->protocol[proto].attacks[i].data);
+                 return -1;
             }
 
             if (pthread_mutex_init(&node->protocol[proto].attacks[i].helper_th.finished, NULL) != 0)
             {
-               thread_error("attack_launch pthread_mutex_init mutex", errno);
-               free(node->protocol[proto].attacks[i].data);
-               return -1;
-            }
+                 thread_error("attack_launch pthread_mutex_init mutex", errno);
+                 free(node->protocol[proto].attacks[i].data);
+                 return -1;
+            }*/
 
-            if (thread_create(&node->protocol[proto].attacks[i].attack_th.id, 
-                             (*protocols[proto].attack_def_list[attack].attack_th_launch), 
-                             &node->protocol[proto].attacks[i]) < 0)
+            if ( thread_create( &node->protocol[proto].attacks[i].attack_th, //&node->protocol[proto].attacks[i].attack_th.id, 
+                                (*protocols[proto].attack_def_list[attack].attack_th_launch), 
+                                &node->protocol[proto].attacks[i]) < 0)
             {
-                free(node->protocol[proto].attacks[i].data);
-                node->protocol[proto].attacks[i].params  = NULL;
-                node->protocol[proto].attacks[i].nparams = 0;
-                node->protocol[proto].attacks[i].up      = 0;
-                return -1;
+                 free(node->protocol[proto].attacks[i].data);
+                 node->protocol[proto].attacks[i].params  = NULL;
+                 node->protocol[proto].attacks[i].nparams = 0;
+                 node->protocol[proto].attacks[i].up      = 0;
+                 return -1;
             }
-            write_log(0, " attack_launch: %X Attack thread %X is born!!\n", (int)pthread_self(),
-            (u_long) node->protocol[proto].attacks[i].attack_th.id);
+            write_log(0, " attack_launch: %X Attack thread %X is born!!\n", (int)pthread_self(), (u_long) node->protocol[proto].attacks[i].attack_th.id);
             return 0;
         }
         i++;
@@ -204,33 +202,30 @@ int8_t attack_kill_index( struct term_node *node, uint8_t proto_arg, uint8_t att
     return 0 ;
 }
 
-int8_t 
-attack_th_exit(struct attacks *attacks)
+int8_t attack_th_exit(struct attacks *attacks)
 {
     write_log(0," attack_th_exit -> attack_th.stop=%d   attack_th.id=%X....\n",attacks->attack_th.stop, attacks->attack_th.id);
 
     if (attacks->attack_th.stop == 0)
-       attacks->attack_th.id = 0;
+        attacks->attack_th.id = 0;
     else
-       attacks->attack_th.stop = 0;
+        attacks->attack_th.stop = 0;
 
     if (attacks->helper_th.id) 
     {
-       write_log(0," attack_th_exit: %X thread_destroy helper %X...\n", (int)pthread_self(), (int)attacks->helper_th.id);    
-       thread_destroy(&attacks->helper_th);
+        write_log(0," attack_th_exit: %X thread_destroy helper %X...\n", (int)pthread_self(), (int)attacks->helper_th.id);    
+        thread_destroy(&attacks->helper_th);
     }    
 
     pthread_mutex_destroy(&attacks->helper_th.finished);
 
     if (attacks->data)
-    {
         free(attacks->data);
-    }
     
     if (attacks->params)
     {
-       attack_free_params(attacks->params, attacks->nparams);
-       free(attacks->params);
+        attack_free_params(attacks->params, attacks->nparams);
+        free(attacks->params);
     }
     
     attacks->data   = NULL;
@@ -240,7 +235,7 @@ attack_th_exit(struct attacks *attacks)
     dlist_delete(attacks->used_ints->list);
 
     if (attacks->used_ints)
-       free(attacks->used_ints);
+        free(attacks->used_ints);
 
     write_log(0, " attack_th_exit: %X finished\n", (int) pthread_self());
     

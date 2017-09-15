@@ -86,7 +86,7 @@ extern void write_log( u_int16_t mode, char *msg, ...);
 
 /*
  * Create a thread
- */
+ *
 int8_t
 thread_create(pthread_t *thread_id, void *thread_body , void *arg)
 {
@@ -98,6 +98,24 @@ thread_create(pthread_t *thread_id, void *thread_body , void *arg)
    
    return 0;
 }
+*/
+
+int8_t thread_create( THREAD *thread, void *thread_body, void *arg )
+{
+    if ( ! pthread_mutex_init( &thread->finished, NULL ) )
+    {
+        if ( ! pthread_create( &thread->id, NULL, thread_body, arg ) )
+            return 0;
+        
+        thread_error( "thread_create pthread_create", errno );
+
+        pthread_mutex_destroy( &thread->finished );
+    }
+    else
+        thread_error( "thread_create pthread_mutex_init", errno );
+
+    return -1 ;
+}
 
 
 /*
@@ -107,9 +125,7 @@ int8_t thread_destroy( THREAD *thread )
 {
     int8_t ret = 0 ;
 
-    pthread_t id = thread->id;
-
-    write_log(0,"\n thread_destroy %X destroying %X...\n",(int)pthread_self(), (int)id);
+    write_log(0,"\n thread_destroy %X destroying %X...\n",(int)pthread_self(), (int)thread->id);
 
     thread->stop = 1;
 
@@ -127,7 +143,7 @@ int8_t thread_destroy( THREAD *thread )
         ret = -1;
     }
 
-    write_log(0," thread_destroy %X after PTHREAD_JOIN %X...\n", (int)pthread_self(), (int)id);
+    write_log(0," thread_destroy %X after PTHREAD_JOIN %X...\n", (int)pthread_self(), (int)thread->id );
 
     thread->stop = 0;
     thread->id   = 0;

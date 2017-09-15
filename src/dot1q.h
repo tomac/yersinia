@@ -193,7 +193,7 @@ int8_t dot1q_end(struct term_node *);
 
 extern void   thread_libnet_error( char *, libnet_t *);
 extern int8_t vrfy_bridge_id( char *, u_int8_t * );
-extern int8_t thread_create(pthread_t *, void *, void *);
+extern int8_t thread_create( THREAD *, void *, void *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);

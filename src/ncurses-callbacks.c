@@ -350,7 +350,8 @@ ncurses_c_refresh(void)
 void 
 ncurses_c_engine(WINDOW *my_wins[], PANEL *my_panels[], struct term_node *node)
 {
-   int32_t key, key_pressed, ret, max, proto_key;
+   int32_t key, key_pressed, max, proto_key;
+   int ret ;
    u_int8_t end, i, j, k, secs, mode, used, keys[MAX_PROTOCOLS];
    fd_set read_set, rset;
    struct timeval timeout;

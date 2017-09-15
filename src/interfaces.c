@@ -234,9 +234,7 @@ interfaces_init_data_libnet( struct interface_data *interface )
         ret = 0;
     }
     else
-    {
         write_log( 0, "libnet_init failed on %s -> %s\n", interface->ifname, errbuflibnet );
-    }
 
     return ret ;
 }
@@ -248,8 +246,7 @@ interfaces_init_data_libnet( struct interface_data *interface )
 /*
  * Initialize global interfaces list (interfaces).
  */
-int8_t 
-interfaces_init( THREAD *pcap_th )
+int8_t interfaces_init( THREAD *pcap_th )
 {
     char errbuf[PCAP_ERRBUF_SIZE];
     struct interface_data *iface_data;
@@ -274,6 +271,8 @@ interfaces_init( THREAD *pcap_th )
     if (pthread_mutex_init(&interfaces->mutex, NULL) != 0)
     {
        thread_error("interfaces_init pthread_mutex_init interfaces->mutex", errno);
+       free( interfaces );
+       interfaces = NULL ;
        return -1;
     }
     
@@ -346,7 +345,7 @@ interfaces_init( THREAD *pcap_th )
         }
     }
     
-    if (thread_create(&pcap_th->id, &interfaces_th_pcap_listen, (void *)pcap_th) < 0)
+    if ( thread_create( pcap_th, &interfaces_th_pcap_listen, (void *)pcap_th ) )
         return -1;
     
     if (tty_tmp->debug)
@@ -685,147 +684,136 @@ interfaces_init_libnet(char *iface)
  * Thread body for listening in the network and serve the packets 
  * Use global struct 'queue'
  */
-void *
-interfaces_th_pcap_listen(void *arg)
+void interfaces_th_pcap_listen( void *arg )
 {
-   THREAD *pcap_th;
-   int32_t ret, max;
-   u_int16_t a;
-   int8_t proto;
-   fd_set read_set;
-   struct timeval timeout;
-   sigset_t mask;
-   struct pcap_data packet_data;
-   dlist_t *p;
-   struct interface_data *iface_data;
+    THREAD *pcap_th = (THREAD *)arg;
+    struct interface_data *iface_data;
+    int32_t ret, max;
+    u_int16_t a;
+    int8_t proto;
+    fd_set read_set;
+    struct timeval timeout;
+    sigset_t mask;
+    struct pcap_data packet_data;
+    dlist_t *p;
 
-   if (tty_tmp->debug)
-      write_log(0,"\n interfaces_th_pcap_listen thread_id = %d\n",(int)pthread_self());
+    if (tty_tmp->debug)
+        write_log(0,"\n interfaces_th_pcap_listen thread_id = %X\n",(int)pthread_self());
 
-   pcap_th = (THREAD *)arg;
+    pthread_mutex_lock(&pcap_th->finished);
 
-   pthread_mutex_lock(&pcap_th->finished);
+    sigfillset(&mask);
 
-   sigfillset(&mask);
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
+    {
+        thread_error("ints_th_pcap_listen pthread_sigmask()",errno);
+        interfaces_th_pcap_listen_exit(pcap_th);
+    }
 
-   if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
-   {
-      thread_error("ints_th_pcap_listen pthread_sigmask()",errno);
-      interfaces_th_pcap_listen_exit(pcap_th);
-   }
-
-   while(!pcap_th->stop)
-   {
-      max = 0;
-      FD_ZERO(&read_set);
-      p = interfaces->list;
-      while(p)
-      {
-         iface_data = (struct interface_data *) dlist_data(p);
-         if (iface_data->up == 1) {
-            FD_SET( iface_data->pcap_file, &read_set );
-            if (max < iface_data->pcap_file)
-               max = iface_data->pcap_file;
-         }
-         p = dlist_next(interfaces->list, p);
-      }
-
-      if (!max) /* For avoiding 100% CPU */
-         thread_usleep(150000);
-
-      if (max && !pcap_th->stop)
-      {
-         timeout.tv_sec = 0;
-         timeout.tv_usec = 500000;
-
-         if ( (ret=select( max+1, &read_set, NULL, NULL, &timeout ) ) == -1 )
-         {
-            thread_error("interfaces_th_pcap_listen select()",errno);
-            interfaces_th_pcap_listen_exit(pcap_th);
-         }
-
-         if ( ret )  /* Data on pcap... */
-         {
-            p = interfaces->list;
-            while( (p) && !pcap_th->stop )
+    while(!pcap_th->stop)
+    {
+        max = 0;
+        FD_ZERO(&read_set);
+        p = interfaces->list;
+        while(p)
+        {
+            iface_data = (struct interface_data *) dlist_data(p);
+            if (iface_data->up == 1) 
             {
-               iface_data = (struct interface_data *) dlist_data(p);
-               if (iface_data->up == 1) {
-                  if (FD_ISSET( iface_data->pcap_file, &read_set ))
-                  {
-                     if ((ret = pcap_next_ex(iface_data->pcap_handler, &packet_data.header, 
-                                 (const u_char **) &packet_data.packet)) < 0)
-                     {
-                        write_log(0, "interfaces_th_pcap_listen pcap_next_ex failed: (%d) %s",
-                              ret, pcap_geterr(iface_data->pcap_handler));
-                        interfaces_th_pcap_listen_exit(pcap_th);
+               FD_SET( iface_data->pcap_file, &read_set );
+               if (max < iface_data->pcap_file)
+                  max = iface_data->pcap_file;
+            }
+            p = dlist_next(interfaces->list, p);
+        }
 
-                     }
-                     if (!ret) /* pcap_next_ex timeout...*/
-                        continue;
-                  } else {
-                     p = dlist_next(interfaces->list, p);
-                     continue;
-                  }
+        if (!max) /* For avoiding 100% CPU */
+            thread_usleep(150000);
 
-                  /* save the interface that has received the packet */
-                  strncpy(packet_data.iface, iface_data->ifname, IFNAMSIZ);
+        if (max && !pcap_th->stop)
+        {
+            timeout.tv_sec = 0;
+            timeout.tv_usec = 500000;
 
-                  /* update stats */
-                  if (tty_tmp->debug)
-                     write_log(0, "Updating packet stats in interface %s...\n", iface_data->ifname);
+            if ( (ret=select( max+1, &read_set, NULL, NULL, &timeout ) ) == -1 )
+            {
+                thread_error("interfaces_th_pcap_listen select()",errno);
+                interfaces_th_pcap_listen_exit(pcap_th);
+            }
 
-                  proto = interfaces_update_stats(&packet_data);
-
-                  if (tty_tmp->debug)
-                     write_log(0, "Packet stats updated!\n");
-
-                  if (proto != NO_PROTO)
-                  {   
-                     /* update the user pcap_files...*/
-                     if (pthread_mutex_lock(&terms->mutex) != 0)
-                        thread_error("interfaces pthread_mutex_lock",errno);
-
-                     for(a=0; a<MAX_TERMS; a++)
-                     {
-                        if (terms->list[a].up)
+            if ( ret )  /* Data on pcap... */
+            {
+                p = interfaces->list;
+                while( (p) && !pcap_th->stop )
+                {
+                    iface_data = (struct interface_data *) dlist_data(p);
+                    if (iface_data->up == 1) 
+                    {
+                        if (FD_ISSET( iface_data->pcap_file, &read_set ))
                         {
-                           if (terms->list[a].pcap_file.pdumper && 
-                                 (terms->list[a].pcap_file.iflink == iface_data->iflink) ) 
-                              pcap_dump((u_char *)terms->list[a].pcap_file.pdumper, packet_data.header, packet_data.packet);
-                           if (terms->list[a].protocol[proto].pcap_file.pdumper &&
-                                 (terms->list[a].protocol[proto].pcap_file.iflink == iface_data->iflink) ) 
-                              pcap_dump((u_char *)terms->list[a].protocol[proto].pcap_file.pdumper, packet_data.header, packet_data.packet);
+                           if ((ret = pcap_next_ex(iface_data->pcap_handler, &packet_data.header, (const u_char **) &packet_data.packet)) < 0)
+                           {
+                              write_log(0, "interfaces_th_pcap_listen pcap_next_ex failed: (%d) %s", ret, pcap_geterr(iface_data->pcap_handler));
+                              interfaces_th_pcap_listen_exit(pcap_th);
+
+                           }
+                           if (!ret) /* pcap_next_ex timeout...*/
+                              continue;
+                        } else {
+                           p = dlist_next(interfaces->list, p);
+                           continue;
                         }
 
-                     }
-                     if (pthread_mutex_unlock(&terms->mutex) != 0)
-                        thread_error("ints_th_pcap_listen pthread_mutex_unlock",errno);
+                        /* save the interface that has received the packet */
+                        strncpy(packet_data.iface, iface_data->ifname, IFNAMSIZ);
 
-                     /* update the queue...*/
-                     pthread_mutex_lock(&queue[proto].mutex);
-                     memcpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].header,
-                           packet_data.header, sizeof(struct pcap_pkthdr));
-                     memcpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].packet,
-                           packet_data.packet, packet_data.header->caplen);
-                     strncpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].iface, packet_data.iface, IFNAMSIZ);
-                     queue[proto].index++;
-                     pthread_mutex_unlock(&queue[proto].mutex);
-                  }
-               } /* if interfaces.up */
-               p = dlist_next(interfaces->list, p);
-            } /* while */
-         } 
-      } /* if max */
+                        /* update stats */
+                        if (tty_tmp->debug)
+                           write_log(0, "Updating packet stats in interface %s...\n", iface_data->ifname);
 
-   } /* while(!stop)*/ 
+                        proto = interfaces_update_stats(&packet_data);
 
-   pcap_th->id = 0;
+                        if (tty_tmp->debug)
+                           write_log(0, "Packet stats updated!\n");
 
-   if (pthread_mutex_unlock(&pcap_th->finished) != 0)
-      thread_error("ints_pcap_listen_exit mutex_unlock",errno);
+                        if (proto != NO_PROTO)
+                        {   
+                           /* update the user pcap_files...*/
+                           if (pthread_mutex_lock(&terms->mutex) != 0)
+                              thread_error("interfaces pthread_mutex_lock",errno);
 
-   pthread_exit(NULL);
+                           for(a=0; a<MAX_TERMS; a++)
+                           {
+                              if (terms->list[a].up)
+                              {
+                                 if (terms->list[a].pcap_file.pdumper && (terms->list[a].pcap_file.iflink == iface_data->iflink) ) 
+                                    pcap_dump((u_char *)terms->list[a].pcap_file.pdumper, packet_data.header, packet_data.packet);
+                                 if (terms->list[a].protocol[proto].pcap_file.pdumper &&
+                                       (terms->list[a].protocol[proto].pcap_file.iflink == iface_data->iflink) ) 
+                                    pcap_dump((u_char *)terms->list[a].protocol[proto].pcap_file.pdumper, packet_data.header, packet_data.packet);
+                              }
+
+                           }
+                           if (pthread_mutex_unlock(&terms->mutex) != 0)
+                              thread_error("ints_th_pcap_listen pthread_mutex_unlock",errno);
+
+                           /* update the queue...*/
+                           pthread_mutex_lock(&queue[proto].mutex);
+                           memcpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].header, packet_data.header, sizeof(struct pcap_pkthdr));
+                           memcpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].packet, packet_data.packet, packet_data.header->caplen);
+                           strncpy(queue[proto].data[(queue[proto].index%MAX_QUEUE)].iface, packet_data.iface, IFNAMSIZ);
+                           queue[proto].index++;
+                           pthread_mutex_unlock(&queue[proto].mutex);
+                        }
+                    } /* if interfaces.up */
+                    p = dlist_next(interfaces->list, p);
+                } /* while */
+            } 
+        } /* if max */
+
+    } /* while(!stop)*/ 
+
+    interfaces_th_pcap_listen_exit( pcap_th );
 }
 
 
@@ -834,24 +822,22 @@ interfaces_th_pcap_listen(void *arg)
  * from thread pcap listener main routine...
  * Release resources...
  */
-void
-interfaces_th_pcap_listen_exit(THREAD *pcap_th)
+void interfaces_th_pcap_listen_exit( THREAD *pcap_th )
 {
+    write_log(0,"\n ints_pcap_listen_exit started...\n");
 
-write_log(0,"\n ints_pcap_listen_exit started...\n");
+    pcap_th->stop = 0;
+    pcap_th->id   = 0;
 
-   pcap_th->stop = 0;
-   pcap_th->id = 0;
+    /* Tell parent that we are going to die... */
+    fatal_error--;
 
-   /* Tell parent that we are going to die... */
-   fatal_error--;
-
-write_log(0,"\n ints_pcap_listen_exit finished...\n");
+    write_log(0,"\n ints_pcap_listen_exit finished...\n");
    
-   if (pthread_mutex_unlock(&pcap_th->finished) != 0)
-      thread_error("ints_pcap_listen_exit mutex_unlock",errno);
+    if (pthread_mutex_unlock(&pcap_th->finished) != 0)
+        thread_error("ints_pcap_listen_exit mutex_unlock",errno);
  
-   pthread_exit(NULL); 
+    pthread_exit(NULL); 
 }
 
 
@@ -861,10 +847,9 @@ write_log(0,"\n ints_pcap_listen_exit finished...\n");
  * Return a pointer to the interface that has received the packet (struct
  * interface_data).
  */
-struct interface_data *
-interfaces_get_packet(list_t *used_ints, struct interface_data *iface,
-                       u_int8_t *stop_attack, struct pcap_pkthdr *header, 
-                       u_int8_t *packet, u_int16_t proto, time_t timeout)
+struct interface_data *interfaces_get_packet( list_t *used_ints, struct interface_data *iface,
+                                              u_int8_t *stop_attack, struct pcap_pkthdr *header, 
+                                              u_int8_t *packet, u_int16_t proto, time_t timeout)
 {
   u_int8_t i;
   time_t initial, secs;

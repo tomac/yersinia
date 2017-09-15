@@ -113,7 +113,7 @@ term_init(void)
       return -1;
    }
 #endif
-    
+/* FRED    
    if (pthread_mutex_init(&terms->pcap_listen_th.finished, NULL) != 0)
    {
       thread_error("term_init pthread_mutex_init mutex", errno);
@@ -147,7 +147,7 @@ term_init(void)
       thread_error("term_init pthread_mutex_init mutex", errno);
       return -1;
    }
-   
+*/   
    term_type[TERM_CON].list = terms->list;
    term_type[TERM_TTY].list = &terms->list[MAX_CON];
    term_type[TERM_VTY].list = &terms->list[MAX_CON+MAX_TTY];
