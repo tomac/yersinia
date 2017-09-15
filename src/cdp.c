@@ -356,40 +356,38 @@ cdp_th_flood_exit(struct attacks *attacks)
 }
 
 
-void
-cdp_th_virtual_device(void *arg)
+void cdp_th_virtual_device( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
 
     sigfillset(&mask);
 
-    if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
+    if ( pthread_sigmask(SIG_BLOCK, &mask, NULL))
     {
-       thread_error("cdp_th_virtual_device pthread_sigmask()",errno);
-       cdp_th_virtual_device_exit(attacks);    
+        thread_error("cdp_th_virtual_device pthread_sigmask()",errno);
+        cdp_th_virtual_device_exit(attacks);    
     }
 
-    thread_create(&attacks->helper_th.id, &cdp_send_hellos, attacks);
-
-    while (!attacks->attack_th.stop)
-       thread_usleep(200000);
+    if ( ! thread_create( &attacks->helper_th, &cdp_send_hellos, attacks ) )
+    {
+        while (!attacks->attack_th.stop)
+            thread_usleep(200000);
+    }
+    else
+        write_log( 0, "cdp_th_virtual_device thread_create error\n");
 
     cdp_th_virtual_device_exit(attacks);
 }
 
 
-void
-cdp_th_virtual_device_exit(struct attacks *attacks)
+void cdp_th_virtual_device_exit(struct attacks *attacks)
 {
-    if (attacks)
-        attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -397,17 +395,14 @@ cdp_th_virtual_device_exit(struct attacks *attacks)
 }
 
 
-void
-cdp_send_hellos(void *arg)
+void cdp_send_hellos( void *arg )
 {
-    u_int32_t ret;
-    u_int16_t secs;
+    struct attacks *attacks   = (struct attacks *)arg;
+    struct cdp_data *cdp_data = (struct cdp_data *)attacks->data;
     struct timeval hello;
-    struct attacks *attacks;
-    struct cdp_data *cdp_data;
+    u_int16_t secs = 0;
+    int ret;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->helper_th.finished);
 
     pthread_detach(pthread_self());
@@ -415,14 +410,11 @@ cdp_send_hellos(void *arg)
     hello.tv_sec  = 0;
     hello.tv_usec = 0;
 
-    cdp_data = attacks->data;
+    write_log(0,"\n cdp_helper: %X started...\n",(int)pthread_self());
 
-    secs = 0;
-    
-write_log(0,"\n cdp_helper: %d started...\n",(int)pthread_self());
     cdp_send(attacks);
         
-    while(!attacks->helper_th.stop)
+    while ( !attacks->helper_th.stop )
     {
         if ( (ret=select( 0, NULL, NULL, NULL, &hello ) ) == -1 ) {
             thread_error("Error in select", errno);
@@ -445,7 +437,7 @@ write_log(0,"\n cdp_helper: %d started...\n",(int)pthread_self());
         hello.tv_usec = 0;
     } 
 
-write_log(0," cdp_helper: %d finished...\n",(int)pthread_self());
+    write_log(0," cdp_helper: %X finished...\n",(int)pthread_self());
     
     pthread_mutex_unlock(&attacks->helper_th.finished);
     

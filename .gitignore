@@ -39,6 +39,8 @@ stamp-h1
 
 # yersinia binaries
 yersinia
+yersinia.log
+src/yersinia
 src/yersinia.log
 
 # Coverity builds

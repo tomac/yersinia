@@ -55,15 +55,15 @@ static struct proto_features arp_features[] = {
 };
 
 static struct _attack_definition arp_attack[] = {
-  { 0,  NULL,  0, 0, NULL, NULL, 0  }
+    { 0,  NULL,  0, 0, NULL, NULL, 0  }
 };
 
-void   arp_register(void);
+void arp_register(void);
 
 extern void   thread_libnet_error(char *, libnet_t *);
 extern int8_t vrfy_bridge_id(char *, u_int8_t * );
 extern int8_t parser_get_formated_inet_address(u_int32_t, char *, u_int16_t);
-extern int8_t thread_create(pthread_t *, void *, void *);
+extern int8_t thread_create( THREAD *, void *, void *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);

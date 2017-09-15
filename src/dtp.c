@@ -327,15 +327,12 @@ dtp_init_attribs(struct term_node *node)
 /* Child/Thread loop sending */
 /* DTP packets every 30 secs */
 /*****************************/
-void
-dtp_send_negotiate(void *arg)
+void dtp_send_negotiate( void *arg )
 {
-    int32_t ret;
-    u_int16_t secs;
+    struct attacks *attacks = (struct attacks *)arg;
     struct timeval hello;
-    struct attacks *attacks;
-
-    attacks = arg;
+    int ret;
+    int secs = 0;
 
     pthread_mutex_lock(&attacks->helper_th.finished);
     
@@ -344,30 +341,28 @@ dtp_send_negotiate(void *arg)
     hello.tv_sec  = 0;
     hello.tv_usec = 0;
 
-    secs = 0;
-    
-write_log(0,"\n dtp_helper: %X init...\n",(int)pthread_self());
+    write_log(0,"\n dtp_helper: %X init...\n",(int)pthread_self());
         
     while(!attacks->helper_th.stop)
     {
-        if ( (ret=select( 0, NULL, NULL, NULL, &hello ) ) == -1 )
+        if ( (ret = select( 0, NULL, NULL, NULL, &hello ) ) == -1 )
               break;
 
         if ( !ret )  /* Timeout... */
         {
             if (secs == 30) /* Send DTP negotiate...*/
             {
-               dtp_send(attacks);
-               secs=0;
+                dtp_send(attacks);
+                secs=0;
             }
             else
-               secs++;
+                secs++;
         }
         hello.tv_sec  = 1;
         hello.tv_usec = 0;
     } 
 
-write_log(0," dtp_helper: %X finished...\n",(int)pthread_self());
+    write_log(0," dtp_helper: %X finished...\n",(int)pthread_self());
 
     pthread_mutex_unlock(&attacks->helper_th.finished);
     
@@ -376,20 +371,17 @@ write_log(0," dtp_helper: %X finished...\n",(int)pthread_self());
 
 
 
-void 
-dtp_th_nondos_do_trunk(void *arg)
+void dtp_th_nondos_do_trunk( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct dtp_data *dtp_data, dtp_data_learned;
     struct pcap_pkthdr header;
     struct pcap_data pcap_aux;
     struct libnet_802_3_hdr *ether;
     struct timeval now;
-    u_int8_t *packet=NULL;
+    u_int8_t *packet;
     sigset_t mask;
     
-    attacks = arg;
-
     pthread_mutex_lock(&attacks->attack_th.finished);
     
     pthread_detach(pthread_self());
@@ -423,42 +415,51 @@ dtp_th_nondos_do_trunk(void *arg)
     dtp_data->type    = dtp_data_learned.type;
  ... to here. */
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( ! packet )
         dtp_th_nondos_do_trunk_exit(attacks);
-    
+
     dtp_send(attacks);  thread_usleep(999999);
     dtp_send(attacks);  thread_usleep(999999);
-    dtp_send(attacks);
-    
-    thread_create(&attacks->helper_th.id, &dtp_send_negotiate, attacks);
-    
-    while (!attacks->attack_th.stop)
+
+    if ( !attacks->attack_th.stop ) 
     {
-        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet,
-                               PROTO_DTP, NO_TIMEOUT);
-        if (attacks->attack_th.stop)
-           break;   
-           
-        ether = (struct libnet_802_3_hdr *) packet;
-        
-        if (!memcmp(dtp_data->mac_source,ether->_802_3_shost,6) )
-          continue; /* Oops!! Its our packet... */
-
-        pcap_aux.header = &header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (dtp_load_values(&pcap_aux, &dtp_data_learned) < 0)
-           continue;
-
-        switch( dtp_data_learned.status & 0xF0)
+        dtp_send(attacks);
+    
+        if ( ! thread_create( &attacks->helper_th, &dtp_send_negotiate, attacks ) )
         {
-             case DTP_TRUNK:
-                  dtp_data->status = (DTP_TRUNK | DTP_DESIRABLE);
-             break;
-             case DTP_ACCESS:
-                  dtp_data->status = (DTP_ACCESS | DTP_DESIRABLE);
-             break;
+            while ( ! attacks->attack_th.stop )
+            {
+                interfaces_get_packet( attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_DTP, NO_TIMEOUT );
+
+                if ( ! attacks->attack_th.stop )
+                {
+                    ether = (struct libnet_802_3_hdr *) packet;
+                    
+                    if (!memcmp(dtp_data->mac_source,ether->_802_3_shost,6) )
+                        continue; /* Oops!! Its our packet... */
+
+                    pcap_aux.header = &header;
+                    pcap_aux.packet = packet;
+                                                                                                      
+                    if ( dtp_load_values( &pcap_aux, &dtp_data_learned ) < 0)
+                        continue;
+
+                    switch( dtp_data_learned.status & 0xF0 )
+                    {
+                        case DTP_TRUNK:
+                            dtp_data->status = (DTP_TRUNK | DTP_DESIRABLE);
+                        break;
+                        case DTP_ACCESS:
+                            dtp_data->status = (DTP_ACCESS | DTP_DESIRABLE);
+                        break;
+                    }
+                }
+            }
         }
+        else
+            write_log( 0, "dtp_th_nondos_do_trunk thread_create error\n" );
     }
 
     free(packet);
@@ -467,11 +468,9 @@ dtp_th_nondos_do_trunk(void *arg)
 }
 
 
-void
-dtp_th_nondos_do_trunk_exit(struct attacks *attacks)
+void dtp_th_nondos_do_trunk_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -479,51 +478,53 @@ dtp_th_nondos_do_trunk_exit(struct attacks *attacks)
 }
 
 
-int8_t
-dtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
+int8_t dtp_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header )
 {
-    struct dtp_data *dtp_data;
+    struct dtp_data *dtp_data = (struct dtp_data *)data;
+    struct interface_data *iface_data = NULL ;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_dtp_packet = 0;
     dlist_t *p;
-    struct interface_data *iface_data;
+    int8_t ret = -1 ;
     
-    dtp_data = (struct dtp_data *)data;
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
-
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-
-       iface_data = (struct interface_data *) dlist_data(p);
-    } else {
-       iface_data = NULL;
-    }
-    
-    while (!got_dtp_packet && !(*stop))
+    if ( packet )
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_DTP, NO_TIMEOUT);
-           
-        if (*stop)
+        if ( iface) 
         {
-            free(packet);
-            return -1;
+            p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
+
+            if ( !p )
+            {
+                free( packet );
+                return -1;
+            }
+
+            iface_data = (struct interface_data *) dlist_data(p);
+        } 
+        
+        while ( !got_dtp_packet && !(*stop) )
+        {
+            interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_DTP, NO_TIMEOUT );
+               
+            if ( !(*stop) )
+            {
+                pcap_aux.header = header;
+                pcap_aux.packet = packet;
+                                                                                              
+                if ( !dtp_load_values( (struct pcap_data *)&pcap_aux, dtp_data ) )
+                {
+                    ret = 0 ;
+                    got_dtp_packet = 1;
+                }
+            }
         }
 
-        pcap_aux.header = header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (!dtp_load_values((struct pcap_data *)&pcap_aux, dtp_data))
-           got_dtp_packet = 1;
-        
-    } /* While got */
+        free(packet);
+    }
 
-    free(packet);
-
-    return 0;
+    return ret ;
 }
 
 
@@ -531,8 +532,7 @@ dtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *dat
 /* 
  * Return formated strings of each DTP field
  */
-char **
-dtp_get_printable_packet(struct pcap_data *data)
+char **dtp_get_printable_packet( struct pcap_data *data )
 {
     struct libnet_802_3_hdr *ether;
     u_int8_t *dtp_data, *ptr, *tlv_data; /*, *aux;*/
@@ -583,8 +583,10 @@ dtp_get_printable_packet(struct pcap_data *data)
 #endif
 
         if ( (ptr+tlv_len) > (data->packet + data->header->caplen))
-        { write_log(0,"DTP Oversized packet!!\n");
-           return NULL; /* Oversized packet!! */
+        { 
+            write_log(0,"DTP Oversized packet!!\n");
+            free( field_values );
+            return NULL; /* Oversized packet!! */
         }
 
         if (!tlv_len) {

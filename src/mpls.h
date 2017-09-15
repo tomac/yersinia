@@ -29,8 +29,8 @@
 #include "interfaces.h"
 
 static struct proto_features mpls_features[] = {
-     { F_ETHERTYPE, ETHERTYPE_MPLS },
-     { -1, 0 }
+    { F_ETHERTYPE, ETHERTYPE_MPLS },
+    { -1, 0 }
 };
 
 struct mpls_header {
@@ -178,7 +178,7 @@ char **mpls_get_printable_packet(struct pcap_data *data);
 
 extern void   thread_libnet_error( char *, libnet_t *);
 extern int8_t vrfy_bridge_id( char *, u_int8_t * );
-extern int8_t thread_create(pthread_t *, void *, void *);
+extern int8_t thread_create( THREAD *, void *, void *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);

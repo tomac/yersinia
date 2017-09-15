@@ -231,7 +231,7 @@ main( int argc, char **argv )
    }
 #endif 
 
-   if (thread_create(&terms->uptime_th.id, &th_uptime, (void *)NULL) < 0)
+   if ( thread_create( &terms->uptime_th, &th_uptime, (void *)NULL) )
       g00dbye();
 
    /* Command line and ncurses cannot be choosed simultaneously...*/
@@ -239,8 +239,8 @@ main( int argc, char **argv )
    {
       terms->work_state = INITIAL;
       tty_node = term_type[TERM_TTY].list;
-      if (thread_create(&tty_node[0].thread.id, &th_tty_peer, 
-               (void *)cl_args) < 0)
+
+      if ( thread_create( &tty_node[0].thread, &th_tty_peer, (void *)cl_args ) )
          g00dbye();
 
       while(terms->work_state != STOPPED)
@@ -251,7 +251,7 @@ main( int argc, char **argv )
    if (tty_tmp->interactive)
    {
       terms->work_state = INITIAL;
-      if (thread_create(&terms->gui_th.id, &ncurses_gui, NULL) < 0 )
+      if ( thread_create( &terms->gui_th, &ncurses_gui, NULL ) )
          g00dbye();
       /* Wait until the ncurses GUI is over */
       while(terms->work_state != STOPPED)
@@ -264,7 +264,7 @@ main( int argc, char **argv )
       if (tty_tmp->gtk)
       {
          terms->work_state = INITIAL;
-         if (thread_create(&terms->gui_gtk_th.id, &gtk_gui, NULL) < 0 )
+         if ( thread_create( &terms->gui_gtk_th, &gtk_gui, NULL ) )
             g00dbye();
          /* Wait until the GTK GUI is over */
          while(terms->work_state != STOPPED)

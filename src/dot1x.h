@@ -148,10 +148,10 @@ void dot1x_th_mitm_exit(struct attacks *);
 
 
 struct dot1x_mitm_ifaces {
-   struct interface_data *auth;
-   struct interface_data *supp;
-   u_int8_t mac_auth[ETHER_ADDR_LEN];
-   u_int8_t mac_supp[ETHER_ADDR_LEN];
+    struct interface_data *auth;
+    struct interface_data *supp;
+    u_int8_t mac_auth[ETHER_ADDR_LEN];
+    u_int8_t mac_supp[ETHER_ADDR_LEN];
 };
 
 #define DOT1X_MITM_IFACE_SUPP 0
@@ -188,7 +188,7 @@ int8_t dot1x_end(struct term_node *);
 
 extern void   thread_libnet_error( char *, libnet_t *);
 extern int8_t vrfy_bridge_id( char *, u_int8_t * );
-extern int8_t thread_create(pthread_t *, void *, void *);
+extern int8_t thread_create( THREAD *, void *, void *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);

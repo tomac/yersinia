@@ -122,7 +122,6 @@ static const struct tuple_type_desc isl_ip_proto[] = {
 #define ISL_IP_PROTO   13
 
 
-
 /* Struct needed for using protocol fields within the network client */
 struct commands_param isl_comm_params[] = {
     { ISL_SMAC, "source",    "Source MAC", 6, FIELD_MAC, "Set source MAC address", 
@@ -160,7 +159,6 @@ struct commands_param isl_comm_params[] = {
 };
 
 
-
 static struct _attack_definition isl_attack[] = {
     { 0, NULL, 0, 0, NULL, NULL, 0 }
 };
@@ -174,7 +172,7 @@ int8_t isl_end(struct term_node *);
 
 extern void   thread_libnet_error( char *, libnet_t *);
 extern int8_t vrfy_bridge_id( char *, u_int8_t * );
-extern int8_t thread_create(pthread_t *, void *, void *);
+extern int8_t thread_create( THREAD *, void *, void *);
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_th_exit(struct attacks *);
 extern void   attack_gen_mac(u_int8_t *);
