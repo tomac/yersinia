@@ -99,6 +99,43 @@ thread_create(pthread_t *thread_id, void *thread_body , void *arg)
    return 0;
 }
 
+
+/*
+ * Destroy a thread with polling...
+ */
+int8_t thread_destroy( THREAD *thread )
+{
+    int8_t ret = 0 ;
+
+    pthread_t id = thread->id;
+
+    write_log(0,"\n thread_destroy %X destroying %X...\n",(int)pthread_self(), (int)id);
+
+    thread->stop = 1;
+
+    if ( ! PTHREAD_JOIN( thread ) )
+    {
+        if ( pthread_mutex_unlock( &thread->finished ) )
+        {
+            thread_error( "thread_destroy pthread_mutex_unlock", errno );
+            ret = -1 ;
+        }
+    }
+    else 
+    {
+        thread_error(" thread_destroy PTHREAD_JOIN",errno);
+        ret = -1;
+    }
+
+    write_log(0," thread_destroy %X after PTHREAD_JOIN %X...\n", (int)pthread_self(), (int)id);
+
+    thread->stop = 0;
+    thread->id   = 0;
+
+    return ret;
+}
+
+
 /*
  * Destroy a thread with cancellation...
  */
@@ -116,35 +153,6 @@ thread_destroy_cancel(pthread_t thread_id)
       thread_error(" thread_destroy_cancel pthread_join",errno);
       return -1;
    }
-
-   return 0;
-}
-
-
-/*
- * Destroy a thread with polling...
- */
-int8_t
-thread_destroy(THREAD *thread)
-{
-   pthread_t id = thread->id;
-   
-   write_log(0,"\n thread_destroy %X destroying %X...\n",(int)pthread_self(),
-            (int)id);
-
-   thread->stop = 1;
-
-   if (PTHREAD_JOIN(thread) != 0) 
-   {
-      thread_error(" thread_destroy PTHREAD_JOIN",errno);
-      return -1;
-   }
-
-   write_log(0," thread_destroy %X after PTHREAD_JOIN %X...\n",
-            (int)pthread_self(), (int)id);
-
-   thread->stop = 0;
-   thread->id = 0;
 
    return 0;
 }
