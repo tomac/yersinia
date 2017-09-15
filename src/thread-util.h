@@ -38,9 +38,9 @@ struct condsem {
 };
 
 typedef struct {
-       pthread_t id;
-       u_int8_t  stop;
-       pthread_mutex_t finished;
+    pthread_t id;
+    u_int8_t  stop;
+    pthread_mutex_t finished;
 } THREAD;
 
 #define PTHREAD_JOIN(x) (pthread_mutex_lock(&(x)->finished))
