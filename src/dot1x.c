@@ -134,14 +134,11 @@ dot1x_init_comms_struct(struct term_node *node)
 
 
 
-void
-dot1x_th_send(void *arg)
+void dot1x_th_send( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -229,7 +226,7 @@ dot1x_send(struct attacks *attacks)
         }
     }
 
-write_log(0,"Antes envio payload=%p  psize=%d  dot1x_data->len=%d\n",payload,payload_size,dot1x_data->len);
+    write_log(0,"Antes envio payload=%p  psize=%d  dot1x_data->len=%d\n",payload,payload_size,dot1x_data->len);
     
     for (p = attacks->used_ints->list; p; p = dlist_next(attacks->used_ints->list, p)) 
     {
@@ -299,11 +296,9 @@ write_log(0,"Antes envio payload=%p  psize=%d  dot1x_data->len=%d\n",payload,pay
 
 
 
-void
-dot1x_th_send_exit(struct attacks *attacks)
+void dot1x_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -317,11 +312,10 @@ dot1x_th_send_exit(struct attacks *attacks)
  * to the supplicant device and the other attached
  * to the authenticator device.
  */
-void
-dot1x_th_mitm(void *arg)
+void dot1x_th_mitm( void *arg )
 {
-    struct attacks *attacks=NULL;
-    struct attack_param *param;
+    struct attacks *attacks = (struct attacks *)arg;
+    struct attack_param *param = (struct attack_param *)attacks->params;
     sigset_t mask;
     struct pcap_pkthdr header;
     struct libnet_802_3_hdr *ether;
@@ -331,8 +325,6 @@ dot1x_th_mitm(void *arg)
     dlist_t *p;
     u_int8_t *packet;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -344,8 +336,6 @@ dot1x_th_mitm(void *arg)
        thread_error("dot1x_th_mitm pthread_sigmask()",errno);
        dot1x_th_mitm_exit(attacks);
     }
-
-    param = attacks->params;
 
     p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, param[DOT1X_MITM_IFACE_AUTH].value);
     mitm_ifaces.auth = (struct interface_data *) dlist_data(p);
@@ -369,13 +359,11 @@ dot1x_th_mitm(void *arg)
     header.ts.tv_usec = now.tv_usec;
 
     if ((packet = calloc(1, SNAPLEN)) == NULL)
-            dot1x_th_mitm_exit(attacks);
+        dot1x_th_mitm_exit(attacks);
 
     /* Get Authenticator MAC address... */
     
-    interfaces_get_packet(attacks->used_ints, mitm_ifaces.auth, 
-                           &attacks->attack_th.stop, &header, packet,
-                           PROTO_DOT1X, NO_TIMEOUT);
+    interfaces_get_packet(attacks->used_ints, mitm_ifaces.auth, &attacks->attack_th.stop, &header, packet, PROTO_DOT1X, NO_TIMEOUT );
     if (attacks->attack_th.stop)
     {
         free(packet);
@@ -391,10 +379,7 @@ dot1x_th_mitm(void *arg)
     memcpy((void *)mitm_ifaces.mac_auth,(void *)ether->_802_3_shost,6);
 
     /* Get supplicant MAC address */
-
-    interfaces_get_packet(attacks->used_ints, mitm_ifaces.supp, 
-                           &attacks->attack_th.stop, &header, packet,
-                           PROTO_DOT1X, NO_TIMEOUT);
+    interfaces_get_packet( attacks->used_ints, mitm_ifaces.supp, &attacks->attack_th.stop, &header, packet, PROTO_DOT1X, NO_TIMEOUT );
     if (attacks->attack_th.stop)
     {
         free(packet);
@@ -409,9 +394,8 @@ dot1x_th_mitm(void *arg)
 
     memcpy((void *)mitm_ifaces.mac_supp,(void *)ether->_802_3_shost,6);
 
-
     /* Ok... Now start the funny bridging side... */
-    while(!attacks->attack_th.stop)
+    while( !attacks->attack_th.stop )
     {
         iface = interfaces_get_packet(attacks->used_ints, 
                                       NULL, 
@@ -431,9 +415,7 @@ dot1x_th_mitm(void *arg)
            if (!memcmp(mitm_ifaces.mac_supp,ether->_802_3_shost,6) )
               continue; /* Oops!! Its our packet... */
                               
-           dot1x_send_raw(mitm_ifaces.supp, (packet+LIBNET_802_3_H), (header.len-LIBNET_802_3_H),  
-                          mitm_ifaces.mac_auth, 
-                          mitm_ifaces.mac_supp);
+           dot1x_send_raw(mitm_ifaces.supp, (packet+LIBNET_802_3_H), (header.len-LIBNET_802_3_H), mitm_ifaces.mac_auth, mitm_ifaces.mac_supp);
            continue;
         }
         
@@ -443,9 +425,7 @@ dot1x_th_mitm(void *arg)
            if (!memcmp(mitm_ifaces.mac_auth,ether->_802_3_shost,6) )
               continue; /* Oops!! Its our packet... */
 
-           dot1x_send_raw(mitm_ifaces.auth, (packet+LIBNET_802_3_H), (header.len-LIBNET_802_3_H), 
-                          mitm_ifaces.mac_supp, 
-                          mitm_ifaces.mac_auth);
+           dot1x_send_raw(mitm_ifaces.auth, (packet+LIBNET_802_3_H), (header.len-LIBNET_802_3_H), mitm_ifaces.mac_supp, mitm_ifaces.mac_auth);
            continue;
         }
     } 
@@ -454,8 +434,6 @@ dot1x_th_mitm(void *arg)
     
     dot1x_th_mitm_exit(attacks);
 }
-
-
 
 
 int8_t
@@ -496,11 +474,9 @@ dot1x_send_raw(struct interface_data *iface, u_int8_t *payload, u_int16_t len,
 }
 
 
-void
-dot1x_th_mitm_exit(struct attacks *attacks)
+void dot1x_th_mitm_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -537,50 +513,50 @@ dot1x_init_attribs(struct term_node *node)
 }
 
 
-int8_t
-dot1x_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
+int8_t dot1x_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header )
 {
-    struct dot1x_data *dot1x_data;
+    struct dot1x_data *dot1x_data = (struct dot1x_data *)data;
+    struct interface_data *iface_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_802_1x_pkt = 0;
+    int8_t ret = -1 ;
     dlist_t *p;
-    struct interface_data *iface_data;
     
-    dot1x_data = data;
-
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
-
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-       iface_data = (struct interface_data *) dlist_data(p);
+    if ( iface ) 
+    {
+        p = dlist_search( attacks->used_ints->list, attacks->used_ints->cmp, iface );
+        if (!p)
+            return -1;
+        iface_data = (struct interface_data *) dlist_data(p);
     } 
     else
-       iface_data = NULL;
+        iface_data = NULL;
 
-    while (!got_802_1x_pkt && !(*stop))
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( packet )
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_DOT1X, NO_TIMEOUT);
-           
-        if (*stop)
+        while ( !got_802_1x_pkt && !(*stop) )
         {
-            free(packet);
-            return -1;
+            interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_DOT1X, NO_TIMEOUT );
+               
+            if ( !(*stop) )
+            {
+                pcap_aux.header = header;
+                pcap_aux.packet = packet;
+                                                                                              
+                if ( !dot1x_load_values( (struct pcap_data *)&pcap_aux, dot1x_data ) )
+                {
+                    got_802_1x_pkt = 1;
+                    ret = 0 ;
+                }
+            }
         }
 
-        pcap_aux.header = header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (!dot1x_load_values((struct pcap_data *)&pcap_aux, dot1x_data))
-           got_802_1x_pkt = 1;
-        
-    } /* While got */
+        free(packet);
+    }
 
-    free(packet);
-
-    return 0;
+    return ret ;
 }
 
 
@@ -722,7 +698,7 @@ dot1x_get_printable_packet(struct pcap_data *data)
         }
     }
 
-    return (char **)field_values;    
+    return field_values;    
 }
 
 
@@ -769,7 +745,7 @@ dot1x_get_printable_store(struct term_node *node)
 
     memcpy(field_values[DOT1X_EAP_INFO], dot1x_tmp->eap_info, MAX_EAP_INFO);
 
-    return (char **)field_values;
+    return field_values;
 }
 
 

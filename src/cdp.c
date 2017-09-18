@@ -228,14 +228,11 @@ cdp_send(struct attacks *attacks)
     return 0;
 }
 
-void
-cdp_th_send_raw(void *arg)
+void cdp_th_send_raw(void *arg)
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -254,11 +251,9 @@ cdp_th_send_raw(void *arg)
 }
 
     
-void
-cdp_th_send_raw_exit(struct attacks *attacks)
+void cdp_th_send_raw_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -268,14 +263,12 @@ cdp_th_send_raw_exit(struct attacks *attacks)
 void
 cdp_th_flood(void *arg)
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct cdp_data *cdp_data;
     u_int8_t device[8];
     sigset_t mask;
     u_int32_t aux_long, lbl32;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -344,11 +337,9 @@ cdp_th_flood(void *arg)
 }
 
 
-void
-cdp_th_flood_exit(struct attacks *attacks)
+void cdp_th_flood_exit( struct attacks *attacks )
 {
-    if (attacks)
-        attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -1027,11 +1018,10 @@ cdp_get_type_info(u_int16_t type)
 
 
 /* Take care: options in the store are stored in network byte order */
-int8_t
-cdp_load_values(struct pcap_data *data, void *values)
+int8_t cdp_load_values( struct pcap_data *data, void *values )
 {
     struct libnet_802_3_hdr *ether;
-    struct cdp_data *cdp;
+    struct cdp_data *cdp = (struct cdp_data *)values; ;
     struct commands_param_extra_item *newitem;
     u_char *cdp_data, *ptr;
 #ifdef LBL_ALIGN
@@ -1040,7 +1030,6 @@ cdp_load_values(struct pcap_data *data, void *values)
     u_int8_t i;
     u_int16_t type, len, total;
 
-    cdp = (struct cdp_data *)values;
     ether = (struct libnet_802_3_hdr *) data->packet;
     cdp_data = (u_char *) (data->packet + LIBNET_802_3_H + LIBNET_802_2SNAP_H);
 
@@ -1063,7 +1052,7 @@ cdp_load_values(struct pcap_data *data, void *values)
 #else
     cdp->checksum = ntohs(*(u_int16_t *)(cdp_data + 2));
 #endif
-*/
+    */
     ptr = cdp_data + 4;
     i = 0;
     total = 0;
@@ -1072,7 +1061,8 @@ cdp_load_values(struct pcap_data *data, void *values)
        dlist_delete(cdp->extra);
 
     /* now the tlv section starts */
-    while((ptr < data->packet + data->header->caplen) && (i < MAX_TLV) && (total < MAX_TLV*MAX_VALUE_LENGTH)) {
+    while((ptr < data->packet + data->header->caplen) && (i < MAX_TLV) && (total < MAX_TLV*MAX_VALUE_LENGTH)) 
+    {
         if ((ptr+4) > ( data->packet + data->header->caplen)) /* Undersized packet !! */
             return 0;
 #ifdef LBL_ALIGN
@@ -1098,21 +1088,22 @@ cdp_load_values(struct pcap_data *data, void *values)
          */
         if ((len >= 4) && (total + len < MAX_TLV*MAX_VALUE_LENGTH)) 
         {
-           if ((newitem = (struct commands_param_extra_item *) calloc(1, sizeof(struct commands_param_extra_item))) == NULL)
-           {
-              write_log(0, "Error in calloc\n");
-              return -1;
-           }
+            if ((newitem = (struct commands_param_extra_item *) calloc(1, sizeof(struct commands_param_extra_item))) == NULL)
+            {
+                write_log(0, "Error in calloc\n");
+                return -1;
+            }
 
-           if ((newitem->value = (u_int8_t *) calloc(1, len - 4)) == NULL)
-           {
-              write_log(0, "Error in calloc\n");
-              return -1;
-           }
-           
-           memcpy((void *)&newitem->id, (void *)&type, 2);
-           memcpy((void *)newitem->value, (void *)(ptr + 4), len - 4);
-           cdp->extra = dlist_append(cdp->extra, (void *)newitem);
+            if ((newitem->value = (u_int8_t *) calloc(1, len - 4)) == NULL)
+            {
+                free( newitem );
+                write_log(0, "Error in calloc\n");
+                return -1;
+            }
+            
+            memcpy((void *)&newitem->id, (void *)&type, 2);
+            memcpy((void *)newitem->value, (void *)(ptr + 4), len - 4);
+            cdp->extra = dlist_append(cdp->extra, (void *)newitem);
         }
 
         i++;

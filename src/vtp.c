@@ -134,24 +134,20 @@ vtp_init_comms_struct(struct term_node *node)
     return 0;
 }
 
-void
-vtp_th_send(void *arg)
+
+void vtp_th_send( void *arg )
 {
-    struct attacks *attacks=NULL;
-    struct vtp_data *vtp_data;
+    struct attacks *attacks = (struct attacks *)arg;
+    struct vtp_data *vtp_data = (struct vtp_data *)attacks->data;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
 
-    vtp_data = attacks->data;
-
     vtp_data->dom_len = strlen(vtp_data->domain);
 
-write_log(0,"\n\nvtp_th_send domain=%s  dom_len=%d\n\n",vtp_data->domain,vtp_data->dom_len);
+    write_log(0,"\n\nvtp_th_send domain=%s  dom_len=%d\n\n",vtp_data->domain,vtp_data->dom_len);
 
     sigfillset(&mask);
 
@@ -167,11 +163,10 @@ write_log(0,"\n\nvtp_th_send domain=%s  dom_len=%d\n\n",vtp_data->domain,vtp_dat
 }
 
 
-void
-vtp_th_send_exit(struct attacks *attacks)
+void vtp_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
+
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
     pthread_exit(NULL);
@@ -382,7 +377,7 @@ vtp_send(struct attacks *attacks)
 void
 vtp_th_dos_del_all(void *arg)
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct vtp_data *vtp_data, vtp_data_learned;
     struct pcap_pkthdr header;
     struct pcap_data pcap_aux;
@@ -413,8 +408,6 @@ vtp_th_dos_del_all(void *arg)
                           0x74, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 
                           0x03, 0x01, 0x00, 0x02 };
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -534,7 +527,9 @@ vtp_generate_md5(char *secret, u_int32_t updater, u_int32_t revision, char *doma
        md5_sum(data, strlen(secret), md5_secret);
 
     vtp_summ = (struct vtp_summary *)(data+16);
-write_log(0,"Se calcula MD5 con version=%d\n",version);    
+
+    write_log(0,"Se calcula MD5 con version=%d\n",version);
+
     vtp_summ->version = version;
     vtp_summ->code = 0x01;
     if (dom_len > VTP_DOMAIN_SIZE)
@@ -565,11 +560,9 @@ write_log(0,"Se calcula MD5 con version=%d\n",version);
 
 
 
-void
-vtp_th_dos_del_all_exit(struct attacks *attacks)
+void vtp_th_dos_del_all_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -745,7 +738,7 @@ vtp_modify_vlan(u_int8_t op, struct attacks *attacks)
         vtp_data->vlans_len = vtp_data_learned.vlans_len;
         vtp_data->vlan_info = vtp_data_learned.vlan_info;          
 
-write_log(0," Vlan_len after = %d\n",vtp_data_learned.vlans_len);
+        write_log(0," Vlan_len after = %d\n",vtp_data_learned.vlans_len);
 
         vtp_send(attacks);
 
@@ -920,11 +913,9 @@ vtp_add_vlan(u_int16_t vlan, char *vlan_name, u_int8_t **vlans_ptr, u_int16_t *v
 
 
 
-void
-vtp_th_dos_del_exit(struct attacks *attacks)
+void vtp_th_dos_del_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -938,11 +929,9 @@ vtp_th_dos_del_exit(struct attacks *attacks)
 void
 vtp_th_dos_add(void *arg)
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -961,11 +950,9 @@ vtp_th_dos_add(void *arg)
 }
 
 
-void
-vtp_th_dos_add_exit(struct attacks *attacks)
+void vtp_th_dos_add_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -975,10 +962,9 @@ vtp_th_dos_add_exit(struct attacks *attacks)
 /*
  * Zero day crashing Catalyst!!
  */
-void
-vtp_th_dos_crash(void *arg)
+void vtp_th_dos_crash( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct vtp_data *vtp_data, vtp_data_learned;
     struct pcap_pkthdr header;
     struct pcap_data pcap_aux;
@@ -1020,8 +1006,6 @@ vtp_th_dos_crash(void *arg)
        vtp_th_dos_crash_exit(attacks);
     }
 
-    attacks = arg;
-    
     vtp_data = attacks->data;
 
     gettimeofday(&now, NULL);
@@ -1036,8 +1020,7 @@ vtp_th_dos_crash(void *arg)
     while (!attacks->attack_th.stop)
     {
         memset((void *)&vtp_data_learned,0,sizeof(struct vtp_data));
-        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet,
-                              PROTO_VTP, NO_TIMEOUT);
+        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_VTP, NO_TIMEOUT);
 
         if (attacks->attack_th.stop)
            break;   
@@ -1106,8 +1089,9 @@ vtp_th_dos_crash(void *arg)
 void
 vtp_th_dos_crash_exit(struct attacks *attacks)
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
+
+    pthread_mutex_unlock(&attacks->attack_th.finished);
 
     pthread_exit(NULL);
 }
@@ -1148,50 +1132,51 @@ vtp_init_attribs(struct term_node *node)
 }
 
 
-int8_t
-vtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
+int8_t vtp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
 {
-    struct vtp_data *vtp_data;
+    struct vtp_data *vtp_data = (struct vtp_data *)data;
+    struct interface_data *iface_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_vtp_packet = 0;
+    int8_t ret = -1 ;
     dlist_t *p;
-    struct interface_data *iface_data;
-    
-    vtp_data = data;
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
-
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-
-       iface_data = (struct interface_data *) dlist_data(p);
-    } else {
-       iface_data = NULL;
-    }
-
-    while (!got_vtp_packet && !(*stop))
+    if (iface) 
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_VTP, NO_TIMEOUT);
-        if (*stop)
-        {
-            free(packet);
+        p = dlist_search( attacks->used_ints->list, attacks->used_ints->cmp, iface );
+        if ( !p )
             return -1;
+
+        iface_data = (struct interface_data *) dlist_data(p);
+    } 
+    else
+        iface_data = NULL;
+
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( packet )
+    {
+        while ( !got_vtp_packet && !(*stop) )
+        {
+            interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_VTP, NO_TIMEOUT );
+
+            if ( ! (*stop) )
+            {
+                pcap_aux.header = header;
+                pcap_aux.packet = packet;
+                                                                                              
+                if ( !vtp_load_values( (struct pcap_data *)&pcap_aux, vtp_data ) )
+                {
+                    got_vtp_packet = 1;
+                    ret = 0 ;
+                }
+            }
         }
 
-        pcap_aux.header = header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (!vtp_load_values((struct pcap_data *)&pcap_aux, vtp_data))
-           got_vtp_packet = 1;
-        
-    } /* While got */
+        free( packet );
+    }
 
-    free(packet);
-
-    return 0;
+    return ret ;
 }
 
 
@@ -1210,10 +1195,6 @@ vtp_get_printable_packet(struct pcap_data *data)
     u_int8_t *aux2;
 #endif
     char **field_values;
-    //u_int8_t *cursor, i;
-    //char *tlv;
-    //struct vlan_info *vlan_info;
-    //u_int16_t vlans_len=0;
 
     if ((field_values = (char **) protocol_create_printable(protocols[PROTO_VTP].nparams, protocols[PROTO_VTP].parameters)) == NULL) {
         thread_error("vtp_get_rpintable calloc()",errno);
@@ -1312,7 +1293,7 @@ vtp_get_printable_packet(struct pcap_data *data)
        break;
     }
      
-    return (char **)field_values;
+    return field_values;
 }
 
 
@@ -1372,7 +1353,7 @@ vtp_get_printable_store(struct term_node *node)
 
     snprintf(field_values[VTP_SEQ], 4, "%03d", vtp_tmp->seq);
 
-    return (char **)field_values;
+    return field_values;
 }
 
 
