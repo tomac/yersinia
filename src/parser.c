@@ -1256,7 +1256,9 @@ parser_vrfy_ip2filter(char *expr, struct term_tty *tty)
                numbegin.byte[i] = 0;
                numend.byte[i] = 255;
             }
-            aux2 = ++aux3;
+
+            if ( aux3 )
+               aux2 = ++aux3;
          } /* for...*/
 
          for(i=0;i<4;i++)

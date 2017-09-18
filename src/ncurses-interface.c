@@ -1437,7 +1437,8 @@ ncurses_i_edit_tlv(struct term_node *node, u_int8_t mode)
    keypad(win, TRUE);
    curs_set(0);
 
-   while (!terms->gui_th.stop && !end) {
+   while (!terms->gui_th.stop && !end) 
+   {
       if (modified) {
          if ((values = (u_int8_t **)(*protocols[mode].get_printable_store)(node)) == NULL) {
             write_log(0, "Error in get_printable_store (mode %d)\n", mode);
@@ -1520,8 +1521,8 @@ ncurses_i_edit_tlv(struct term_node *node, u_int8_t mode)
             free(values[j]);
             j++;
          }
-         if (values)
-            free(values);
+         free(values);
+         values = NULL ;
       }
    }
 
@@ -1536,8 +1537,7 @@ ncurses_i_edit_tlv(struct term_node *node, u_int8_t mode)
          free(values[j]);
          j++;
       }
-      if (values)
-         free(values);
+      free(values);
    }
 
    if (delwin(win) == ERR)
@@ -1675,7 +1675,14 @@ ncurses_i_add_selected_tlv_type(WINDOW *win, struct term_node *node, u_int8_t mo
        {
           extra = (*protocols[mode].get_extra_field)(node, NULL, 0);
           extra = dlist_append(extra, (void *)newitem);
-          (*protocols[mode].get_extra_field)(node, extra, 1);
+          (*protocols[mode].get_extra_field)( node, extra, 1 );
+       }
+       else
+       {
+           attack_free_params(attack_param, 1);
+           free(attack_param);
+            free( newitem->value );
+            free( newitem );
        }
 
        return 0;
