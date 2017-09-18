@@ -45,4 +45,4 @@ src/yersinia.log
 
 # Coverity builds
 cov-int/*
-yersinia.tgz
+yersinia*.tgz
