@@ -1717,82 +1717,82 @@ int8_t command_set_proto( struct term_node *node, struct words_array *warray,
 /*
  * Command run proto attack
  */
-int8_t
-command_run_proto(struct term_node *node, struct words_array *warray, int16_t x, int8_t help, int8_t as_param,
-                    u_int8_t proto, struct commands *aux_comm, int8_t tab)
+int8_t command_run_proto( struct term_node *node, struct words_array *warray, int16_t x, int8_t help, int8_t as_param,
+                          u_int8_t proto, struct commands *aux_comm, int8_t tab)
 {
-   char msg[128];
-   int8_t i, fail, aux;
-   struct _attack_definition *attack_def = NULL;
+    char msg[128];
+    int8_t i, fail, aux;
+    struct _attack_definition *attack_def = NULL;
 
-   if (warray->nwords > (warray->indx+2))
-   {
-       if (help || tab)
-          snprintf(msg,sizeof(msg),"%% Too many arguments\r\n");
-       else
-          fail = command_bad_input(node,warray->indx+1);
-       fail = term_vty_write(node,msg, strlen(msg));
-       return fail;
-   }   
+    if ( warray->nwords > ( warray->indx + 2 ) )
+    {
+        if ( help || tab )
+        {
+            snprintf( msg, sizeof( msg ), "%% Too many arguments\r\n" );
+            fail = term_vty_write( node, msg, strlen( msg ) );
+        }
+        else
+            fail = command_bad_input( node, warray->indx + 1 );
 
-   if ( (help || tab) && !warray->word[warray->indx])
-   {
-      attack_def = protocols[proto].attack_def_list;
-      i=0;
-      while(attack_def[i].desc != NULL)
-      {
-          snprintf(msg,sizeof(msg),"  <%d>   %s attack %s\r\n", i, 
-                    (attack_def[i].type == DOS) ? "DOS" : "NONDOS",
-                       attack_def[i].desc);
-          fail = term_vty_write(node,msg,strlen(msg));
-          if (fail == -1)
-             return -1;
-          i++;
-      }
+        return fail;
+    }   
+
+    if ( (help || tab) && !warray->word[warray->indx])
+    {
+        attack_def = protocols[proto].attack_def_list;
+        i=0;
+        while(attack_def[i].desc != NULL)
+        {
+            snprintf(msg,sizeof(msg),"  <%d>   %s attack %s\r\n", i, (attack_def[i].type == DOS) ? "DOS" : "NONDOS", attack_def[i].desc );
+            fail = term_vty_write(node,msg,strlen(msg));
+            if (fail == -1)
+                return -1;
+            i++;
+        }
              
-      snprintf(msg,sizeof(msg),"  <cr>\r\n");
-      fail = term_vty_write(node,msg,strlen(msg));
-      return fail;
-   }
+        snprintf(msg,sizeof(msg),"  <cr>\r\n");
+        fail = term_vty_write(node,msg,strlen(msg));
+        return fail;
+    }
 
-   if (help || tab)
-   {
-      snprintf(msg,sizeof(msg),"   <cr>\r\n");
-      fail = term_vty_write(node,msg,strlen(msg));
-      return fail;
-   }
+    if ( help || tab )
+    {
+        snprintf( msg, sizeof(msg),"   <cr>\r\n");
+        fail = term_vty_write(node,msg,strlen(msg));
+        return fail;
+    }
 
-   if (!warray->word[warray->indx])
-   {
-      snprintf(msg,sizeof(msg),"\r\n%% Incomplete command.");
-      fail = term_vty_write(node,msg, strlen(msg));
-      return fail;
-   }
+    if (!warray->word[warray->indx])
+    {
+        snprintf(msg,sizeof(msg),"\r\n%% Incomplete command.");
+        fail = term_vty_write(node,msg, strlen(msg));
+        return fail;
+    }
 
-   if ( ! protocols[ proto ].attack_def_list[0].desc)
-   {
-      snprintf(msg,sizeof(msg),"\r\n%% Protocol %s has no attacks defined", protocols[proto].description);
-      fail = term_vty_write(node,msg,strlen(msg));
-      return fail;
-   }
+    if ( ! protocols[ proto ].attack_def_list[0].desc)
+    {
+        snprintf(msg,sizeof(msg),"\r\n%% Protocol %s has no attacks defined", protocols[proto].description);
+        fail = term_vty_write(node,msg,strlen(msg));
+        return fail;
+    }
 
-   /* Ok, now we have just 1 arg, begin parsing...*/
-   aux = atoi(warray->word[warray->indx]);
+    /* Ok, now we have just 1 arg, begin parsing...*/
+    aux = atoi(warray->word[warray->indx]);
 
     /* Dirty trick to take the max attack number... 
      * Man, i'm now in the plane flying to Madrid with
      * Ramon so don't be cruel! */
     attack_def = protocols[proto].attack_def_list;
+
     i=0;
     while(attack_def[i].desc != NULL)
         i++;
-   
-   if ( (aux < 0) || (aux > (i-1)) )
-      return (command_bad_input(node,warray->indx));
 
-   /* Ok, launch attack, plz...*/
-   
-   return (command_run_attack(node, proto, aux));
+    if ( (aux < 0) || (aux > (i-1)) )
+        return (command_bad_input(node,warray->indx));
+
+    /* Ok, launch attack, plz...*/
+    return (command_run_attack(node, proto, aux));
 }
 
 
