@@ -827,50 +827,51 @@ dot1q_init_attribs(struct term_node *node)
 }
 
 
-int8_t
-dot1q_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
+int8_t dot1q_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header )
 {
-    struct dot1q_data *dot1q_data;
+    struct dot1q_data *dot1q_data = (struct dot1q_data *)data;
+    struct interface_data *iface_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_802_1q_pkt = 0;
+    int8_t ret = -1;
     dlist_t *p;
-    struct interface_data *iface_data;
-    
-    dot1q_data = data;
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
-
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-
-       iface_data = (struct interface_data *) dlist_data(p);
-    } else
-       iface_data = NULL;
-
-    while (!got_802_1q_pkt && !(*stop))
+    if (iface) 
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_DOT1Q, NO_TIMEOUT);
-           
-        if (*stop)
-        {
-            free(packet);
+        p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
+        if (!p)
             return -1;
+
+        iface_data = (struct interface_data *) dlist_data(p);
+    } 
+    else
+        iface_data = NULL;
+
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( packet )
+    {
+        while ( !got_802_1q_pkt && !(*stop) )
+        {
+            interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_DOT1Q, NO_TIMEOUT );
+               
+            if ( !(*stop) )
+            {
+                pcap_aux.header = header;
+                pcap_aux.packet = packet;
+                                                                                                  
+                if (!dot1q_load_values((struct pcap_data *)&pcap_aux, dot1q_data))
+                {
+                   got_802_1q_pkt = 1;
+                   ret = 0 ;
+                }
+            }
         }
 
-        pcap_aux.header = header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (!dot1q_load_values((struct pcap_data *)&pcap_aux, dot1q_data))
-           got_802_1q_pkt = 1;
-        
-    } /* While got */
+        free(packet);
+    }
 
-    free(packet);
-
-    return 0;
+    return ret ;
 }
 
 
@@ -957,8 +958,7 @@ dot1q_load_values(struct pcap_data *data, void *values)
 /* 
  * Return formated strings of each 802.1Q field
  */
-char **
-dot1q_get_printable_packet(struct pcap_data *data)
+char **dot1q_get_printable_packet( struct pcap_data *data )
 {
     struct libnet_802_3_hdr *ether;
     struct libnet_ipv4_hdr *ipv4_hdr;
@@ -967,6 +967,9 @@ dot1q_get_printable_packet(struct pcap_data *data)
     char *aux;
     u_int32_t aux_long;
     char **field_values;
+
+    if ( ! data )
+        return NULL ;
 
     if (data && (data->header->caplen < (14+8+8)) ) /* Undersized packet!! */
        return NULL;
@@ -1029,49 +1032,49 @@ dot1q_get_printable_packet(struct pcap_data *data)
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case ETHERTYPE_REVARP:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case ETHERTYPE_VLAN:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0]   = 0;
                     field_values[DOT1Q_DST_IP][0]   = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case 0x010b:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case 0x2000:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case 0x2003:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case 0x2004:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 case 0x9000:
                     snprintf(field_values[DOT1Q_TPI3], 5, "%04X",type_cursor);
                     field_values[DOT1Q_SRC_IP][0] = 0;
                     field_values[DOT1Q_DST_IP][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
                 default:
                     if (type_cursor < 0x0800)
@@ -1084,7 +1087,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
                     field_values[DOT1Q_SRC_IP][0]   = 0;
                     field_values[DOT1Q_DST_IP][0]   = 0;
                     field_values[DOT1Q_IP_PROTO][0] = 0;
-                    return (char **)field_values;
+                    return field_values;
                 break;
             }
        break;
@@ -1127,7 +1130,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
                strncpy(field_values[DOT1Q_SRC_IP],"N/A",16);
                strncpy(field_values[DOT1Q_DST_IP],"N/A",16);
             }
-            return (char **)field_values;
+            return field_values;
        break;
 
        case ETHERTYPE_REVARP:
@@ -1137,7 +1140,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]  = 0;            
             field_values[DOT1Q_SRC_IP][0] = 0;
             field_values[DOT1Q_DST_IP][0] = 0;
-            return (char **)field_values;
+            return field_values;
        break;
 
        case 0x010b:
@@ -1147,7 +1150,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;       
 
        case 0x2000:
@@ -1157,7 +1160,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;       
 
        case 0x2003:
@@ -1167,7 +1170,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;       
 
        case 0x2004:
@@ -1177,7 +1180,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;       
 
        case 0x9000:
@@ -1187,7 +1190,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;       
 
        default:
@@ -1197,7 +1200,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
             field_values[DOT1Q_VLAN2][0]    = 0;            
             field_values[DOT1Q_SRC_IP][0]   = 0;
             field_values[DOT1Q_DST_IP][0]   = 0;
-            return (char **)field_values;
+            return field_values;
        break;
     }
 
@@ -1208,7 +1211,7 @@ dot1q_get_printable_packet(struct pcap_data *data)
     ip = (u_int8_t *)cursor;
 
     if ( (ip+20) > (data->packet + data->header->caplen))
-        return (char **)field_values;
+        return field_values;
 
 #ifdef LBL_ALIGN 
     snprintf(field_values[DOT1Q_IP_PROTO], 3, "%02d",*(ip+9));
@@ -1223,21 +1226,18 @@ dot1q_get_printable_packet(struct pcap_data *data)
     ipv4_hdr = (struct libnet_ipv4_hdr *)cursor;
 
     /* Source IP */
-    strncpy(field_values[DOT1Q_SRC_IP], libnet_addr2name4(ipv4_hdr->ip_src.s_addr, 
-                                              LIBNET_DONT_RESOLVE), 16);
+    strncpy(field_values[DOT1Q_SRC_IP], libnet_addr2name4(ipv4_hdr->ip_src.s_addr, LIBNET_DONT_RESOLVE), 16);
     
     /* Destination IP */
-    strncpy(field_values[DOT1Q_DST_IP], libnet_addr2name4(ipv4_hdr->ip_dst.s_addr, 
-                                              LIBNET_DONT_RESOLVE), 16);
+    strncpy(field_values[DOT1Q_DST_IP], libnet_addr2name4(ipv4_hdr->ip_dst.s_addr, LIBNET_DONT_RESOLVE), 16);
     snprintf(field_values[DOT1Q_IP_PROTO], 3, "%02d",ipv4_hdr->ip_p);
 #endif
 
-    return (char **)field_values;    
+    return field_values;    
 }
 
 
-char **
-dot1q_get_printable_store(struct term_node *node)
+char **dot1q_get_printable_store( struct term_node *node )
 {
     struct dot1q_data *dot1q_tmp;
     char **field_values;
@@ -1297,7 +1297,7 @@ dot1q_get_printable_store(struct term_node *node)
 
     memcpy(field_values[DOT1Q_PAYLOAD], dot1q_tmp->icmp_payload, MAX_ICMP_PAYLOAD);
 
-    return (char **)field_values;
+    return field_values;
 }
 
 

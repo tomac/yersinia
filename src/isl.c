@@ -149,6 +149,9 @@ isl_get_printable_packet(struct pcap_data *data)
     char **field_values;
     u_int16_t aux_short;
 
+    if ( ! data )
+        return NULL ;
+
     if (data && (data->header->caplen < (14+8+8)) ) /* Undersized packet!! */
        return NULL;
 
@@ -188,7 +191,7 @@ isl_get_printable_packet(struct pcap_data *data)
 
     snprintf(field_values[ISL_RES], 5, "%04X", (ntohs(*((u_int16_t *)(data->packet+24)))));
     
-    return (char **)field_values;    
+    return field_values;    
 }
 
 
@@ -252,7 +255,7 @@ isl_get_printable_store(struct term_node *node)
     /* IP protocol */
     snprintf(field_values[ISL_IP_PROTO], 3, "%02d",isl_tmp->ip_proto);
 
-    return (char **)field_values;
+    return field_values;
 }
 
 

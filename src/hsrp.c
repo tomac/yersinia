@@ -438,45 +438,42 @@ int8_t hsrp_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, 
     u_int8_t got_hsrp_packet = 0;
     u_int8_t *packet;
     dlist_t *p;
+    int8_t ret = -1 ;
 
-    packet = calloc( 1, SNAPLEN );
-
-    if ( ! packet )
-        return -1;
-
-    if (iface)
+    if ( iface )
     {
         p = dlist_search( attacks->used_ints->list, attacks->used_ints->cmp, iface );
         if ( !p )
-        {
-            free( packet );
             return -1;
-        }
 
         iface_data = (struct interface_data *) dlist_data(p);
     } 
 
-    while ( !got_hsrp_packet && !(*stop) )
-    {
-        interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_HSRP, NO_TIMEOUT );
+    packet = calloc( 1, SNAPLEN );
 
-        if (*stop)
+    if ( packet )
+    {
+        while ( !got_hsrp_packet && !(*stop) )
         {
-            free(packet);
-            return -1;
+            interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_HSRP, NO_TIMEOUT );
+
+            if ( !(*stop) )
+            {
+                pcap_aux->header = header;
+                pcap_aux->packet = packet;
+
+                if ( !hsrp_load_values( pcap_aux, hsrp_data ) )
+                {
+                    got_hsrp_packet = 1;
+                    ret = 0 ;
+                }
+            }
         }
 
-        pcap_aux->header = header;
-        pcap_aux->packet = packet;
-
-        if ( !hsrp_load_values( pcap_aux, hsrp_data ) )
-            got_hsrp_packet = 1;
-
+        free(packet);
     }
 
-    free(packet);
-
-    return 0;
+    return ret;
 }
 
     

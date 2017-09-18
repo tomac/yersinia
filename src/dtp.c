@@ -483,23 +483,20 @@ int8_t dtp_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, v
     dlist_t *p;
     int8_t ret = -1 ;
     
+    if ( iface) 
+    {
+        p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
+
+        if ( !p )
+            return -1;
+
+        iface_data = (struct interface_data *) dlist_data(p);
+    } 
+
     packet = (u_int8_t *)calloc( 1, SNAPLEN );
 
     if ( packet )
     {
-        if ( iface) 
-        {
-            p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-
-            if ( !p )
-            {
-                free( packet );
-                return -1;
-            }
-
-            iface_data = (struct interface_data *) dlist_data(p);
-        } 
-        
         while ( !got_dtp_packet && !(*stop) )
         {
             interfaces_get_packet( attacks->used_ints, iface_data, stop, header, packet, PROTO_DTP, NO_TIMEOUT );
@@ -641,7 +638,7 @@ char **dtp_get_printable_packet( struct pcap_data *data )
         ptr += tlv_len;
     }
 
-    return (char **)field_values;
+    return field_values;
 }
 
 
@@ -684,7 +681,7 @@ dtp_get_printable_store(struct term_node *node)
              dtp_tmp->neighbor[0], dtp_tmp->neighbor[1], dtp_tmp->neighbor[2],
              dtp_tmp->neighbor[3], dtp_tmp->neighbor[4], dtp_tmp->neighbor[5]);
     
-    return (char **)field_values;
+    return field_values;
 }
 
 

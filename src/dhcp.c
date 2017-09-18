@@ -1181,7 +1181,7 @@ dhcp_learn_offer(struct attacks *attacks)
     struct dhcp_data *dhcp_data;
     struct pcap_pkthdr header;
     struct timeval now;
-    u_int8_t *packet, *dhcp;//, *temp;
+    u_int8_t *packet, *dhcp;
     int8_t got_offer = 0;
 
     dhcp_data = attacks->data;
@@ -1208,31 +1208,7 @@ dhcp_learn_offer(struct attacks *attacks)
         /* Now we need the SID, yiaddr and the secs */
         dhcp_data->secs = (*(u_int16_t *) dhcp + 7);
 
-        /* let's go to the options */
-        //temp = dhcp + 240;
-
-        /* find the magic 
-        if (((*(u_char *) temp) == 0x63) && ((*(u_char *) temp + 1) == 0x82) 
-            && ((*(u_char *) temp + 2) == 0x53) && ((*(u_char *) temp + 3) == 0x63))
-            printf("Tengo magic\n");
-
-        switch (*(dhcp))
-        {
-            case LIBNET_DHCP_REPLY:
-
-
-                switch(*temp) {
-                    case LIBNET_DHCP_MESSAGETYPE:
-                        if (*((u_char *) dhcp + 2) == LIBNET_DHCP_MSGOFFER)
-                            got_offer = 1;
-                    break;
-                }
-            break;
-            default:
-            break;
-        }*/ /* switch */
-
-    } /* While got */
+    }
 
     free(packet);
 
