@@ -850,8 +850,7 @@ ncurses_c_refresh_bwindow(u_int8_t mode, WINDOW *bwindow, struct term_node *node
 /*
  * Edit BPDU Fields
  */
-void 
-ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct term_node *node)
+void ncurses_c_edit_bwindow( u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct term_node *node )
 {
    u_int8_t i, state;
    int32_t key_pressed, result;
@@ -907,7 +906,6 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
       if (terms->gui_th.stop)
          break;
 
-
       getyx(bwindow, y, x);
       switch(key_pressed)
       {
@@ -917,24 +915,20 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
             break;
 
          case KEY_UP:
-            if (ncurses_c_north(mode, offset, &y, &x, &state, &start) == 0) {
+            if (ncurses_c_north(mode, offset, &y, &x, &state, &start) == 0)
                wmove(bwindow, y, x);
-            }
          break;
          case KEY_DOWN:
-            if (ncurses_c_south(mode, offset, &y, &x, &state, &start) == 0) {
+            if (ncurses_c_south(mode, offset, &y, &x, &state, &start) == 0) 
                wmove(bwindow, y, x);
-            }
          break;
          case KEY_RIGHT:
-            if (ncurses_c_east(mode, offset, &y, &x, &state, &start) == 0) {
+            if (ncurses_c_east(mode, offset, &y, &x, &state, &start) == 0) 
                wmove(bwindow, y, x);
-            }
          break;
          case KEY_LEFT:
-            if (ncurses_c_west(mode, offset, &y, &x, &state, &start) == 0) {
+            if (ncurses_c_west(mode, offset, &y, &x, &state, &start) == 0) 
                wmove(bwindow, y, x);
-            }
          break;
 
          case 'x':
@@ -948,8 +942,7 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
                if ((result = ncurses_i_popup_window(bwindow, params[state].meaning, state)) != ERR) 
                {
                   snprintf(buffer, 1024, "%d", result);
-                  parser_filter_param(params[state].type, node->protocol[mode].commands_param[state],
-                     buffer, params[state].size_print, params[state].size);
+                  parser_filter_param(params[state].type, node->protocol[mode].commands_param[state], buffer, params[state].size_print, params[state].size);
                }
                curs_set(1);
                ncurses_c_refresh_bwindow(mode, bwindow, node);    
@@ -978,23 +971,23 @@ ncurses_c_edit_bwindow(u_int8_t mode, WINDOW *mwindow, WINDOW *bwindow, struct t
             mvwaddch(bwindow, y, x, toupper(key_pressed) | A_BOLD);
             memset((void *)buffer, 0, 1024 );
             mvwinnstr(bwindow, y, start, buffer, params[state].size_print);
-            if (parser_filter_param(params[state].type, node->protocol[mode].commands_param[state],
-                     buffer, params[state].size_print, params[state].size) < 0) {
+            if (parser_filter_param(params[state].type, node->protocol[mode].commands_param[state], buffer, params[state].size_print, params[state].size) < 0) 
+            {
                mvwaddch(bwindow, y, x, old_value);
                wmove(bwindow, y ,x);
-            } else {
-               if (ncurses_c_east(mode, offset, &y, &x, &state, &start) == 0) {
+            } 
+            else 
+            {
+               if (ncurses_c_east(mode, offset, &y, &x, &state, &start) == 0) 
                   wmove(bwindow, y, x);
-               }
             }
 
             break;
       }
 
       if (params[state].meaning)
-      {
          ncurses_c_set_status_line(" Press TAB for available values ");
-      }  else
+      else
          ncurses_c_set_status_line("");
    }
 
