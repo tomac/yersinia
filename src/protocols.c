@@ -247,35 +247,36 @@ void protocol_destroy( void )
 }
 
 
-char **
-protocol_create_printable(u_int8_t size, struct commands_param *params)
+char **protocol_create_printable( u_int8_t size, struct commands_param *params )
 {
-   u_int8_t i, k;
-   char **field_values;
+    u_int8_t i, k;
+    char **field_values;
 
-   field_values = NULL;
+    /* +2 for the extra values and the null */
+    field_values = (char **) calloc( 1, ( size + 2 ) * sizeof( u_int8_t * ) );
 
-   /* +2 for the extra values and the null */
-   if ((field_values = (char **) calloc(1, (size+2)* sizeof(u_int8_t *))) == NULL) {
-      printf("Error in calloc\n");
-      return NULL;
-   }
+    if ( ! field_values ) 
+        return NULL;
 
-   k = 0;
-   for (i = 0; i < size; i++)
-   {
-      if ((params[i].type != FIELD_IFACE) && (params[i].type != FIELD_DEFAULT) && (params[i].size_print > 0))
-      {
-/*         write_log(0, "Creando  i=%d   k=%d    %s   size_print=%d\n", i, k, params[i].ldesc, params[i].size_print); */
-         if ((field_values[k] = (char *) calloc(1, (params[i].size_print + 1) * sizeof(char))) == NULL) {
-            printf("Error in calloc\n");
-            return NULL;
-         }
-         k++;
-      }
-   }
+    k = 0;
 
-   return field_values;
+    for (i = 0; i < size; i++ )
+    {
+        if ( ( params[i].type != FIELD_IFACE ) && ( params[i].type != FIELD_DEFAULT ) && ( params[i].size_print > 0 ) )
+        {
+            field_values[k] = (char *)calloc( 1, params[i].size_print + 1 );
+
+            if ( ! field_values[k] )
+            {
+                free( field_values );
+                return NULL;
+            }
+
+            k++;
+        }
+    }
+
+    return field_values;
 }
 
 

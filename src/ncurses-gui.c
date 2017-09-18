@@ -117,8 +117,8 @@ ncurses_gui(void *args)
 
     if (pthread_sigmask(SIG_BLOCK, &mask, NULL))
     {
-       thread_error("ncurses_gui_th pthread_sigmask()",errno);
-       ncurses_gui_th_exit(NULL);
+        thread_error("ncurses_gui_th pthread_sigmask()",errno);
+        ncurses_gui_th_exit(NULL);
     }
  
     if (pthread_mutex_lock(&terms->mutex) != 0) {
@@ -128,18 +128,17 @@ ncurses_gui(void *args)
 
     if (term_add_node(&term_node, TERM_CON, 0, pthread_self()) < 0)
     {
-       if (pthread_mutex_unlock(&terms->mutex) != 0)
-          thread_error("ncurses_gui_th pthread_mutex_unlock",errno);
-       ncurses_gui_th_exit(NULL);
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("ncurses_gui_th pthread_mutex_unlock",errno);
+        ncurses_gui_th_exit(NULL);
     }
     
     if (term_node == NULL)
     {
-       write_log(0, "Ouch!! No more than %d %s accepted!!\n", 
-               term_type[TERM_CON].max, term_type[TERM_CON].name);
-       if (pthread_mutex_unlock(&terms->mutex) != 0)
-          thread_error("ncurses_gui_th pthread_mutex_unlock",errno);
-       ncurses_gui_th_exit(NULL);
+        write_log(0, "Ouch!! No more than %d %s accepted!!\n", term_type[TERM_CON].max, term_type[TERM_CON].name);
+        if (pthread_mutex_unlock(&terms->mutex) != 0)
+            thread_error("ncurses_gui_th pthread_mutex_unlock",errno);
+        ncurses_gui_th_exit(NULL);
     }
 
     this_time = time(NULL);
@@ -162,53 +161,53 @@ ncurses_gui(void *args)
     /* This is a console so, man... ;) */
     strncpy(term_node->from_ip, "127.0.0.1", sizeof(term_node->from_ip) - 1);
    
-   /* Parse config file */
-   if (strlen(tty_tmp->config_file))
-      if (parser_read_config_file(tty_tmp, term_node) < 0)
-      {
-         write_log(0, "Error reading configuration file\n");
-/*         ncurses_gui_th_exit(term_node); */
-      }
+    /* Parse config file */
+    if ( strlen( tty_tmp->config_file ) )
+    {
+        if (parser_read_config_file(tty_tmp, term_node) < 0)
+            write_log(0, "Error reading configuration file\n");
+    }
 
-    if (pthread_mutex_unlock(&terms->mutex) != 0) {
+    if (pthread_mutex_unlock(&terms->mutex) != 0) 
+    {
         thread_error("ncurses_gui_th pthread_mutex_unlock",errno);
         ncurses_gui_th_exit(term_node);
     }
 
     if (ncurses_i_init(my_wins, my_panels, term_node) < 0)
-       ncurses_gui_th_exit(term_node);
+        ncurses_gui_th_exit(term_node);
        
     if (interfaces->list)
-       iface_data = dlist_data(interfaces->list);
-    else {
-       ncurses_i_error_window(0,
-             "Hmm... you don't have any valid interface. \
-             %s is useless. Go and get a life!", PACKAGE);
-       ncurses_gui_th_exit(term_node);
+        iface_data = dlist_data(interfaces->list);
+    else 
+    {
+        ncurses_i_error_window(0, "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE);
+        ncurses_gui_th_exit(term_node);
     }
 
     /* take the first valid interface */
-    if (strlen(iface_data->ifname)) {
-       if (ncurses_i_error_window(0,
-                "Warning: interface %s selected as the default one", 
-                iface_data->ifname) < 0)
-          ncurses_gui_th_exit(term_node);
-       if ((tmp = interfaces_enable(iface_data->ifname)) == -1) {
-          if (ncurses_i_error_window(1,
-                   "Unable to use interface %s!! (Maybe nonexistent?)\n\n", 
-                   iface_data->ifname) < 0)
-             ncurses_gui_th_exit(term_node);
-       } else {
-          iface = (struct interface_data *) calloc(1, sizeof(struct interface_data));
-          memcpy((void *)iface, (void *)iface_data, sizeof(struct interface_data));
-          term_node->used_ints->list = dlist_append(term_node->used_ints->list, iface);
-       }
-     } else {
-          if (ncurses_i_error_window(1,
-                   "Hmm... you don't have any valid interface. \
-                   %s is useless. Go and get a life!", PACKAGE) < 0)
-             ncurses_gui_th_exit(term_node);
-     }
+    if ( iface_data && strlen( iface_data->ifname ) )
+    {
+        if ( ncurses_i_error_window(0, "Warning: interface %s selected as the default one", iface_data->ifname) < 0)
+            ncurses_gui_th_exit(term_node);
+
+        if ((tmp = interfaces_enable(iface_data->ifname)) == -1) 
+        {
+            if (ncurses_i_error_window(1, "Unable to use interface %s!! (Maybe nonexistent?)\n\n",  iface_data->ifname) < 0)
+                ncurses_gui_th_exit(term_node);
+        } 
+        else 
+        {
+            iface = (struct interface_data *) calloc(1, sizeof(struct interface_data));
+            memcpy((void *)iface, (void *)iface_data, sizeof(struct interface_data));
+            term_node->used_ints->list = dlist_append(term_node->used_ints->list, iface);
+        }
+    } 
+    else 
+    {
+        if (ncurses_i_error_window(1, "Hmm... you don't have any valid interface. %s is useless. Go and get a life!", PACKAGE) < 0)
+            ncurses_gui_th_exit(term_node);
+    }
 
     ncurses_c_engine(my_wins, my_panels, term_node);
 

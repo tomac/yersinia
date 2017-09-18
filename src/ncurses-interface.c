@@ -1103,8 +1103,7 @@ ncurses_i_list_filecaps(WINDOW *list_window, struct term_node *node)
 }
 
 
-int8_t
-ncurses_i_error_window(u_int8_t mode, char *message, ...)
+int8_t ncurses_i_error_window( u_int8_t mode, char *message, ... )
 {
    int32_t row, col, i, message_s;
    int32_t max_y, max_x;
@@ -1116,17 +1115,21 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
 
    ncurses_c_set_status_line(" You've got a message ");
 
-   getmaxyx(stdscr,row,col);
+   getmaxyx( stdscr, row, col );
+
+   if ( col < 2 )
+       return -1 ;
 
    /* Max message size is ERRORMSG_SIZE bytes */
-   if ((vmessage = (char *) malloc(ERRORMSG_SIZE)) == NULL) {
+   if ((vmessage = (char *)calloc( 1, ERRORMSG_SIZE ) ) == NULL) 
+   {
       thread_error("Error in malloc", errno);
       return -1;
    }
 
-   memset(vmessage, 0, ERRORMSG_SIZE);
    va_start(argp, message);
-   if (vsnprintf(vmessage,ERRORMSG_SIZE, message, argp) < 0) {
+   if (vsnprintf(vmessage,ERRORMSG_SIZE, message, argp) < 0) 
+   {
       thread_error("Error in vsprintf", errno);
       free( vmessage );
       return -1;
@@ -1135,23 +1138,34 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
 
    i = 1;
    ptr = vmessage;
-   if ((message_s = strlen(vmessage)) > ERRORMSG_SIZE)
-      return -1;
+
+   message_s = strlen( vmessage );
+   
+   if ( message_s > ERRORMSG_SIZE )
+   {
+       free( vmessage );
+       return -1;
+   }
+
    /* by default half columns than terminal columns */
    max_y = col / 2;
+
    /* as many rows as needed to fit the message (estimated) */
    max_x = (message_s / (col / 2)) + 4;
-   if ((m_split = (char *) malloc(max_y - 3)) == NULL) {
+   if ((m_split = (char *) malloc(max_y - 3)) == NULL) 
+   {
       thread_error("Error in malloc", errno);
       free( vmessage );
       return -1;
    }
+
    my_window = newwin(max_x, max_y, (row-max_x)/2, (col-max_y)/2);
    my_panel = new_panel(my_window);
 
    wattron(my_window, COLOR_PAIR(3));
    box(my_window, 0, 0);
-   switch(mode) {
+   switch(mode) 
+   {
       case 0:
          mvwprintw(my_window, 0, 2, " Notification window ");
          write_log(0, " Notification: %s\n", vmessage);
@@ -1164,7 +1178,9 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
 
    mvwprintw(my_window, max_x - 1, 2, " Press any key to continue ");
    wattroff(my_window, COLOR_PAIR(3));
-   while (message_s > 0) {
+
+   while (message_s > 0) 
+   {
       /* split the message */
       if (message_s >= max_y - 4) {
          strncpy(m_split, ptr, max_y - 4);
@@ -1186,14 +1202,17 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
    free(vmessage);
 
    update_panels();
+
    if (doupdate() == ERR)
       return -1;
 
    wtimeout(my_window, NCURSES_KEY_TIMEOUT);
+
    while ((wgetch(my_window)==ERR) && !terms->gui_th.stop);
 
    if (del_panel(my_panel) == ERR)
       return -1;
+
    if (delwin(my_window) == ERR)
       return -1;
 

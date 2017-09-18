@@ -340,84 +340,69 @@ term_add_node(struct term_node **node, int8_t type, int sock, pthread_t tid)
  * Close peer socket, free command history and release the acquired slot.
  * Kill the thread if kill_th.
  */
-void
-term_delete_node(struct term_node *node, int8_t kill_th)
+void term_delete_node( struct term_node *node, int8_t kill_th )
 {
-   int8_t i, type_aux,number_aux;
-/*   struct term_console *console;
-   struct term_tty *tty;*/
-   struct term_vty *vty;
+    int8_t i, type_aux,number_aux;
+    struct term_vty *vty;
 
-   if (node->up)
-   {
-      /* First, remove terminal specific data...*/
-      switch(node->type)
-      {
-/*         case TERM_CON:
-              console = node->specific;
-         break;
-         
-         case TERM_TTY:
-              tty = node->specific;
-         break;
-*/         
-         case TERM_VTY:
-              vty = node->specific;
-              /* Free history...*/
-              for(i=0; i<MAX_HISTORY; i++)
-              {
-                 if (vty->history[i] != NULL)
-                    thread_free_r(vty->history[i]);
-              }         
+    if ( node->up )
+    {
+        /* First, remove terminal specific data...*/
+        switch(node->type)
+        {
+           case TERM_VTY:
+                vty = node->specific;
+                /* Free history...*/
+                for(i=0; i<MAX_HISTORY; i++)
+                {
+                   if (vty->history[i] != NULL)
+                      thread_free_r(vty->history[i]);
+                }         
 
-              close(vty->sock);
-              
-              /* Free transmission buffer...*/
-              if (vty->buffer_tx)
-                 thread_free_r(vty->buffer_tx);
-                    
-              if (kill_th == KILL_THREAD)
-              {
-                 thread_destroy(&node->thread);
-              }
+                close(vty->sock);
+                
+                /* Free transmission buffer...*/
+                if (vty->buffer_tx)
+                   thread_free_r(vty->buffer_tx);
+                      
+                if (kill_th == KILL_THREAD)
+                   thread_destroy(&node->thread);
 
-         break;
-      }
-   
-      thread_free_r(node->specific);
+           break;
+        }
 
-      for (i = 0; i < MAX_PROTOCOLS; i++)
-      {
-          if (!protocols[i].visible)
-             continue;
-          if (node->protocol[i].pcap_file.pdumper)
-             interfaces_pcap_file_close(node,i);
-          thread_free_r(node->protocol[i].tmp_data);
-      }   
+        thread_free_r(node->specific);
 
-      /* free the commands_struct for each protocol */
-      for (i = 0; i < MAX_PROTOCOLS; i++) 
-      {
-          if (!protocols[i].visible)
-             continue;
-          if (protocols[i].init_commands_struct)
-             thread_free_r(node->protocol[i].commands_param);
-      }
+        for (i = 0; i < MAX_PROTOCOLS; i++)
+        {
+            if ( !protocols[i].visible )
+                continue;
 
-      /* Preserve terminal type and number...*/
-      type_aux = node->type;
-      number_aux = node->number;
+            if ( node->protocol[i].pcap_file.pdumper )
+                interfaces_pcap_file_close( node, i );
 
-      dlist_delete(node->used_ints->list);
-      if (node->used_ints)
-         free(node->used_ints);
+            thread_free_r( node->protocol[i].tmp_data );
 
-      memset(node,0,sizeof(struct term_node));
-      
-      node->type = type_aux;
-      node->number = number_aux;
-   } /* if (node->up) */
-   
+            if ( protocols[i].init_commands_struct )
+               thread_free_r( node->protocol[i].commands_param );
+        }   
+
+        /* Preserve terminal type and number...*/
+        type_aux   = node->type;
+        number_aux = node->number;
+
+        if ( node->used_ints )
+        {
+          dlist_delete(node->used_ints->list);
+
+          free(node->used_ints);
+        }
+
+        memset( node, 0, sizeof( struct term_node ) );
+        
+        node->type   = type_aux;
+        node->number = number_aux;
+    } /* if (node->up) */
 }
 
 

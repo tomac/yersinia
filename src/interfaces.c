@@ -219,18 +219,19 @@ interfaces_init_data_libnet( struct interface_data *interface )
     {
         etheraddr = libnet_get_hwaddr( libnet_hnd );
 
-        if ( etheraddr && memcmp( (void *)etheraddr, "\x0\x0\x0\x0\x0\x0", 6 ) )
+        if ( etheraddr )
         {
-            memcpy( (void *)interface->etheraddr, (void *)etheraddr, ETHER_ADDR_LEN );
+            if ( memcmp( (void *)etheraddr, "\x0\x0\x0\x0\x0\x0", 6 ) )
+                memcpy( (void *)interface->etheraddr, (void *)etheraddr, ETHER_ADDR_LEN );
+
+            write_log( 0," %s MAC = %02x%02x.%02x%02x.%02x%02x\n", interface->ifname, 
+                   etheraddr->ether_addr_octet[0], etheraddr->ether_addr_octet[1],
+                   etheraddr->ether_addr_octet[2], etheraddr->ether_addr_octet[3],
+                   etheraddr->ether_addr_octet[4], etheraddr->ether_addr_octet[5]); 
         }
         
         libnet_destroy( libnet_hnd );
 
-        write_log( 0," %s MAC = %02x%02x.%02x%02x.%02x%02x\n", interface->ifname, 
-                   etheraddr->ether_addr_octet[0], etheraddr->ether_addr_octet[1],
-                   etheraddr->ether_addr_octet[2], etheraddr->ether_addr_octet[3],
-                   etheraddr->ether_addr_octet[4], etheraddr->ether_addr_octet[5]); 
-        
         ret = 0;
     }
     else
