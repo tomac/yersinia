@@ -534,8 +534,8 @@ admin_th_network_peer(void *sock)
                 vty->iacmode=0;
                 switch(buf[i])
                 {
-                   case COM_SB: vty->sbmode=1;
-                                continue;
+                   case COM_SB: 
+                       vty->sbmode=1;
                    break;
                     
                    case COM_WILL:
@@ -543,8 +543,7 @@ admin_th_network_peer(void *sock)
                    case COM_DO:
                    case COM_DONT:
                    default:
-                               vty->othermode=1;
-                               continue;
+                       vty->othermode=1;
                    break;
                 }
                 continue;
