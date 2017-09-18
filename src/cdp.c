@@ -142,22 +142,18 @@ cdp_init_comms_struct(struct term_node *node)
 }
 
 
-int8_t
-cdp_send(struct attacks *attacks)
+int8_t cdp_send( struct attacks *attacks )
 {
-    int8_t c;
-    int32_t total_length;
-    libnet_ptag_t t;
-    u_int8_t oui[3], *fixpacket;
-    struct cdp_data *cdp_data;
-    libnet_t *lhandler;
-    u_int16_t checksum;
-    dlist_t *p;
+    struct cdp_data *cdp_data = (struct cdp_data *)attacks->data;
     struct interface_data *iface_data;
     struct interface_data *iface_data2;
-    
-    cdp_data = attacks->data;
-    total_length = 0;
+    int8_t c;
+    u_int8_t oui[3], *fixpacket;
+    u_int16_t checksum;
+    int32_t total_length = 0 ;
+    libnet_ptag_t t;
+    libnet_t *lhandler;
+    dlist_t *p;
 
     checksum = cdp_chksum((u_int8_t *)cdp_data + 12, 4 + cdp_data->options_len);
 
@@ -204,6 +200,7 @@ cdp_send(struct attacks *attacks)
        if (t == -1) {
            thread_libnet_error( "Can't build ethernet header", lhandler);
            libnet_clear_packet(lhandler);
+           free( fixpacket );
            return -1;
        }
 
@@ -215,6 +212,7 @@ cdp_send(struct attacks *attacks)
        if (c == -1) {
            thread_libnet_error( "libnet_write error", lhandler);
            libnet_clear_packet(lhandler);
+           free( fixpacket );
            return -1;
        }
 
@@ -224,7 +222,9 @@ cdp_send(struct attacks *attacks)
        iface_data2->packets_out[PROTO_CDP]++;
     
     } /* for INTERFACES*/
-    
+   
+    free( fixpacket );
+
     return 0;
 }
 

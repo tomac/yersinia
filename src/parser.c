@@ -673,6 +673,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                   if (proto < 0) 
                   {
                      write_log(1, "Error when parsing file %s, there is no %s protocol (or not visible)!!\n", tty->config_file, (ptr + 10));
+                     fclose( file );
                      return -1;
                   }
                   state = 2;
@@ -690,6 +691,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("mac_spoofing");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -700,6 +702,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("splash");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -710,6 +713,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("port");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -720,6 +724,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("username");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -744,6 +749,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("password");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -767,6 +773,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("enable");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -791,6 +798,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                ptr += strlen("hosts");
                if ((ptr = strchr(ptr, '=')) == NULL) {
                   write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                  fclose( file );
                   return -1;
                }
 
@@ -822,6 +830,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                      {
                         write_log(1,"Parse error: error parsing IP address '%s'\n",ptr2);
                         parser_free_ip2filter(tty->ip_filter);
+                        fclose( file );
                         return -1;
                      }
                }
@@ -829,6 +838,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
             else 
             {
                write_log(1, "Parse error: %s is not a global option\n", ptr);
+               fclose( file );
                return -1;
             }
             break;
@@ -849,6 +859,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                   ptr += strlen(params[i].ldesc);
                   if ((ptr = strchr(ptr, '=')) == NULL) {
                      write_log(1, "Parse error: missing '=' (%s)\n", buffer);
+                     fclose( file );
                      return -1;
                   }
                   ptr++;
@@ -872,6 +883,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                                            params[i].size_print,params[i].size) < 0))
                   {
                      write_log(0, "Error when parsing %s: %s\n", params[i].ldesc, ptr);
+                     fclose( file );
                      return -1;
                   }
 
@@ -884,6 +896,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
             /* No success */
             if (i == protocols[proto].nparams) {
                write_log(1, "Parse error: there is no %s field in %s protocol\n", ptr, protocols[proto].namep);
+               fclose(file);
                return -1;
             }
             break;

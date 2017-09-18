@@ -249,7 +249,7 @@ interfaces_init_data_libnet( struct interface_data *interface )
 int8_t interfaces_init( THREAD *pcap_th )
 {
     char errbuf[PCAP_ERRBUF_SIZE];
-    struct interface_data *iface_data;
+    struct interface_data *iface_data = NULL;
     pcap_if_t *alldevs;
     pcap_if_t *index ;
     u_int16_t i, j;
@@ -350,13 +350,7 @@ int8_t interfaces_init( THREAD *pcap_th )
     
     if (tty_tmp->debug)
         write_log(0,"\n interfaces_init finish...\n");
-    
-    dlist_t *p;
 
-    for (p=interfaces->list;p; p = dlist_next(interfaces->list, p)) {
-       iface_data = (struct interface_data *) dlist_data(p);
-    }
-    
     return 0;
 }
 

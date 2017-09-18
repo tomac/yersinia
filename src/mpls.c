@@ -455,50 +455,51 @@ void mpls_th_send_exit( struct attacks *attacks )
 }
 
 
-int8_t
-mpls_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header)
+int8_t mpls_learn_packet( struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header )
 {
-    struct mpls_data *mpls_data;
+    struct mpls_data *mpls_data = (struct mpls_data *)data;
+    struct interface_data *iface_data;
     struct pcap_data pcap_aux;
     u_int8_t *packet, got_mpls_pkt = 0;
+    int8_t ret = -1 ;
     dlist_t *p;
-    struct interface_data *iface_data;
-    
-    mpls_data = data;
 
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
-
-    if (iface) {
-       p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
-       if (!p)
-          return -1;
-
-       iface_data = (struct interface_data *) dlist_data(p);
-    } else
-       iface_data = NULL;
-
-    while (!got_mpls_pkt && !(*stop))
+    if (iface) 
     {
-        interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_MPLS, NO_TIMEOUT);
-           
-        if (*stop)
-        {
-            free(packet);
+        p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
+        if (!p)
             return -1;
+
+        iface_data = (struct interface_data *) dlist_data(p);
+    } 
+    else
+        iface_data = NULL;
+
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( packet )
+    {
+        while (!got_mpls_pkt && !(*stop))
+        {
+            interfaces_get_packet(attacks->used_ints, iface_data, stop, header, packet, PROTO_MPLS, NO_TIMEOUT);
+               
+            if ( !(*stop) )
+            {
+                pcap_aux.header = header;
+                pcap_aux.packet = packet;
+                                                                                                  
+                if (!mpls_load_values((struct pcap_data *)&pcap_aux, mpls_data))
+                {
+                   got_mpls_pkt = 1;
+                   ret = 0 ;
+                }
+            }
         }
 
-        pcap_aux.header = header;
-        pcap_aux.packet = packet;
-                                                                                          
-        if (!mpls_load_values((struct pcap_data *)&pcap_aux, mpls_data))
-           got_mpls_pkt = 1;
-        
-    } /* While got */
+        free(packet);
+    }
 
-    free(packet);
-
-    return 0;
+    return ret ;
 }
 
 
@@ -594,6 +595,9 @@ mpls_get_printable_packet(struct pcap_data *data)
    u_int32_t aux_long;
 #endif
 
+   if ( ! data )
+       return NULL;
+
     if (data && (data->header->caplen < (14+4+20+8)) ) /* Undersized packet!! */
        return NULL;
 
@@ -678,7 +682,7 @@ mpls_get_printable_packet(struct pcap_data *data)
         break;
     }
 
-    return (char **)field_values;    
+    return field_values;    
 }
 
 
@@ -742,7 +746,7 @@ mpls_get_printable_store(struct term_node *node)
     snprintf(field_values[MPLS_BOTTOM2], 2, "%01d",mpls_tmp->bottom2);
     snprintf(field_values[MPLS_TTL2], 4, "%03d",mpls_tmp->ttl2);
     
-    return (char **)field_values;
+    return field_values;
 }
 
 

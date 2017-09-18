@@ -643,6 +643,9 @@ dot1x_get_printable_packet(struct pcap_data *data)
     u_int8_t *cursor;
     char **field_values;
 
+    if ( ! data )
+        return NULL;
+
     if (data && (data->header->caplen < (14+4)) ) /* Undersized packet!! */
        return NULL;
 

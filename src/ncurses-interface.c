@@ -432,18 +432,17 @@ void ncurses_i_attack_screen( struct term_node *node, u_int8_t mode, WINDOW *att
 
                if ( attack_def[j].nparams) /* Do we need parameters for attack? */
                {
-                  if ((attack_param = calloc(1,
-                              (sizeof(struct attack_param) * attack_def[j].nparams))) == NULL)
+                  if ((attack_param = calloc(1, (sizeof(struct attack_param) * attack_def[j].nparams))) == NULL)
                   {
                      thread_error(" ncurses_i_attack_screen attack_param calloc",errno);
                      key_pressed='Q';
                      break;
                   }
-                  memcpy( attack_param, (void *)( attack_def[j].param),
-                        sizeof(struct attack_param) * attack_def[j].nparams);
+                  memcpy( attack_param, (void *)( attack_def[j].param), sizeof(struct attack_param) * attack_def[j].nparams);
                   if (attack_init_params(node, attack_param, attack_def[j].nparams) < 0)
                   {
                      free(attack_param);
+                     attack_param = NULL ;
                      key_pressed='Q';
                      break;
                   }
@@ -459,6 +458,7 @@ void ncurses_i_attack_screen( struct term_node *node, u_int8_t mode, WINDOW *att
                      {
                         attack_free_params(attack_param, attack_def[j].nparams);
                         free(attack_param);
+                        attack_param = NULL ;
                         key_pressed='Q';
                         break;
                      }
@@ -655,11 +655,13 @@ ncurses_i_show_info(u_int8_t mode, WINDOW *main_window, u_int8_t pointer, struct
    if (protocols[mode].get_printable_packet) {
       if ((values = (*protocols[mode].get_printable_packet)(&protocols[mode].stats[pointer])) == NULL) {
          write_log(0, "Error in get_printable_packet (mode %d)\n", mode);
+         delwin( info_window );
          return -1;
       }
    }
    else {
       write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", mode);
+      delwin( info_window );
       return -1;
    }
 
@@ -697,14 +699,12 @@ ncurses_i_show_info(u_int8_t mode, WINDOW *main_window, u_int8_t pointer, struct
    wattron(info_window, COLOR_PAIR(4));
    mvwprintw(info_window, k, 2, "%15s", "Total");
    wattroff(info_window, COLOR_PAIR(4));
-   mvwprintw(info_window, k++, 19,"%ld",  
-         protocols[mode].stats[pointer].total);
+   mvwprintw(info_window, k++, 19,"%ld", protocols[mode].stats[pointer].total);
 
    wattron(info_window, COLOR_PAIR(4));
    mvwprintw(info_window, k, 2, "%15s", "Interface");
    wattroff(info_window, COLOR_PAIR(4));
-   mvwprintw(info_window, k++, 19,"%s",  
-         protocols[mode].stats[pointer].iface);
+   mvwprintw(info_window, k++, 19,"%s", protocols[mode].stats[pointer].iface);
 
    wtimeout(info_window,NCURSES_KEY_TIMEOUT); 
 
@@ -1128,6 +1128,7 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
    va_start(argp, message);
    if (vsnprintf(vmessage,ERRORMSG_SIZE, message, argp) < 0) {
       thread_error("Error in vsprintf", errno);
+      free( vmessage );
       return -1;
    }
    va_end(argp);
@@ -1142,6 +1143,7 @@ ncurses_i_error_window(u_int8_t mode, char *message, ...)
    max_x = (message_s / (col / 2)) + 4;
    if ((m_split = (char *) malloc(max_y - 3)) == NULL) {
       thread_error("Error in malloc", errno);
+      free( vmessage );
       return -1;
    }
    my_window = newwin(max_x, max_y, (row-max_x)/2, (col-max_y)/2);
@@ -1420,6 +1422,7 @@ ncurses_i_edit_tlv(struct term_node *node, u_int8_t mode)
       if (modified) {
          if ((values = (u_int8_t **)(*protocols[mode].get_printable_store)(node)) == NULL) {
             write_log(0, "Error in get_printable_store (mode %d)\n", mode);
+            delwin( win );
             return -1;
          }
 
