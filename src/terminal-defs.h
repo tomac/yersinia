@@ -274,7 +274,7 @@ struct term_vty {
        u_int16_t buffer_tx_len;        /* Size of client buffer  */
        void      *more_tx;             /* Use it on more mode    */
        u_int16_t more_tx_len;          /* Size of more           */
-       char      buf_command[MAX_COMMAND]; /* The command        */
+       char      buf_command[MAX_COMMAND+1]; /* The command        */
        int8_t    repeat_command;      /* Repeat last command  */
        u_int16_t command_len;         /* Command Size         */
        u_int16_t command_cursor;      /* Where is the cursor  */

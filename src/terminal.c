@@ -1228,42 +1228,40 @@ term_vty_history_get_slot(char *history[], int8_t do_move, int8_t max_index)
  * Arrow up!!
  * Return -1 on error. Return 0 if OK.
  */
-int8_t 
-term_vty_history_prev(struct term_node *node)
+int8_t term_vty_history_prev( struct term_node *node )
 {
-   struct term_vty *vty = node->specific;
-   
-   if ( vty->history[vty->index_history] == NULL )
-      return 0;
+    struct term_vty *vty = node->specific;
 
-   if ( !strcmp(vty->history[vty->index_history],vty->buf_command) &&
-        !vty->index_history)
-      return 0;
+    if ( vty->history[vty->index_history] == NULL )
+        return 0;
 
-   if (term_vty_clear_remote(node) == -1)
-      return -1;
-    
-   term_vty_clear_command(node); /* It's necessary?...*/
-   
-   /* From history buffer to command buffer...*/
-   
-   memcpy(vty->buf_command, vty->history[vty->index_history],
-          strlen(vty->history[vty->index_history]));
+    if ( !strcmp( vty->history[vty->index_history], vty->buf_command ) && !vty->index_history )
+        return 0;
 
-   vty->command_len = strlen(vty->history[vty->index_history]);
-   vty->command_cursor = strlen(vty->history[vty->index_history]);
+    if ( term_vty_clear_remote(node) == -1)
+        return -1;
 
-   if ( term_vty_write(node, vty->history[vty->index_history],
-             strlen(vty->history[vty->index_history])) == -1)
-      return -1;
-   
-   if (term_vty_flush(node) == -1)
-      return -1;
-      
-   if (vty->index_history)
-      vty->index_history--;
+    term_vty_clear_command(node); /* It's necessary?...*/
 
-   return 0;
+    /* From history buffer to command buffer...*/
+    if ( strlen( vty->history[vty->index_history] ) <= MAX_COMMAND )
+    {
+        memcpy(vty->buf_command, vty->history[vty->index_history], strlen( vty->history[vty->index_history] ) );
+
+        vty->command_len = strlen(vty->history[vty->index_history]);
+        vty->command_cursor = strlen(vty->history[vty->index_history]);
+
+        if ( term_vty_write(node, vty->history[vty->index_history], strlen( vty->history[vty->index_history] ) ) == -1 )
+            return -1;
+
+        if (term_vty_flush(node) == -1)
+            return -1;
+          
+        if (vty->index_history)
+            vty->index_history--;
+    }
+
+    return 0;
 }
 
 
@@ -1272,70 +1270,68 @@ term_vty_history_prev(struct term_node *node)
  * Arrow down...
  * Return -1 on error. Return 0 if OK.
  */
-int8_t 
-term_vty_history_next(struct term_node *node)
+int8_t term_vty_history_next( struct term_node *node )
 {
-   int8_t aux;
-   struct term_vty *vty = node->specific;
+    int8_t aux;
+    struct term_vty *vty = node->specific;
       
-   aux = vty->index_history;
-   
-   if ( (vty->history[aux] == NULL) ||
-        (aux == (MAX_HISTORY-1) ) )
-   {
-      if (vty->command_len)
-      {
-         if (term_vty_clear_remote(node) == -1)
-            return -1;
-         if (term_vty_flush(node) == -1)
-            return -1;
-      }
-      term_vty_clear_command(node);
+    aux = vty->index_history;
 
-      return 0;
-   }
-
-   if ( !strcmp(vty->history[vty->index_history],vty->history[aux]))
-      aux++;
-
-   if ( (aux) < MAX_HISTORY )
-   {
-      if ( vty->history[aux] == NULL )
-      {
-         if (vty->command_len)
-         {
+    if ( ( vty->history[aux] == NULL ) || ( aux == ( MAX_HISTORY - 1 ) ) )
+    {
+        if (vty->command_len)
+        {
             if (term_vty_clear_remote(node) == -1)
-               return -1;
+                return -1;
             if (term_vty_flush(node) == -1)
-               return -1;
-         }
-         term_vty_clear_command(node);
-         return 0;
-      }
+                return -1;
+        }
+        term_vty_clear_command(node);
 
-      if (term_vty_clear_remote(node) == -1)
-         return -1;
+        return 0;
+    }
 
-      term_vty_clear_command(node); /* It's necessary?...*/
+    if ( !strcmp( vty->history[vty->index_history], vty->history[aux] ) )
+        aux++;
 
-      /* From history buffer to command buffer...*/
-      memcpy(vty->buf_command, vty->history[aux],
-             strlen(vty->history[aux]));
+    if ( (aux) < MAX_HISTORY )
+    {
+        if ( vty->history[aux] == NULL )
+        {
+            if (vty->command_len)
+            {
+                if (term_vty_clear_remote(node) == -1)
+                    return -1;
+                if (term_vty_flush(node) == -1)
+                    return -1;
+            }
+            term_vty_clear_command(node);
+            return 0;
+        }
 
-      vty->command_len = vty->command_cursor = strlen(vty->history[aux]);
+        if (term_vty_clear_remote(node) == -1)
+            return -1;
 
-      if ( term_vty_write(node, vty->history[aux],
-                strlen(vty->history[aux])) == -1)
-         return -1;
-      
-      if (term_vty_flush(node) == -1)
-         return -1;
+        term_vty_clear_command(node); /* It's necessary?...*/
 
-      vty->index_history=aux;
+        /* From history buffer to command buffer...*/
+        if ( strlen( vty->history[aux] ) <= MAX_COMMAND )
+        {
+            memcpy( vty->buf_command, vty->history[aux], strlen( vty->history[aux] ) );
 
-   }
+            vty->command_len = vty->command_cursor = strlen(vty->history[aux]);
 
-   return 0;   
+            if ( term_vty_write(node, vty->history[aux], strlen( vty->history[aux] ) ) == -1 )
+                return -1;
+          
+            if (term_vty_flush(node) == -1)
+                return -1;
+
+            vty->index_history = aux;
+        }
+    }
+
+    return 0;   
 }
 
 
