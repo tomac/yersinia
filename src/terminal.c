@@ -113,41 +113,7 @@ term_init(void)
       return -1;
    }
 #endif
-/* FRED    
-   if (pthread_mutex_init(&terms->pcap_listen_th.finished, NULL) != 0)
-   {
-      thread_error("term_init pthread_mutex_init mutex", errno);
-      return -1;
-   }
 
-#ifdef HAS_CURSES
-   if (pthread_mutex_init(&terms->gui_th.finished, NULL) != 0)
-   {
-      thread_error("term_init pthread_mutex_init mutex", errno);
-      return -1;
-   }
-#endif
-
-#ifdef HAVE_GTK
-   if (pthread_mutex_init(&terms->gui_gtk_th.finished, NULL) != 0)
-   {
-      thread_error("term_init pthread_mutex_init mutex", errno);
-      return -1;
-   }
-#endif
-
-   if (pthread_mutex_init(&terms->admin_listen_th.finished, NULL) != 0)
-   {
-      thread_error("term_init pthread_mutex_init mutex", errno);
-      return -1;
-   }
-
-   if (pthread_mutex_init(&terms->uptime_th.finished, NULL) != 0)
-   {
-      thread_error("term_init pthread_mutex_init mutex", errno);
-      return -1;
-   }
-*/   
    term_type[TERM_CON].list = terms->list;
    term_type[TERM_TTY].list = &terms->list[MAX_CON];
    term_type[TERM_VTY].list = &terms->list[MAX_CON+MAX_TTY];

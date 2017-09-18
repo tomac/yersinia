@@ -975,109 +975,103 @@ gtk_c_refresh_mwindow(gpointer userdata)
 }
 
 
-void
-gtk_c_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer userdata)
+void gtk_c_tree_selection_changed_cb( GtkTreeSelection *selection, gpointer userdata )
 {
-   GtkTreeIter iter;
-   GtkTreeModel *model;
-   GtkWidget *tree;
-   GtkListStore *tree_model;
-   u_int8_t row;
-   u_int8_t j, k, mode;
-   char **values, *ptrtlv;
-   struct commands_param *params;
-   struct gtk_s_helper *helper;
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkWidget *tree;
+    GtkListStore *tree_model;
+    u_int8_t row = 0;
+    u_int8_t j, k, mode;
+    char **values = NULL, *ptrtlv;
+    struct commands_param *params;
+    struct gtk_s_helper *helper = (struct gtk_s_helper *) userdata;
 
-   helper = (struct gtk_s_helper *) userdata;
-   values = NULL;
-   row = 0;
+    if ( gtk_tree_selection_get_selected( selection, &model, &iter ) )
+        gtk_tree_model_get(model, &iter, 0, &row, -1);
 
-   if (gtk_tree_selection_get_selected (selection, &model, &iter))
-   {
-      gtk_tree_model_get(model, &iter, 0, &row, -1);
-   } else { /* TODO: get a proper selection */
-      row = 0;
-   }
+    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
+    params = (struct commands_param *)protocols[mode].parameters;
 
-   mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
-   params = (struct commands_param *)protocols[mode].parameters;
+    if ( protocols[mode].stats[row].header->ts.tv_sec <= 0) 
+    {
+        /* write_log(0, "Ohhh no hay paquetes del modo %d, fila %d :(\n", mode, row); */
+        return;
+    }
 
-   if (protocols[mode].stats[row].header->ts.tv_sec <= 0) {
-      /* write_log(0, "Ohhh no hay paquetes del modo %d, fila %d :(\n", mode, row); */
-      return;
-   }
+    tree = lookup_widget(GTK_WIDGET(helper->notebook), "main_vhvvs_tree");
 
-   tree = lookup_widget(GTK_WIDGET(helper->notebook), "main_vhvvs_tree");
-   if ((tree_model = (GtkListStore *)gtk_tree_view_get_model(GTK_TREE_VIEW(tree))) == NULL)
-      write_log(0, "Error in gtk_tree_view_get_model\n");
+    if ((tree_model = (GtkListStore *)gtk_tree_view_get_model(GTK_TREE_VIEW(tree))) == NULL)
+    {
+        write_log(0, "Error in gtk_tree_view_get_model\n");
+        return;
+    }
 
-   gtk_list_store_clear(tree_model);
+    gtk_list_store_clear(tree_model);
 
-   if (protocols[mode].get_printable_packet) {
-      if ((values = (*protocols[mode].get_printable_packet)(&protocols[mode].stats[row])) == NULL) {
-         write_log(0, "Error in get_printable_packet (mode %d)\n", mode);
-      }
-   }
-   else {
-      write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", mode);
-   }
+    if (protocols[mode].get_printable_packet)
+    {
+        values = (*protocols[mode].get_printable_packet)(&protocols[mode].stats[row]);
+        
+        if ( ! values )
+        {
+            write_log(0, "Error in get_printable_packet (mode %d)\n", mode);
+            return ;
+        }
+    }
+    else 
+    {
+        write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", mode);
+        return ;
+    }
 
-   j = 0;
-   k = 0;
+    j = 0;
+    k = 0;
 
-   /* Normal parameters (-2 for the interface and defaults) */
-   while (j < protocols[mode].nparams)
-   {
-      if ((params[j].type != FIELD_IFACE) && (params[j].type != FIELD_DEFAULT) && (params[j].type != FIELD_EXTRA))
-      {
-         gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
-         gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, params[j].ldesc, -1);
-         gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, values[k], -1);
-         if (params[j].meaning)
-            gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 2, parser_get_meaning( values[k], params[j].meaning ), -1 );
-         k++;
-      }
-      j++;
-   }
+    /* Normal parameters (-2 for the interface and defaults) */
+    while (j < protocols[mode].nparams)
+    {
+        if ((params[j].type != FIELD_IFACE) && (params[j].type != FIELD_DEFAULT) && (params[j].type != FIELD_EXTRA))
+        {
+            gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
+            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, params[j].ldesc, -1);
+            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, values[k], -1);
+            if (params[j].meaning)
+                gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 2, parser_get_meaning( values[k], params[j].meaning ), -1 );
+            k++;
+        }
+        j++;
+    }
 
-   ptrtlv = values[k];
-   if (protocols[mode].extra_nparams > 0)
-   {
-      while ((ptrtlv) && (strlen((char *)ptrtlv) > 0))
-      {
-         gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
-         gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, ptrtlv, -1);
-         ptrtlv += strlen((char *)ptrtlv) + 1;
-/*                     if (extra_params[j].meaning)
-                     {
-                        snprintf(meaningbuf, 64, "%s %s", ptrtlv, parser_get_meaning(ptrtlv, extra_params[j].meaning));
-                        gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, meaningbuf, -1);
-                     } else
-                        gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, val, ptrtlv, -1);
-                     val++;*/
+    ptrtlv = values[k];
+    if (protocols[mode].extra_nparams > 0)
+    {
+        while( ptrtlv && strlen( ptrtlv ) )
+        {
+            gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
+            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, ptrtlv, -1);
+            ptrtlv += strlen( ptrtlv ) + 1;
+            if (ptrtlv) 
+            {
+                gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, ptrtlv, -1);
+                ptrtlv += strlen( ptrtlv ) + 1;
+            }
+        }
+    }
 
-         if (ptrtlv) 
-         {
-            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, ptrtlv, -1);
-            ptrtlv += strlen((char *)ptrtlv) + 1;
-         }
-      }
-   }
+    gtk_list_store_append (GTK_LIST_STORE (tree_model), &iter);
+    gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 0, "Interface", -1); 
+    gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 1, protocols[mode].stats[row].iface, -1); 
 
-   gtk_list_store_append (GTK_LIST_STORE (tree_model), &iter);
-   gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 0, "Interface", -1); 
-   gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 1, protocols[mode].stats[row].iface, -1); 
+    k = 0;
 
-   k = 0;
-   if (values) 
-   {
-      while(values[k]) 
-      {
-         free((void *)values[k]);
-         k++;
-      }
-      free(values);
-   }
+    while( values[k] )
+    {
+        free((void *)values[k]);
+        k++;
+    }
+
+    free(values);
 }
 
 

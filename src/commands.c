@@ -112,21 +112,16 @@ int8_t command_main( struct term_node *node, struct words_array *warray, int16_t
 
    last_proto = prot;
    par_comm = 0;
+
    if (warray->word[warray->indx])
    {
        if (!(warray->word[warray->indx+1]))
-       {
           last = 1;
-       }
        else
-       {
           last = 0;
-       }
    }
    else
-   {
       last = 0;
-   }
    
     if (!warray->word[warray->indx] && (help || tab)) /* We have just a help '?' or a TAB */
     {
@@ -226,9 +221,7 @@ int8_t command_main( struct term_node *node, struct words_array *warray, int16_t
          if (last_proto < MAX_PROTOCOLS)
             proto = last_proto;
          if (!aux_comm[j].command)
-         {
              fail = command_main(node, warray, j, help, as_param, proto, aux_comm[j].strcom, tab);
-         }
          else
          {
             if (aux_comm[j].proto == LIST_PARAM)

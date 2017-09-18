@@ -631,7 +631,6 @@ void xstp_th_nondos_role( void *arg )
     xstp_decrement_bridgeid(stp_data);
 
     /* let the thread be created */
-    // FRED thread_create(&attacks->helper_th.id, &xstp_send_hellos, attacks);
     if ( thread_create( &attacks->helper_th, &xstp_send_hellos, attacks ) != 0 )
     {
         write_log( 0, "xstp_th_nondos_role thread_create()");
@@ -842,7 +841,6 @@ void xstp_th_dos_mitm( void *arg )
         xstp_th_dos_mitm_exit(attacks);
     xstp_decrement_bridgeid(&stp_data2);
 
-    // FRED thread_create(&attacks->helper_th.id, &xstp_send_hellos, &xstp_mitm_args);
     if ( thread_create( &attacks->helper_th, &xstp_send_hellos, &xstp_mitm_args) != 0 )
     {
         write_log( 0, "xstp_th_dos_mitm thread_create error\n");
