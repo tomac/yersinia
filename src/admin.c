@@ -98,11 +98,6 @@
 int8_t admin_init( struct term_tty *node )
 {
     return thread_create( &terms->admin_listen_th, &admin_th_listen, (void *)node );
-   /* FRED if (thread_create(&terms->admin_listen_th.id, &admin_th_listen, 
-        (void *)node) < 0)
-      return -1;
-
-   return 0;*/
 }
 
 

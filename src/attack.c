@@ -115,21 +115,8 @@ int8_t attack_launch( struct term_node *node, u_int16_t proto, u_int16_t attack,
                  node->protocol[proto].attacks[i].up = 0;
                  return -1;
             }
+
             memcpy(node->protocol[proto].attacks[i].data, node->protocol[proto].tmp_data, protocols[proto].size );
-
-            /* FRED if (pthread_mutex_init(&node->protocol[proto].attacks[i].attack_th.finished, NULL) != 0)
-            {
-                 thread_error("attack_launch pthread_mutex_init mutex", errno);
-                 free(node->protocol[proto].attacks[i].data);
-                 return -1;
-            }
-
-            if (pthread_mutex_init(&node->protocol[proto].attacks[i].helper_th.finished, NULL) != 0)
-            {
-                 thread_error("attack_launch pthread_mutex_init mutex", errno);
-                 free(node->protocol[proto].attacks[i].data);
-                 return -1;
-            }*/
 
             if ( thread_create( &node->protocol[proto].attacks[i].attack_th, //&node->protocol[proto].attacks[i].attack_th.id, 
                                 (*protocols[proto].attack_def_list[attack].attack_th_launch), 
