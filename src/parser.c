@@ -654,6 +654,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                state = 1;
             }
             else 
+            {
                if (strncmp(ptr, "<protocol", 9) == 0)
                {
                   /* Protocol options */
@@ -661,15 +662,15 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                   for (i = 0; i < MAX_PROTOCOLS; i++)
                   {
                      if (protocols[i].visible)
-                        if (strncasecmp(protocols[i].namep, 
-                                 (ptr + 10), 
-                                 strlen(protocols[i].namep)) == 0)
+                     {
+                        if ( strncasecmp(protocols[i].namep, (ptr + 10),  strlen( protocols[i].namep ) ) == 0 )
                         {
                            proto = protocols[i].proto;
                            params = (struct commands_param *) protocols[proto].parameters;
                         }
-
+                     }
                   }
+
                   if (proto < 0) 
                   {
                      write_log(1, "Error when parsing file %s, there is no %s protocol (or not visible)!!\n", tty->config_file, (ptr + 10));
@@ -678,6 +679,7 @@ parser_read_config_file(struct term_tty *tty, struct term_node *node)
                   }
                   state = 2;
                }
+            }
             break;
          case 1:
             /* State 1: global options */

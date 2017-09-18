@@ -95,9 +95,7 @@
 /*
  * Refresh main window
  */
-void 
-ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer, 
-        struct term_node *node)
+void ncurses_c_refresh_mwindow( u_int8_t mode, WINDOW *mwindow, u_int8_t pointer, struct term_node *node )
 {
    u_int8_t i, row, col, j, offset, tlv, k, position, max_len;
    char *ptrtlv;
@@ -108,9 +106,9 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
    struct commands_param_extra *extra_params=NULL;
    time_t this_time;
 
-   tlv = 0;
+   tlv     = 0;
    max_len = 0;
-   values = NULL;
+   values  = NULL;
 
    term_console = node->specific;
 
@@ -307,9 +305,6 @@ ncurses_c_refresh_mwindow(u_int8_t mode, WINDOW *mwindow, u_int8_t pointer,
             wattroff(mwindow, COLOR_PAIR(5) | A_BOLD);
 
          k = 0;
-
-         /* Reset values */
-         memset((void *)values, 0, sizeof(values));
 
          if (values) 
          {
