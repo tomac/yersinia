@@ -142,16 +142,13 @@ hsrp_init_comms_struct(struct term_node *node)
 }
 
 
-void
-hsrp_th_send_raw(void *arg)
+void hsrp_th_send_raw( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct hsrp_data *hsrp_data;
     sigset_t mask;
     u_int32_t lbl32;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -178,14 +175,13 @@ hsrp_th_send_raw(void *arg)
     hsrp_th_send_raw_exit(attacks);
 }
 
+
 void hsrp_th_send_raw_exit( struct attacks *attacks )
 {
-    if ( attacks )
-    {
-        attack_th_exit( attacks );
+    attack_th_exit( attacks );
 
-        pthread_mutex_unlock( &attacks->attack_th.finished );
-    }
+    pthread_mutex_unlock( &attacks->attack_th.finished );
+
     pthread_exit( NULL );
 }
 

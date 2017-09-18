@@ -139,15 +139,12 @@ dot1q_init_comms_struct(struct term_node *node)
 
 
 
-void
-dot1q_th_send(void *arg)
+void dot1q_th_send( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
     struct dot1q_data *dot1q_data;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -172,11 +169,9 @@ dot1q_th_send(void *arg)
 }
 
 
-void
-dot1q_th_send_exit(struct attacks *attacks)
+void dot1q_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     
@@ -184,15 +179,12 @@ dot1q_th_send_exit(struct attacks *attacks)
 }
 
 
-void
-dot1q_double_th_send(void *arg)
+void dot1q_double_th_send( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
     struct dot1q_data *dot1q_data;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -217,11 +209,9 @@ dot1q_double_th_send(void *arg)
 }
 
 
-void
-dot1q_double_th_send_exit(struct attacks *attacks)
+void dot1q_double_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     

@@ -244,14 +244,11 @@ mpls_th_send_icmp(void *arg)
     mpls_th_send_exit(attacks);
 }
 
-void 
-mpls_th_send_double_icmp(void *arg)
+void mpls_th_send_double_icmp( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct mpls_data *mpls_data;
 
-    attacks = arg;
-    
     mpls_data = attacks->data;
     mpls_data->double_hdr = 1;
     mpls_data->proto = IPPROTO_ICMP;
@@ -262,8 +259,7 @@ mpls_th_send_double_icmp(void *arg)
 }
 
 
-void 
-mpls_send(struct attacks *attacks)
+void mpls_send( struct attacks *attacks )
 {
     sigset_t mask;
     struct mpls_data *mpls_data;
@@ -301,7 +297,7 @@ mpls_send(struct attacks *attacks)
     {
         iface_data = (struct interface_data *) dlist_data(p);
         lhandler = iface_data->libnet_handler;
-
+        t = -1 ;
         switch(mpls_data->proto)
         {
         case IPPROTO_TCP:
@@ -449,11 +445,9 @@ mpls_send(struct attacks *attacks)
 }
 
 
-void 
-mpls_th_send_exit(struct attacks *attacks)
+void mpls_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     

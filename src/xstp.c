@@ -138,14 +138,11 @@ xstp_init_comms_struct(struct term_node *node)
 }
 
 
-void
-xstp_th_send_bpdu_conf(void *arg)
+void xstp_th_send_bpdu_conf( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -164,11 +161,9 @@ xstp_th_send_bpdu_conf(void *arg)
 }
 
 
-void
-xstp_th_send_bpdu_conf_exit(struct attacks *attacks)
+void xstp_th_send_bpdu_conf_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -282,14 +277,11 @@ xstp_send_bpdu_conf(u_int8_t mac_spoofing, struct stp_data *stp_data, struct int
 
 
 
-void
-xstp_th_send_bpdu_tcn(void *arg)
+void xstp_th_send_bpdu_tcn( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg ;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -308,16 +300,15 @@ xstp_th_send_bpdu_tcn(void *arg)
 }
 
 
-void
-xstp_th_send_bpdu_tcn_exit(struct attacks *attacks)
+void xstp_th_send_bpdu_tcn_exit(struct attacks *attacks)
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
     pthread_exit(NULL);
 }
+
 
 int8_t
 xstp_send_all_bpdu_tcn(struct attacks *attacks)
@@ -467,7 +458,7 @@ void xstp_send_hellos( void *arg )
         } /* if timeout...*/
         hello.tv_sec  = 0;
         hello.tv_usec = 250000;
-    } /* while...*/
+    }
 
     write_log(0," helper: %X finished...\n",(int)pthread_self());
     
@@ -553,15 +544,12 @@ void xstp_th_dos_conf_exit( struct attacks *attacks )
 /********************************/
 /* DoS attack sending TCN BPDUs */
 /********************************/
-void
-xstp_th_dos_tcn(void *arg)
+void xstp_th_dos_tcn( void *arg )
 {
-    struct attacks *attacks=NULL;
+    struct attacks *attacks = (struct attacks *)arg;
     struct stp_data *stp_data;
     sigset_t mask;
 
-    attacks = arg;
-    
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -592,11 +580,9 @@ xstp_th_dos_tcn(void *arg)
 }
 
 
-void
-xstp_th_dos_tcn_exit(struct attacks *attacks)
+void xstp_th_dos_tcn_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
 
     pthread_mutex_unlock(&attacks->attack_th.finished);
      
@@ -654,39 +640,39 @@ void xstp_th_nondos_role( void *arg )
 
     packet = (uint8_t *)calloc( 1, SNAPLEN );
 
-    if ( ! packet )
-        xstp_th_nondos_role_exit(attacks);
-
-    while (!attacks->attack_th.stop)
+    if ( packet )
     {
-        interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_STP, NO_TIMEOUT);
-
-        if ( ! attacks->attack_th.stop )
+        while (!attacks->attack_th.stop)
         {
-            stp_conf = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
+            interfaces_get_packet(attacks->used_ints, NULL, &attacks->attack_th.stop, &header, packet, PROTO_STP, NO_TIMEOUT);
 
-            switch (*(stp_conf+3))
+            if ( ! attacks->attack_th.stop )
             {
-                case BPDU_CONF_STP:
-                case BPDU_CONF_RSTP:
-                    if ( *(stp_conf+3) == STP_TOPOLOGY_CHANGE) {
+                stp_conf = (packet + LIBNET_802_3_H + LIBNET_802_2_H);
+
+                switch (*(stp_conf+3))
+                {
+                    case BPDU_CONF_STP:
+                    case BPDU_CONF_RSTP:
+                        if ( *(stp_conf+3) == STP_TOPOLOGY_CHANGE) {
+                            flags_tmp = stp_data->flags;
+                            stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
+                            xstp_send_all_bpdu_conf(arg);
+                            stp_data->flags = flags_tmp;
+                        }
+                    break;
+                    case BPDU_TCN:
                         flags_tmp = stp_data->flags;
                         stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
                         xstp_send_all_bpdu_conf(arg);
                         stp_data->flags = flags_tmp;
-                    }
-                break;
-                case BPDU_TCN:
-                    flags_tmp = stp_data->flags;
-                    stp_data->flags |= STP_TOPOLOGY_CHANGE_ACK;
-                    xstp_send_all_bpdu_conf(arg);
-                    stp_data->flags = flags_tmp;
-                break;
+                    break;
+                }
             }
         }
-    }
 
-    free(packet);
+        free(packet);
+    }
 
     xstp_th_nondos_role_exit(attacks);
 }
@@ -779,7 +765,7 @@ void xstp_send_hellos_mitm( void *arg )
         } /* if timeout...*/
         hello.tv_sec  = 0;
         hello.tv_usec = 250000;
-    } /* while...*/
+    }
 
     write_log(0," helper: %d finished...\n",(int)pthread_self());
     
@@ -927,8 +913,7 @@ void xstp_th_dos_mitm( void *arg )
 }
 
 
-void
-xstp_th_dos_mitm_exit(struct attacks *attacks)
+void xstp_th_dos_mitm_exit(struct attacks *attacks)
 {
     attack_th_exit(attacks);
 
@@ -1013,7 +998,8 @@ void xstp_th_nondos_other_role_exit( struct attacks *attacks )
 int8_t
 xstp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *data, struct pcap_pkthdr *header )
 {
-    struct stp_data *stp_data;
+    struct stp_data *stp_data = (struct stp_data *)data;
+    struct interface_data *iface_data;
     struct libnet_802_3_hdr *ether;
 #ifdef LBL_ALIGN
     u_int16_t aux_short;
@@ -1022,22 +1008,23 @@ xstp_learn_packet(struct attacks *attacks, char *iface, u_int8_t *stop, void *da
     u_int8_t *packet, *stp_conf;
     int8_t got_bpdu_conf = 0;
     dlist_t *p;
-    struct interface_data *iface_data;
 
-    stp_data = (struct stp_data *)data;
-  
-    if ((packet = calloc(1, SNAPLEN)) == NULL)
-        return -1;
 
-    if (iface) {
+    if (iface) 
+    {
        p = dlist_search(attacks->used_ints->list, attacks->used_ints->cmp, iface);
        if (!p)
           return -1;
 
        iface_data = (struct interface_data *) dlist_data(p);
-    } else {
-       iface_data = NULL;
     }
+    else
+       iface_data = NULL;
+
+    packet = (u_int8_t *)calloc( 1, SNAPLEN );
+
+    if ( ! packet )
+        return -1;
 
     while (!got_bpdu_conf && ! (*stop) )
     {

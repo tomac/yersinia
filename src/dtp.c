@@ -130,15 +130,13 @@ dtp_init_comms_struct(struct term_node *node)
     return 0;
 }
 
-void
-dtp_th_send(void *arg)
-{
-    struct attacks *attacks=NULL;
-    sigset_t mask;
-    struct dtp_data *dtp_data;
 
-    attacks = arg;
-    
+void dtp_th_send( void *arg )
+{
+    struct attacks *attacks = (struct attacks *)arg;
+    struct dtp_data *dtp_data;
+    sigset_t mask;
+
     pthread_mutex_lock(&attacks->attack_th.finished);
 
     pthread_detach(pthread_self());
@@ -160,11 +158,9 @@ dtp_th_send(void *arg)
 }
 
 
-void
-dtp_th_send_exit(struct attacks *attacks)
+void dtp_th_send_exit( struct attacks *attacks )
 {
-    if (attacks)
-       attack_th_exit(attacks);
+    attack_th_exit(attacks);
     
     pthread_mutex_unlock(&attacks->attack_th.finished);
     

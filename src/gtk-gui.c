@@ -121,9 +121,9 @@ gtk_gui (void *args)
 
 #ifdef HAVE_CTIME_R
 #ifdef SOLARIS
-    ctime_r(&this_time,term_node->since, sizeof(term_node->since));
+    ctime_r( &this_time, term_node->since, sizeof( term_node->since ) );
 #else
-    ctime_r(&this_time,term_node->since);
+    ctime_r( &this_time, term_node->since );
 #endif
 #else
     pthread_mutex_lock(&mutex_ctime);
