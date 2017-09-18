@@ -965,8 +965,9 @@ GtkWidget *gtk_i_create_attacksdialog( GtkWidget *notebook, struct gtk_s_helper 
             gtk_widget_show (attacks_n_labels[i]);
     
          gtk_notebook_set_tab_label (GTK_NOTEBOOK (attacks_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (attacks_notebook), i), attacks_n_labels[i]);
-    
-         attacks_v_table = gtk_table_new (SIZE_ARRAY(attack_def), 3, FALSE);
+   
+         attacks_v_table = gtk_table_new( 1, 3, FALSE );
+
          gtk_widget_show (attacks_v_table);
          gtk_container_add(GTK_CONTAINER(attacks_frame), attacks_v_table);
          gtk_container_set_border_width (GTK_CONTAINER (attacks_v_table), 10);
