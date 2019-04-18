@@ -229,85 +229,85 @@ Screenshot of the attack running:
 
 Output of a Cisco 2503 router:
 
-athens#sh mem
-               Head   Total(b)    Used(b)    Free(b)  Lowest(b) Largest(b)
-Processor     4873C    3893444    3893444          0          0          0
-I/O          400000    2097152    2097088         64         64         64
+    athens#sh mem
+                   Head   Total(b)    Used(b)    Free(b)  Lowest(b) Largest(b)
+    Processor     4873C    3893444    3893444          0          0          0
+    I/O          400000    2097152    2097088         64         64         64
 
-<log>
-%SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
--Process= "CDP Protocol", ipl= 6, pid= 9
--Traceback= 3159232 31594DE 3201660
-%LANCE-5-COLL: Unit 0, excessive collisions. TDR=7
-%SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
--Process= "CDP Protocol", ipl= 6, pid= 9
--Traceback= 3159232 31594DE 3201660
-%SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
--Process= "CDP Protocol", ipl= 0, pid= 9
--Traceback= 314E8A4 314FA06 3201B46 32016C8
-%SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
--Process= "CDP Protocol", ipl= 6, pid= 9
--Traceback= 3159232 31594DE 3201660
-%SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
--Process= "CDP Protocol", ipl= 0, pid= 9
--Traceback= 314E8A4 314FA06 3201B46 32016C8
-%SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
--Process= "CDP Protocol", ipl= 0, pid= 9
--Traceback= 314E8A4 314FA06 3201B46 32016C8
-</log>
+    <log>
+    %SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
+    -Process= "CDP Protocol", ipl= 6, pid= 9
+    -Traceback= 3159232 31594DE 3201660
+    %LANCE-5-COLL: Unit 0, excessive collisions. TDR=7
+    %SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
+    -Process= "CDP Protocol", ipl= 6, pid= 9
+    -Traceback= 3159232 31594DE 3201660
+    %SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
+    -Process= "CDP Protocol", ipl= 0, pid= 9
+    -Traceback= 314E8A4 314FA06 3201B46 32016C8
+    %SCHED-3-THRASHING: Process thrashing on watched queue 'CDP packets' (count 57).
+    -Process= "CDP Protocol", ipl= 6, pid= 9
+    -Traceback= 3159232 31594DE 3201660
+    %SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
+    -Process= "CDP Protocol", ipl= 0, pid= 9
+    -Traceback= 314E8A4 314FA06 3201B46 32016C8
+    %SYS-2-MALLOCFAIL: Memory allocation of 100 bytes failed from 0x3201B3E, pool Processor, alignment 0
+    -Process= "CDP Protocol", ipl= 0, pid= 9
+    -Traceback= 314E8A4 314FA06 3201B46 32016C8
+    </log>
 
 And a couple of minutes later after killing the attack, the router surprisingly gets halted for several seconds, 
 and then kicks you out of the terminal :)
 
-<log>
-%SYS-3-CPUHOG: Task ran for 16884 msec (69/69), Process = Exec, PC = 3158D42
--Traceback= 3158CEE 3158D4A 30F7330 30F742A 30FF3A4 30FEF76 30FEF1C 3116860
-</log>
+    <log>
+    %SYS-3-CPUHOG: Task ran for 16884 msec (69/69), Process = Exec, PC = 3158D42
+    -Traceback= 3158CEE 3158D4A 30F7330 30F742A 30FF3A4 30FEF76 30FEF1C 3116860
+    </log>
 
 
 Output of a Cisco 2950 switch:
 
-00:06:08: %SYS-2-MALLOCFAIL: Memory allocation of 224 bytes failed from 0x800118D0, alignment 0
-Pool: Processor  Free: 0  Cause: Not enough free memory
-Alternate Pool: I/O  Free: 32  Cause: Not enough free memory
+    00:06:08: %SYS-2-MALLOCFAIL: Memory allocation of 224 bytes failed from 0x800118D0, alignment 0
+    Pool: Processor  Free: 0  Cause: Not enough free memory
+    Alternate Pool: I/O  Free: 32  Cause: Not enough free memory
 
--Process= "CDP Protocol", ipl= 0, pid= 26
--Traceback= 801DFC30 801E1DD8 800118D8 80011218 801D932C 801D9318
-00:06:08:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:09:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:10:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:11:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:12:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:13:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:14:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:15:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:16:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:17:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:18:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:19:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:20:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:21:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:22:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:23:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:38: %SYS-2-MALLOCFAIL: Memory allocation of 140 bytes failed from 0x801E28BC, alignment 0
-Pool: Processor  Free: 0  Cause: Not enough free memory
-Alternate Pool: I/O  Free: 32  Cause: Not enough free memory
+    -Process= "CDP Protocol", ipl= 0, pid= 26
+    -Traceback= 801DFC30 801E1DD8 800118D8 80011218 801D932C 801D9318
+    00:06:08:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:09:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:10:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:11:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:12:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:13:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:14:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:15:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:16:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:17:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:18:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:19:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:20:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:21:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:22:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:23:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:38: %SYS-2-MALLOCFAIL: Memory allocation of 140 bytes failed from 0x801E28BC, alignment 0
+    Pool: Processor  Free: 0  Cause: Not enough free memory
+    Alternate Pool: I/O  Free: 32  Cause: Not enough free memory
 
--Process= "Calhoun Statistics Process", ipl= 0, pid= 21
--Traceback= 801DFC30 801E1DD8 801E28C4 801F13BC 801F1470 802F7C90 802F9190 802F9788 801D932C 801D9318
-00:06:38:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:39:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:40:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:41:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:42:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:44:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:45:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:46:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:47:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:48:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:49:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:50:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
-00:06:59: %SYS-3-CPUHOG: Task ran for 2076 msec (11/10), process = Net Background, PC = 801ABD40.
--Traceback= 801ABD48 801D932C 801D9318
+    -Process= "Calhoun Statistics Process", ipl= 0, pid= 21
+    -Traceback= 801DFC30 801E1DD8 801E28C4 801F13BC 801F1470 802F7C90 802F9190 802F9788 801D932C 801D9318
+    00:06:38:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:39:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:40:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:41:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:42:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:44:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:45:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:46:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:47:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:48:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:49:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:50:  ../src-calhoun/strata_stats.c at line 137: can't not push event list
+    00:06:59: %SYS-3-CPUHOG: Task ran for 2076 msec (11/10), process = Net Background, PC = 801ABD40.
+    -Traceback= 801ABD48 801D932C 801D9318
 
 And then, the CDP process is totally down, even when we stop the attack. No more CDP babies...
