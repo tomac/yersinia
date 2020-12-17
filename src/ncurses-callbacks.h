@@ -77,8 +77,8 @@
 #define CAN_RESIZE 1
 #endif
 
-u_int8_t pointer[MAX_PROTOCOLS];
-WINDOW *info_window;
+extern u_int8_t pointer[MAX_PROTOCOLS];
+extern WINDOW *info_window;
 
 void    ncurses_c_refresh_mwindow(u_int8_t, WINDOW *, u_int8_t, struct term_node *);
 void    ncurses_c_refresh_bwindow(u_int8_t, WINDOW *, struct term_node *);

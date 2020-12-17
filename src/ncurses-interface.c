@@ -92,6 +92,8 @@
 #include "ncurses-interface.h"
 #include "ncurses-callbacks.h"
 
+u_int8_t pointer[MAX_PROTOCOLS];
+WINDOW *info_window;
 
 /*
  * Ncurses init
