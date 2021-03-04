@@ -60,6 +60,7 @@
 #include <ctype.h>
 
 #include "protocols.h"
+struct protocol_def protocols[MAX_PROTOCOLS];
 
 void
 protocol_init(void)

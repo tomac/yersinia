@@ -207,7 +207,7 @@ struct protocol_def {
        end_t end;
 };
 
-struct protocol_def protocols[MAX_PROTOCOLS];
+extern struct protocol_def protocols[MAX_PROTOCOLS];
 
 void   protocol_init(void);
 int8_t protocol_register(u_int8_t, const char *, const char *, const char *,

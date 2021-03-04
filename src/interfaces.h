@@ -67,7 +67,7 @@
 
 #define NO_TIMEOUT  0
 
-list_t *interfaces;
+extern list_t *interfaces;
 
 struct interface_data {
        int8_t   up;                  /* is it active? */

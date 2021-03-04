@@ -101,7 +101,7 @@
 #endif
 
 #include "interfaces.h"
-
+list_t *interfaces;
 
 
 

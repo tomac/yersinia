@@ -80,8 +80,8 @@
 #define CAN_RESIZE 1
 #endif
 
-u_int8_t pointer[MAX_PROTOCOLS];
-WINDOW *info_window;
+extern u_int8_t pointer[MAX_PROTOCOLS];
+extern WINDOW *info_window;
 
 int8_t  ncurses_i_init(WINDOW *[], PANEL *[], struct term_node *);
 void    ncurses_i_add_node(void);
