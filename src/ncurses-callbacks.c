@@ -164,7 +164,7 @@ void ncurses_c_refresh_mwindow( u_int8_t mode, WINDOW *mwindow, u_int8_t pointer
    position = 1;
    for (i = 0; i < protocols[mode].nparams; i++) {
       if (params[i].mwindow) {
-         mvwprintw(mwindow, 1, position + offset, params[i].ldesc);
+         mvwprintw(mwindow, 1, position + offset, "%s", params[i].ldesc);
          if (params[i].meaning)
          {
             max_len = parser_get_max_field_length(params[i].meaning);
@@ -177,7 +177,7 @@ void ncurses_c_refresh_mwindow( u_int8_t mode, WINDOW *mwindow, u_int8_t pointer
 
    for (i = 0; i < protocols[mode].extra_nparams; i++) {
       if (extra_params[i].mwindow) {
-         mvwprintw(mwindow, 1, position + offset, extra_params[i].ldesc);
+         mvwprintw(mwindow, 1, position + offset, "%s", extra_params[i].ldesc);
          if (extra_params[i].meaning)
          {
             max_len = parser_get_max_field_length(extra_params[i].meaning);
