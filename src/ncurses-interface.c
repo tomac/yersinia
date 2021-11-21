@@ -1187,14 +1187,14 @@ int8_t ncurses_i_error_window( u_int8_t mode, char *message, ... )
       if (message_s >= max_y - 4) {
          strncpy(m_split, ptr, max_y - 4);
          m_split[max_y-4] = '\0';
-         mvwprintw(my_window, i, 2, m_split);
+         mvwprintw(my_window, i, 2, "%s", m_split);
          message_s -= max_y - 4;
          ptr += max_y - 4;
          /* offset */
       } else {
          strncpy(m_split, ptr, message_s);
          m_split[message_s] = '\0';
-         mvwprintw(my_window, i, 2, m_split);
+         mvwprintw(my_window, i, 2, "%s", m_split);
          message_s = 0;
       }
       i++;
@@ -1247,7 +1247,7 @@ ncurses_i_getstring_window(struct term_node *term, char *status, char *data, u_i
    wattron(my_window, COLOR_PAIR(3));
    box(my_window, 0, 0);
 
-   mvwprintw(my_window, 0, 2, message);
+   mvwprintw(my_window, 0, 2, "%s", message);
 
    mvwprintw(my_window, max_x - 1, 2, " Press Enter to continue ");
    wattroff(my_window, COLOR_PAIR(3));
@@ -1301,13 +1301,13 @@ ncurses_i_getconfirm(struct term_node *term, char *status, char *message, char *
    wattron(my_window, COLOR_PAIR(3));
    box(my_window, 0, 0);
 
-   mvwprintw(my_window, 0, 2, title);
+   mvwprintw(my_window, 0, 2, "%s", title);
 
-   mvwprintw(my_window, max_y - 1, 2, bottom);
+   mvwprintw(my_window, max_y - 1, 2, "%s", bottom);
 
    wattroff(my_window, COLOR_PAIR(3));
 
-   mvwprintw(my_window, max_y - 3, 1, message);
+   mvwprintw(my_window, max_y - 3, 1, "%s", message);
 
    wtimeout(my_window,NCURSES_KEY_TIMEOUT); /* Block for 100 millisecs...*/
 
@@ -1831,7 +1831,7 @@ ncurses_i_attack_get_params(struct attack_param *param, u_int8_t nparams)
 
    mvwprintw(my_window, 0, 2, "Attack parameters");
 
-   mvwprintw(my_window, max_y - 1, 2, bottom);
+   mvwprintw(my_window, max_y - 1, 2, "%s", bottom);
    wattroff(my_window, COLOR_PAIR(3));
 
    wmove(my_window, max_x - 3, 1);
