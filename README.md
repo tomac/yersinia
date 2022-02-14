@@ -3,7 +3,7 @@
 Spanning Tree
 -------------
 
-#1: DOS attack sending conf BPDUs
+# 1: DOS attack sending conf BPDUs
 
     Let's send some conf BPDUs claiming be root!!! By sending continously conf BPDU with root pathcost 0, randomly
     generated bridge id (and therefore the same root id), and some default values for other fields, we try to 
@@ -37,7 +37,7 @@ Spanning Tree
     </output>
 
 
-#2: DOS attack sending tcn BPDUs
+# 2: DOS attack sending tcn BPDUs
 
     This attack sends continously tcn BPDUs causing the root switch to send conf BPDUs acknowledging the change. 
     Besides, the root switch will send topology change notifications to the members of the tree, and they will
@@ -68,7 +68,7 @@ Spanning Tree
     </output>
 
 
-#3: NONDOS attack Claiming Root Role
+# 3: NONDOS attack Claiming Root Role
 
     Now our aim is to get the root role of the tree. How can we accomplish this issue? Just listening to the network
     to find out which one is the root role, and start sending conf BPDU with lower priority to become root.
@@ -89,12 +89,12 @@ Spanning Tree
     </output>
 
 
-#4 NONDOS attack Claiming a non-root role
+# 4 NONDOS attack Claiming a non-root role
 
    We pretend to be another weird switch playing with STP and praising our root id :)
 
 
-#5 DOS attack causing eternal root elections
+# 5 DOS attack causing eternal root elections
 
     By sending config BPDUs autodecrementing their priority, we can cause infinite root elections in the STP tree.
     It would be something similar to recount the election's votes to determine the winner (do you remember Florida?)
@@ -133,7 +133,7 @@ Spanning Tree
     </output>
 
 
-#6 DOS Attack causing root dissapearance
+# 6 DOS Attack causing root dissapearance
 
     This time we try to exhaust the root election proccess. We manage to become root in the STP tree,
     but we stop sending config BPDUs until it reaches max_age seconds (usually 20), forcing a new 
