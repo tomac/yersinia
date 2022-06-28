@@ -26,8 +26,8 @@
 #include "gtk-callbacks.h"
 #include "gtk-support.h"
 
-GtkWidget *protocols_tree[MAX_PROTOCOLS + 1];
-GtkListStore *protocols_tree_model[MAX_PROTOCOLS + 1];
+static GtkWidget *protocols_tree[MAX_PROTOCOLS + 1];
+static GtkListStore *protocols_tree_model[MAX_PROTOCOLS + 1];
 
 GtkWidget* gtk_i_create_Main (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_opendialog (struct gtk_s_helper *);
