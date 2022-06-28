@@ -47,7 +47,7 @@
 #define MAX_PAD_HEIGHT 40 
 #define MAX_PAD_WIDTH  70
 
-u_int8_t pointer[MAX_PROTOCOLS];
+static u_int8_t pointer[MAX_PROTOCOLS];
 
 void gtk_gui(void *);
 void gtk_gui_th_exit(struct term_node *);
