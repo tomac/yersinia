@@ -396,7 +396,7 @@ void   dhcp_th_dos_send_release_exit(struct attacks *);
 #define DHCP_ROGUE_DOMAIN     8
 
 static struct attack_param dhcp_rogue_server_params[] = {
-    { NULL, "Server ID",               4, FIELD_IP,  15, NULL },
+    { NULL, "Server IP",               4, FIELD_IP,  15, NULL },
     { NULL, "Start IP",                4, FIELD_IP,  15, NULL },
     { NULL, "End IP",                  4, FIELD_IP,  15, NULL },
     { NULL, "Lease Time (secs)",       4, FIELD_HEX,  8, NULL },
@@ -412,7 +412,7 @@ static struct attack_param dhcp_rogue_server_params[] = {
 #define DHCP_DOS_SEND_RELEASE_END_IP     2 
 
 static struct attack_param dhcp_dos_send_release_params[] = {
-    { NULL, "Server ID",               4, FIELD_IP,  15, NULL },
+    { NULL, "Server IP",               4, FIELD_IP,  15, NULL },
     { NULL, "Start IP",                4, FIELD_IP,  15, NULL },
     { NULL, "End IP",                  4, FIELD_IP,  15, NULL }
 };

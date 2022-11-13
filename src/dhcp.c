@@ -1381,7 +1381,9 @@ char **dhcp_get_printable_packet( struct pcap_data *data )
 
         if ( !len && type != LIBNET_DHCP_END )
         {
-            write_log(0, "Error in dhcp_get_printable: len is %d and type is %d\n", len, type);
+            write_log(1,
+                      "Unsupported option of len '%d' and type '%d'\n",
+                      len, type);
             free( buffer );
             return field_values;
         }
