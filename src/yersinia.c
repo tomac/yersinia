@@ -654,6 +654,7 @@ write_log( u_int16_t mode, char *msg, ... )
     if (mode && !tty_tmp->daemonize)
         vfprintf(stdout, msg, ap);
 
+    va_start(ap,msg);
     if ((!mode || (mode == 1)) && (tty_tmp->log_file))
        vfprintf(tty_tmp->log_file, msg,ap);
 
