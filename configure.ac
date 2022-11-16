@@ -233,12 +233,13 @@ dnl fi
 
 AC_MSG_CHECKING(if libnet is at least version 1.1.2)
 AC_TRY_RUN([
-#include<stdio.h>
-#include<libnet.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <libnet.h>
 #define HOPE_MAJOR  1
 #define HOPE_MEDIUM 1
 #define HOPE_MINOR  2
-int main()
+int main(void)
 {
   unsigned int major,medium,minor,current, desired;
   desired = HOPE_MAJOR*10000 + HOPE_MEDIUM*100 + HOPE_MINOR;
@@ -419,9 +420,9 @@ AC_CHECK_FUNCS(strerror_r, have_strerror_r=yes,have_strerror_r=no)
 if test $have_strerror_r = yes; then
 AC_MSG_CHECKING(if strerror_r is on glibc version >= 2.0)
 AC_TRY_RUN([
-#include <stdio.h>
+#include <stdlib.h>
 #include <features.h>
-int main()
+int main(void)
 {
 #if defined(__GLIBC__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 0
    exit(0);
