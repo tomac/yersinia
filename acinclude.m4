@@ -79,8 +79,10 @@ AC_DEFUN([AC_LBL_UNALIGNED_ACCESS],
 #       include <sys/types.h>
 #       include <sys/wait.h>
 #       include <stdio.h>
+#       include <stdlib.h>
+#       include <unistd.h>
         unsigned char a[[5]] = { 1, 2, 3, 4, 5 };
-        main() {
+        int main(void) {
         unsigned int i;
         pid_t pid;
         int status;
