@@ -66,7 +66,7 @@ possible_dirs="`eval echo -n ${includedir}` \
 
 AC_ARG_WITH(pcap-includes,
 [  --with-pcap-includes    specify the pcap include directory],
-[PCAP_DIR=$withval],
+[PCAP_DIR=$withval CUSTOM_PCAP=true],
 [PCAP_DIR=$possible_dirs])
 
 pcap_dir=""
@@ -92,7 +92,11 @@ else
    echo found $pcap_dir
 
    PCAP_INCLUDE="-I$pcap_dir"
-   PCAP_LINK="-L`dirname $pcap_dir`/lib"
+   if ! @<:@ -z ${CUSTOM_PCAP+x} @:>@ ; then
+      PCAP_LINK="-L$pcap_dir"
+   else
+      PCAP_LINK="-L`dirname $pcap_dir`/lib"
+   fi
 
    AC_SUBST(PCAP_INCLUDE)
    AC_SUBST(PCAP_LINK)
@@ -119,6 +123,7 @@ AC_CHECK_LIB(pcap, pcap_dump_flush,AC_DEFINE(HAVE_PCAP_DUMP_FLUSH))
 dnl Check for BSD's BPF
 disable_bpf=no
 have_bpf=no
+if @<:@ -z ${CUSTOM_PCAP+x} @:>@; then
 AC_MSG_CHECKING(for BPF device sending support)
 AC_TRY_RUN([
 #include <stdio.h>
@@ -153,6 +158,7 @@ main(int argc, char *argv[]) {
 		AC_MSG_RESULT(no)
 	fi
 	])
+fi
 
 dnl
 dnl
@@ -170,7 +176,7 @@ possible_libnet_config_dirs="/usr /usr/local /opt"
 
 AC_ARG_WITH(libnet-includes,
 [  --with-libnet-includes  specify the libnet include directory],
-[LIBNET_DIR=$withval LIBNET_CONFIG_DIR=$withval],
+[LIBNET_DIR=$withval LIBNET_CONFIG_DIR=$withval CUSTOM_LIBNET=true],
 [LIBNET_DIR=$possible_dirs LIBNET_CONFIG_DIR=$possible_libnet_config_dirs])
 
 libnet_dir=""
@@ -190,8 +196,10 @@ for dir in $LIBNET_DIR ; do
 done
 
 for dir in $LIBNET_CONFIG_DIR ; do
-    if test -d $dir -a -r "$dir/bin/libnet-config" ; then
+    if @<:@ -f "$dir/bin/libnet-config" @:>@ ; then
        libnet_config_dir="$dir/bin"
+    else
+       libnet_config_dir=`dirname $dir`
     fi
 done
 
@@ -203,7 +211,11 @@ else
 
 dnl libnet headers are usually in /usr/include/libnet, so we need a ..
    LIBNET_INCLUDE="-I$libnet_dir"
-   LIBNET_LINK="-L`dirname $libnet_dir`/lib"
+   if ! @<:@ -z ${CUSTOM_LIBNET+x} @:>@; then
+      LIBNET_LINK="-L`dirname $libnet_dir`"
+   else
+      LIBNET_LINK="-L`dirname $libnet_dir`/lib"
+   fi
    LIBNET_CONFIG="$libnet_config_dir/libnet-config"
 
    AC_SUBST(LIBNET_INCLUDE)
@@ -231,6 +243,7 @@ dnl   AC_MSG_WARN(Ouch!! You need to install the libnet.h file in order to compi
 dnl   AC_MSG_ERROR(...i'm sure you'll take the right decision.)
 dnl fi
 
+if @<:@ -z ${CUSTOM_LIBNET+x} @:>@; then
 AC_MSG_CHECKING(if libnet is at least version 1.1.2)
 AC_TRY_RUN([
 #include <stdlib.h>
@@ -257,7 +270,7 @@ if test $have_libnet = no; then
   AC_MSG_WARN(Ouch!! At least Libnet library version 1.1.2 is needed in order to compile Yersinia!!...)
   AC_MSG_ERROR(...i'm sure you'll take the right decision.)
 fi
-
+fi
 
 
 dnl
