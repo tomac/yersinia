@@ -419,17 +419,18 @@ static struct attack_param dhcp_dos_send_release_params[] = {
 
 #define DHCP_ATTACK_SEND_RAW           0
 #define DHCP_ATTACK_DOS_SEND_DISCOVER  1
-#define DHCP_ATTACK_ROGUE_SERVER       2
-#define DHCP_ATTACK_DOS_SEND_RELEASE   3
+#define DHCP_ATTACK_SEND_DECLINE       2
+#define DHCP_ATTACK_ROGUE_SERVER       3
+#define DHCP_ATTACK_DOS_SEND_RELEASE   4
 
 static struct _attack_definition dhcp_attack[] = {
   { DHCP_ATTACK_SEND_RAW,          "sending RAW packet",        NONDOS, SINGLE,    dhcp_th_send_raw,      NULL, 0 },
 /*  { DHCP_ATTACK_SEND_DISCOVER,     "sending DISCOVER packet",   NONDOS, dhcp_th_send_discover, NULL, 0 },*/
   { DHCP_ATTACK_DOS_SEND_DISCOVER, "sending DISCOVER packet",   DOS,    CONTINOUS, dhcp_th_dos_send_discover,NULL, 0 },
 /*  { DHCP_ATTACK_SEND_OFFER,        "sending OFFER packet",      NONDOS, dhcp_th_send_offer,    NULL, 0 },
-  { DHCP_ATTACK_SEND_REQUEST,      "sending REQUEST packet",    NONDOS, dhcp_th_send_request,  NULL, 0 },
-  { DHCP_ATTACK_SEND_DECLINE,      "sending DECLINE packet",    NONDOS, dhcp_th_send_decline,  NULL, 0 },
-  { DHCP_ATTACK_SEND_INFORM,       "sending INFORM packet",     NONDOS, dhcp_th_send_inform,   NULL, 0 },*/
+  { DHCP_ATTACK_SEND_REQUEST,      "sending REQUEST packet",    NONDOS, dhcp_th_send_request,  NULL, 0 },*/
+  { DHCP_ATTACK_SEND_DECLINE,      "sending DECLINE packet",    NONDOS, SINGLE, dhcp_th_send_decline,  NULL, 0 },
+  /*{ DHCP_ATTACK_SEND_INFORM,       "sending INFORM packet",     NONDOS, dhcp_th_send_inform,   NULL, 0 },*/
   { DHCP_ATTACK_ROGUE_SERVER,      "creating DHCP rogue server",NONDOS, CONTINOUS, dhcp_th_rogue_server,  dhcp_rogue_server_params,
                                                 SIZE_ARRAY(dhcp_rogue_server_params) },
   { DHCP_ATTACK_DOS_SEND_RELEASE,  "sending RELEASE packet",    DOS,    CONTINOUS, dhcp_th_dos_send_release, dhcp_dos_send_release_params,
