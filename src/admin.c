@@ -310,8 +310,9 @@ admin_th_listen_exit(struct sockaddr *cliaddr, int sock)
  * Thread to communicate with peer
  */
 void *
-admin_th_network_peer(void *sock)
+admin_th_network_peer(void *sock_ptr)
 {
+   int32_t sock = *(int32_t *)sock_ptr;
    int16_t  n, bytes, i, fail, quantum;
    int ret;
    socklen_t len;
@@ -910,7 +911,7 @@ admin_th_network_peer(void *sock)
  * Release resources and delete acquired terminal...
  */
 void
-admin_th_network_peer_exit(struct term_node *term_node, int sock)
+admin_th_network_peer_exit(struct term_node *term_node, int32_t sock)
 {
    dlist_t *p;
    struct interface_data *iface_data;
