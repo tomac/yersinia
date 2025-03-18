@@ -23,8 +23,9 @@ If the sources have been obtained from the CVS/SVN repository you will need the
 autotools and automake packages. Autoconf must be at least version 2.52 and 
 automake must be at least version 1.6.
 
-To install Yersinia:
+To install Yersinia on Kali Linux 2024 'Everything' install:
 
+sudo apt update && sudo apt upgrade && sudo apt install autoconf automake autotools-dev libnet1-dev libgtk2.0-dev libpcap-dev
 ./autogen.sh
 ./configure
 make

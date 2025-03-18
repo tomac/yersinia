@@ -232,7 +232,7 @@ admin_th_listen(void *arg)
           else
           {
               write_log(0,"\n Connection accepted for %s\n", inet_ntoa(*ip_addr));
-              if ( pthread_create( &tid, NULL, &admin_th_network_peer, (void *)sock2 ) < 0)
+              if (pthread_create(&tid, NULL, &admin_th_network_peer, (void *)(intptr_t)sock2) < 0)
               {
                  n=errno;   
                  thread_error("pthread_create admin_th_listen",n);
@@ -330,13 +330,13 @@ admin_th_network_peer(void *sock)
    if (pthread_mutex_lock(&terms->mutex) != 0)
       thread_error("th_network_peer pthread_mutex_lock",errno);
 
-   fail = term_add_node(&term_node, TERM_VTY, sock, pthread_self());
+   fail = term_add_node(&term_node, TERM_VTY, (int32_t)(intptr_t)sock, pthread_self());
 
    if (fail == -1)
    {
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_network_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, sock);
+      admin_th_network_peer_exit(term_node, (int)(intptr_t)sock);
    }
     
    if (term_node == NULL)
@@ -346,7 +346,7 @@ admin_th_network_peer(void *sock)
       
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_network_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, sock);
+      admin_th_network_peer_exit(term_node, (int)(intptr_t)sock);
    }
 
    pthread_mutex_lock(&term_node->thread.finished);
@@ -377,14 +377,14 @@ admin_th_network_peer(void *sock)
       thread_error("getpeername",errno);
       if (pthread_mutex_unlock(&terms->mutex) != 0)
          thread_error("th_vty_peer pthread_mutex_unlock",errno);
-      admin_th_network_peer_exit(term_node, sock);
+      admin_th_network_peer_exit(term_node, (int)(intptr_t)sock);
    }
 
     if (init_attribs(term_node) < 0)
     {
        if (pthread_mutex_unlock(&terms->mutex) != 0)
            thread_error("th_vty_peer pthread_mutex_unlock",errno);
-       admin_th_network_peer_exit(term_node, sock);
+       admin_th_network_peer_exit(term_node, (int)(intptr_t)sock);
     }                               
    
    term_node->from_port = ntohs(name.sin_port);
