@@ -927,7 +927,7 @@ handle_signals_parent( void )
  * POSIX functions for signals 
  */
 int 
-posix_signal( int signo, void (*handler)() )
+posix_signal( int signo, void (*handler)(int) )
 {
     struct sigaction act;
 
