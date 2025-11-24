@@ -1458,8 +1458,8 @@ vtp_load_values(struct pcap_data *data, void *values)
        case VTP_REQUEST:
             aux_short = (u_int16_t *)ptr;
 #ifdef LBL_ALIGN
-            memcpy((void *)&aux_short2, (void *)aux_short, 4);
-            vtp->start_val = ntohs(aux_short2);
+            memcpy((void *)aux_short2, (void *)aux_short, 4);
+            vtp->start_val = ntohs(*aux_short2);
 #else
             vtp->start_val = ntohs(*aux_short);
 #endif            
