@@ -402,7 +402,32 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    gtk_widget_show (toolbar_clear_img);
    toolbar_clear = (GtkWidget*) gtk_menu_tool_button_new (toolbar_clear_img, _("Clear stats"));
    gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(toolbar_clear), tooltips, ("Clear ALL packet statistics"), NULL);
-   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(toolbar_clear), menu_actions_clear_menu);
+   /* Create a separate menu for the toolbar to avoid the warning */
+   GtkWidget *toolbar_clear_menu = gtk_menu_new();
+   
+   /* Copy the menu items to the toolbar menu */
+   for (i = 0; i < MAX_PROTOCOLS; i++)
+   {
+      GtkWidget *toolbar_clear_proto = gtk_menu_item_new_with_mnemonic (_(protocols[i].namep));
+      gtk_widget_set_name(toolbar_clear_proto, protocols[i].namep);
+      if (protocols[i].visible)
+         gtk_widget_show (toolbar_clear_proto);
+      gtk_container_add (GTK_CONTAINER (toolbar_clear_menu), toolbar_clear_proto);
+      g_signal_connect ((gpointer) toolbar_clear_proto, "activate",
+            G_CALLBACK (gtk_c_on_actions_clear_activate),
+            helper);
+   }
+   
+   /* Add "All protocols" option */
+   GtkWidget *toolbar_clear_all = gtk_menu_item_new_with_mnemonic (_("All protocols"));
+   gtk_widget_set_name(toolbar_clear_all, "ALL");
+   gtk_widget_show (toolbar_clear_all);
+   gtk_container_add (GTK_CONTAINER (toolbar_clear_menu), toolbar_clear_all);
+   g_signal_connect ((gpointer) toolbar_clear_all, "activate",
+         G_CALLBACK (gtk_c_on_actions_clear_activate),
+         helper);
+   
+   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(toolbar_clear), toolbar_clear_menu);
    gtk_widget_show (toolbar_clear);
    gtk_container_add (GTK_CONTAINER (toolbar), toolbar_clear);
 
@@ -411,7 +436,32 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    gtk_widget_show (toolbar_capture_img);
    toolbar_capture = (GtkWidget*) gtk_menu_tool_button_new (toolbar_capture_img, _("Capture"));
    gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(toolbar_capture), tooltips, ("Capture traffic in PCAP format"), NULL);
-   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(toolbar_capture), menu_capture_menu);
+   /* Create a separate menu for the toolbar to avoid the warning */
+   GtkWidget *toolbar_capture_menu = gtk_menu_new();
+   
+   /* Copy the capture menu items to the toolbar menu */
+   for (i = 0; i < MAX_PROTOCOLS; i++)
+   {
+      GtkWidget *toolbar_capture_proto = gtk_menu_item_new_with_mnemonic (_(protocols[i].namep));
+      gtk_widget_set_name(toolbar_capture_proto, protocols[i].namep);
+      if (protocols[i].visible)
+         gtk_widget_show (toolbar_capture_proto);
+      gtk_container_add (GTK_CONTAINER (toolbar_capture_menu), toolbar_capture_proto);
+      g_signal_connect ((gpointer) toolbar_capture_proto, "activate",
+            G_CALLBACK (gtk_c_on_capture_activate),
+            helper);
+   }
+   
+   /* Add "All protocols" option */
+   GtkWidget *toolbar_capture_all = gtk_menu_item_new_with_mnemonic (_("All protocols"));
+   gtk_widget_set_name(toolbar_capture_all, "ALL");
+   gtk_widget_show (toolbar_capture_all);
+   gtk_container_add (GTK_CONTAINER (toolbar_capture_menu), toolbar_capture_all);
+   g_signal_connect ((gpointer) toolbar_capture_all, "activate",
+         G_CALLBACK (gtk_c_on_capture_activate),
+         helper);
+   
+   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(toolbar_capture), toolbar_capture_menu);
    gtk_widget_show (toolbar_capture);
    gtk_container_add (GTK_CONTAINER (toolbar), toolbar_capture);
 
@@ -480,6 +530,11 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    column = gtk_tree_view_column_new_with_attributes ("Packets", cell2, "text", 1, NULL);
    gtk_tree_view_append_column (GTK_TREE_VIEW (main_vhvs_tree), GTK_TREE_VIEW_COLUMN (column));
 
+   /* Connect selection signal for left tree to update central tree */
+   GtkTreeSelection *left_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(main_vhvs_tree));
+   g_signal_connect(G_OBJECT(left_selection), "changed", 
+                    G_CALLBACK(gtk_c_tree_selection_changed_cb), helper);
+
    main_vhv_vbox = gtk_vbox_new (FALSE, 5);
    gtk_widget_show (main_vhv_vbox);
    gtk_paned_pack2 (GTK_PANED (main_vh_vpaned), main_vhv_vbox, TRUE, TRUE);
@@ -494,18 +549,31 @@ gtk_i_create_Main (struct gtk_s_helper *helper)
    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(main_vhvvs_tree), TRUE);
    main_vhvvs_tree_model = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
-   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (main_vhvv_scroll), main_vhvvs_tree);
+   gtk_container_add (GTK_CONTAINER (main_vhvv_scroll), main_vhvvs_tree);
    gtk_tree_view_set_model (GTK_TREE_VIEW (main_vhvvs_tree), GTK_TREE_MODEL (main_vhvvs_tree_model));
    gtk_widget_show (main_vhvvs_tree);
 
+   /* Create separate cell renderers for each column */
    cell = gtk_cell_renderer_text_new ();
-
+   g_object_set(cell, "background", "#EEEEEE", "background-set", TRUE, NULL);
+   g_object_set(cell, "foreground", "#000000", "foreground-set", TRUE, NULL);
    column = gtk_tree_view_column_new_with_attributes ("Field", cell, "text", 0, NULL);
    gtk_tree_view_append_column (GTK_TREE_VIEW (main_vhvvs_tree), GTK_TREE_VIEW_COLUMN (column));
+   
+   cell = gtk_cell_renderer_text_new ();
+   g_object_set(cell, "background", "#FFFFFF", "background-set", TRUE, NULL);
+   g_object_set(cell, "foreground", "#000000", "foreground-set", TRUE, NULL);
    column = gtk_tree_view_column_new_with_attributes ("Value", cell, "text", 1, NULL);
    gtk_tree_view_append_column (GTK_TREE_VIEW (main_vhvvs_tree), GTK_TREE_VIEW_COLUMN (column));
+   
+   cell = gtk_cell_renderer_text_new ();
+   g_object_set(cell, "background", "#ADD8E6", "background-set", TRUE, NULL);
+   g_object_set(cell, "foreground", "#000000", "foreground-set", TRUE, NULL);
    column = gtk_tree_view_column_new_with_attributes ("Description", cell, "text", 2, NULL);
    gtk_tree_view_append_column (GTK_TREE_VIEW (main_vhvvs_tree), GTK_TREE_VIEW_COLUMN (column));
+
+   /* Force column headers to be visible */
+   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(main_vhvvs_tree), TRUE);
 
    main_vhvv_eventbox = gtk_event_box_new();
    gtk_widget_set_size_request (main_vhvv_eventbox, 20, 20);
@@ -1561,6 +1629,21 @@ GtkWidget *gtk_i_create_attackparamsdialog( GTK_ATTACK_PARAMS_CONTEXT *params_ct
     return main_dialog;
 }
 
+/* Protocol TreeView access functions */
+GtkWidget* gtk_i_get_protocol_tree(int protocol_index) {
+    if (protocol_index < 0 || protocol_index >= MAX_PROTOCOLS) {
+        return NULL;
+    }
+    return protocols_tree[protocol_index];
+}
+
+GtkListStore* gtk_i_get_protocol_tree_model(int protocol_index) {
+    if (protocol_index < 0 || protocol_index >= MAX_PROTOCOLS) {
+        return NULL;
+    }
+    return protocols_tree_model[protocol_index];
+}
+
 
 GtkWidget*
 create_protocol_mwindow(GtkWidget *Main, struct gtk_s_helper *helper, u_int8_t proto)
@@ -1619,7 +1702,6 @@ create_protocol_mwindow(GtkWidget *Main, struct gtk_s_helper *helper, u_int8_t p
    gtk_widget_set_size_request (scroll, 250, 250);
    gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scroll), protocols_tree[proto]);
    gtk_tree_view_set_model (GTK_TREE_VIEW(protocols_tree[proto]), GTK_TREE_MODEL(protocols_tree_model[proto]));
-   g_object_unref(protocols_tree_model[proto]);
    gtk_widget_show (protocols_tree[proto]);
 
    cell = gtk_cell_renderer_text_new ();

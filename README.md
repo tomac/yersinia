@@ -1,5 +1,26 @@
 [![Build Status](https://travis-ci.org/tomac/yersinia.svg?branch=master)](https://travis-ci.org/tomac/yersinia)
 
+How to Install
+-------------
+
+Clone this repo inside `/opt/yersinia`.
+Install the dependencies:
+```
+sudo apt install autoconf libgtk-3-dev libnet1-dev libgtk2.0-dev libpcap-dev -y
+```
+Then go inside `/opt/yersinia` and execute:
+```
+./autogen.sh
+./configure --with-gtk        # flag required to compile with GUI support
+make
+make install
+```
+
+And that's it, you can now start it with:
+```
+yersinia -G
+```
+
 Spanning Tree
 -------------
 

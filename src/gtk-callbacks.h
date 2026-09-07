@@ -68,7 +68,7 @@ void gtk_c_attackparams_ok_click( GtkWidget *, gpointer );
 gboolean gtk_c_attackparams_delete_event( GtkWidget *, GdkEvent *, gpointer );
 void gtk_c_update_hexview(GtkTreeSelection *, gpointer);
 void gtk_c_clock_update(GtkWidget *);
-void gtk_c_tree_update(GtkWidget *);
+void gtk_c_tree_update( GtkListStore * );
 void gtk_c_refresh_mwindow_notebook(GtkNotebook *, GtkNotebookPage *, guint,  gpointer);
 gboolean gtk_c_refresh_mwindow(gpointer);
 void gtk_c_tree_selection_changed_cb (GtkTreeSelection *, gpointer);

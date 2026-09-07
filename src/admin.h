@@ -5,6 +5,8 @@
  * By David Barroso <tomac@yersinia.net> and Alfredo Andres <aandreswork@hotmail.com>
  * Copyright 2005-2017 Alfredo Andres and David Barroso
  *
+ * << Code amended by Nicolae Mercore - 11.2024 >>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -48,7 +50,7 @@ extern int8_t bin_data[];
 /* Extern functions...*/
 extern void   write_log( u_int16_t mode, char *msg, ... );
 extern int8_t attack_kill_th(struct term_node *, pthread_t);
-extern int8_t term_add_node(struct term_node **, int8_t, int32_t, pthread_t);
+extern int8_t term_add_node(struct term_node **, int8_t, int, pthread_t);
 extern int8_t term_write(struct term_node *, char *, u_int16_t);
 extern void   term_delete_all(void);
 extern void   term_delete_node(struct term_node *, int8_t);

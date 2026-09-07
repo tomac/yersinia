@@ -103,7 +103,7 @@ parser_initial(struct term_tty *tty, struct cl_args *cl_args, int argc, char **a
        if (!strcmp(argv[i],"-h") || !strcmp(argv[i],"--help"))
        {
           parser_help();
-          break;
+          return -1;
        }
        else
        if (!strcmp(argv[i],"-V") || !strcmp(argv[i],"--Version"))

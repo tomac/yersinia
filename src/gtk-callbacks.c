@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 
 #include "gtk-callbacks.h"
+#include "gtk-interface.h"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -765,12 +766,17 @@ gtk_c_clock_update(GtkWidget *clock)
 
 
 void
-gtk_c_tree_update( GtkWidget *tree_model )
+gtk_c_tree_update( GtkListStore *tree_model )
 {
     u_int8_t i, j;
     GtkTreeIter iter;
     GtkTreePath *path;
     char tmp[3];
+
+    if (!GTK_IS_LIST_STORE(tree_model)) {
+        write_log(0, "Error: tree_model is not a valid GtkListStore\n");
+        return;
+    }
 
     j = 0;
     for( i=0; i < MAX_PROTOCOLS; i++ )
@@ -782,8 +788,9 @@ gtk_c_tree_update( GtkWidget *tree_model )
           path = gtk_tree_path_new_from_string( tmp );
           if ( path )
           {
-              gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path );
-              gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 1, protocols[i].packets, -1 );
+              if (gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path )) {
+                  gtk_list_store_set( tree_model, &iter, 1, protocols[i].packets, -1 );
+              }
               gtk_tree_path_free( path );
           }
           j++;
@@ -794,8 +801,9 @@ gtk_c_tree_update( GtkWidget *tree_model )
     path = gtk_tree_path_new_from_string( tmp );
     if ( path )
     {
-        gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path );
-        gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 1, packet_stats.global_counter.total_packets, -1 );
+        if (gtk_tree_model_get_iter( GTK_TREE_MODEL( tree_model ), &iter, path )) {
+            gtk_list_store_set( tree_model, &iter, 1, packet_stats.global_counter.total_packets, -1 );
+        }
         gtk_tree_path_free( path );
     }
 }
@@ -840,14 +848,28 @@ gtk_c_refresh_mwindow(gpointer userdata)
    values = NULL;
 
    /* Check if it is Yersinia log */
-   if ( ! helper->mode || ( helper->mode >= MAX_PROTOCOLS ) ) 
+   if ( ! helper->mode || ( helper->mode >= MAX_PROTOCOLS ) ) {
       return TRUE;
+   }
+
+   /* Get the protocol tree using access function */
+   GtkWidget *protocol_tree = gtk_i_get_protocol_tree(helper->mode);
+   if (!protocol_tree || !GTK_IS_TREE_VIEW(protocol_tree)) {
+      return TRUE;
+   }
 
    params = protocols[helper->mode].parameters;
    extra_params = protocols[helper->mode].extra_parameters;
 
-   if ((tree_model = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(protocols_tree[helper->mode])))) == NULL)
+   if ((tree_model = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(protocol_tree)))) == NULL) {
       write_log(0, "Error in gtk_tree_view_get_model\n");
+      return TRUE;
+   }
+
+   if (!GTK_IS_LIST_STORE(tree_model)) {
+      write_log(0, "Error: tree_model is not a valid GtkListStore\n");
+      return TRUE;
+   }
 
    valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(tree_model), &iter);
 
@@ -971,6 +993,21 @@ gtk_c_refresh_mwindow(gpointer userdata)
       }
    }
 
+   /* Auto-select first row with data to trigger detail display */
+   if (helper->mode < MAX_PROTOCOLS && protocols[helper->mode].stats[0].header->ts.tv_sec > 0) {
+      GtkWidget *protocol_tree = gtk_i_get_protocol_tree(helper->mode);
+      if (protocol_tree) {
+         GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(protocol_tree));
+         if (selection) {
+            GtkTreePath *path = gtk_tree_path_new_from_string("0");
+            if (path) {
+               gtk_tree_selection_select_path(selection, path);
+               gtk_tree_path_free(path);
+            }
+         }
+      }
+   }
+
    return TRUE;
 }
 
@@ -979,99 +1016,56 @@ void gtk_c_tree_selection_changed_cb( GtkTreeSelection *selection, gpointer user
 {
     GtkTreeIter iter;
     GtkTreeModel *model;
-    GtkWidget *tree;
-    GtkListStore *tree_model;
-    u_int8_t row = 0;
-    u_int8_t j, k, mode;
-    char **values = NULL, *ptrtlv;
-    struct commands_param *params;
+    char *protocol_name = NULL;
+    int protocol_index = -1;
     struct gtk_s_helper *helper = (struct gtk_s_helper *) userdata;
 
-    if ( gtk_tree_selection_get_selected( selection, &model, &iter ) )
-        gtk_tree_model_get(model, &iter, 0, &row, -1);
-
-    mode = gtk_notebook_get_current_page(GTK_NOTEBOOK(helper->notebook));
-    params = (struct commands_param *)protocols[mode].parameters;
-
-    if ( protocols[mode].stats[row].header->ts.tv_sec <= 0) 
-    {
-        /* write_log(0, "Ohhh no hay paquetes del modo %d, fila %d :(\n", mode, row); */
+    /* Basic validation */
+    if (!helper) {
         return;
     }
 
-    tree = lookup_widget(GTK_WIDGET(helper->notebook), "main_vhvvs_tree");
-
-    if ((tree_model = (GtkListStore *)gtk_tree_view_get_model(GTK_TREE_VIEW(tree))) == NULL)
-    {
-        write_log(0, "Error in gtk_tree_view_get_model\n");
+    if (!selection) {
         return;
     }
 
-    gtk_list_store_clear(tree_model);
+    if (!gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        return;
+    }
 
-    if (protocols[mode].get_printable_packet)
-    {
-        values = (*protocols[mode].get_printable_packet)(&protocols[mode].stats[row]);
+    /* Get the protocol name from the first column */
+    gtk_tree_model_get(model, &iter, 0, &protocol_name, -1);
+    
+    if (!protocol_name) {
+        return;
+    }
+
+    /* Find the protocol index */
+    for (int i = 0; i < MAX_PROTOCOLS; i++) {
+        if (protocols[i].visible && protocols[i].namep && 
+            strcmp(protocols[i].namep, protocol_name) == 0) {
+            protocol_index = i;
+            break;
+        }
+    }
+
+    if (protocol_index == -1) {
+        g_free(protocol_name);
+        return;
+    }
+
+    /* Switch to the corresponding notebook tab */
+    if (helper->notebook) {
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(helper->notebook), protocol_index);
         
-        if ( ! values )
-        {
-            write_log(0, "Error in get_printable_packet (mode %d)\n", mode);
-            return ;
-        }
-    }
-    else 
-    {
-        write_log(0, "Warning: there is no get_printable_packet for protocol %d\n", mode);
-        return ;
+        /* Update helper->mode to match the new tab */
+        helper->mode = protocol_index;
+        
+        /* Refresh the TreeView for this protocol to show packet data */
+        gtk_c_refresh_mwindow(helper);
     }
 
-    j = 0;
-    k = 0;
-
-    /* Normal parameters (-2 for the interface and defaults) */
-    while (j < protocols[mode].nparams)
-    {
-        if ((params[j].type != FIELD_IFACE) && (params[j].type != FIELD_DEFAULT) && (params[j].type != FIELD_EXTRA))
-        {
-            gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
-            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, params[j].ldesc, -1);
-            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, values[k], -1);
-            if (params[j].meaning)
-                gtk_list_store_set( GTK_LIST_STORE( tree_model ), &iter, 2, parser_get_meaning( values[k], params[j].meaning ), -1 );
-            k++;
-        }
-        j++;
-    }
-
-    ptrtlv = values[k];
-    if (protocols[mode].extra_nparams > 0)
-    {
-        while( ptrtlv && strlen( ptrtlv ) )
-        {
-            gtk_list_store_append(GTK_LIST_STORE(tree_model), &iter);
-            gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 0, ptrtlv, -1);
-            ptrtlv += strlen( ptrtlv ) + 1;
-            if (ptrtlv) 
-            {
-                gtk_list_store_set(GTK_LIST_STORE(tree_model), &iter, 1, ptrtlv, -1);
-                ptrtlv += strlen( ptrtlv ) + 1;
-            }
-        }
-    }
-
-    gtk_list_store_append (GTK_LIST_STORE (tree_model), &iter);
-    gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 0, "Interface", -1); 
-    gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter, 1, protocols[mode].stats[row].iface, -1); 
-
-    k = 0;
-
-    while( values[k] )
-    {
-        free((void *)values[k]);
-        k++;
-    }
-
-    free(values);
+    g_free(protocol_name);
 }
 
 

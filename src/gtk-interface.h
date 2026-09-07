@@ -29,6 +29,10 @@
 static GtkWidget *protocols_tree[MAX_PROTOCOLS + 1];
 static GtkListStore *protocols_tree_model[MAX_PROTOCOLS + 1];
 
+/* Protocol TreeView access functions */
+GtkWidget* gtk_i_get_protocol_tree(int protocol_index);
+GtkListStore* gtk_i_get_protocol_tree_model(int protocol_index);
+
 GtkWidget* gtk_i_create_Main (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_opendialog (struct gtk_s_helper *);
 GtkWidget* gtk_i_create_savedialog (struct gtk_s_helper *);
