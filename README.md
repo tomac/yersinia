@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/tomac/yersinia.svg?branch=master)](https://travis-ci.org/tomac/yersinia)
+# Installation
+
+Run the `sudo ./build.sh` script for compiling.
+
 
 Spanning Tree
 -------------
